@@ -9,11 +9,16 @@ import App from '../src/App';
 import { importBatch, releaseAssets } from '../src/core/png';
 import { downloadPng, exportPng } from '../src/core/export';
 import { drawProof } from '../src/core/proof';
+import { decodeProject, encodeProject } from '../src/core/project';
+import { downloadBlob } from '../src/core/download';
+import { INITIAL_DOCUMENT } from '../src/core/types';
 import type { NamedAsset } from '../src/core/types';
 
 vi.mock('../src/core/png', async original => ({ ...await original<object>(), importBatch: vi.fn(), releaseAssets: vi.fn() }));
 vi.mock('../src/core/export', () => ({ exportPng: vi.fn(), downloadPng: vi.fn(), documentFingerprint: JSON.stringify }));
 vi.mock('../src/core/proof', () => ({ drawProof: vi.fn() }));
+vi.mock('../src/core/project', async original => ({ ...await original<object>(), decodeProject: vi.fn(), encodeProject: vi.fn() }));
+vi.mock('../src/core/download', () => ({ downloadBlob: vi.fn() }));
 // Real canvas/gesture integration is exercised by Playwright, not a fake jsdom canvas.
 vi.mock('../src/components/Workspace', () => ({ Workspace: () => <div /> }));
 let studio: Studio, root: Root, host: HTMLDivElement;
@@ -27,7 +32,7 @@ beforeEach(async () => {
   await act(async () => { root.render(<Harness />); });
   act(() => studio.onSize({ width: 800, height: 600 }));
 });
-afterEach(async () => { await act(async () => root.unmount()); host.remove(); vi.unstubAllGlobals(); });
+afterEach(async () => { await act(async () => root.unmount()); host.remove(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 async function importAndInsert() {
   await act(async () => studio.onFiles([new File([], 'motif.png')]));
   act(() => studio.insert(asset));
@@ -133,7 +138,7 @@ it('wires the real app importer, source removal, placement inspector and verifie
   vi.mocked(exportPng).mockImplementation(async doc => ({ blob: new Blob(), width: doc.W, height: doc.H, fingerprint: JSON.stringify(doc) }));
   await act(async () => root.render(<App />));
   expect(host.textContent).toContain('No source images');
-  const input = host.querySelector<HTMLInputElement>('input[type=file]')!;
+  const input = host.querySelector<HTMLInputElement>('[data-testid="png-input"]')!;
   Object.defineProperty(input, 'files', { value: [new File([], 'motif.png')] });
   await act(async () => { input.dispatchEvent(new Event('change', { bubbles: true })); });
   const remove = () => host.querySelector<HTMLButtonElement>('[aria-label="Remove source motif"]')!;
@@ -144,4 +149,57 @@ it('wires the real app importer, source removal, placement inspector and verifie
   await act(async () => host.querySelector<HTMLButtonElement>('.export-panel-button')!.click());
   expect(host.textContent).toContain('Decoded PNG · dimensions verified');
   expect(downloadPng).toHaveBeenCalledOnce();
+});
+
+it('project save/open tracks unsaved work, confirms replacement, locks edits and resets history only on success', async () => {
+  await importAndInsert();
+  expect(studio.dirty).toBe(true);
+  vi.mocked(encodeProject).mockResolvedValueOnce(new Blob());
+  await act(async () => studio.saveProject());
+  expect(downloadBlob).toHaveBeenCalledWith(expect.any(Blob), 'Untitled.selvedge');
+  expect(studio.dirty).toBe(false);
+  act(() => studio.commitSettings({ W: 900 }));
+  const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+  await act(async () => studio.openProject(new File([], 'next.selvedge')));
+  expect(confirm).toHaveBeenCalledOnce(); expect(decodeProject).not.toHaveBeenCalled();
+  confirm.mockReturnValue(true);
+  let finish!: (value: Awaited<ReturnType<typeof decodeProject>>) => void;
+  vi.mocked(decodeProject).mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+  let pending!: Promise<void>;
+  act(() => { pending = studio.openProject(new File([], 'next.selvedge')); });
+  expect(studio.projectBusy).toBe(true);
+  act(() => { expect(studio.commitSettings({ W: 700 })).toBe(false); studio.action('delete'); studio.removeAsset(asset.id); });
+  const importCount = vi.mocked(importBatch).mock.calls.length;
+  await act(async () => studio.onFiles([new File([], 'late.png')]));
+  expect(importBatch).toHaveBeenCalledTimes(importCount);
+  expect(studio.assets).toEqual([asset]);
+  const doc = { ...INITIAL_DOCUMENT, W: 420, background: null };
+  const sources = [{ ...asset, id: 'new' }];
+  await act(async () => { finish({ doc, assets: sources, budget: { count: 1, pixels: 64, bytes: 24 } }); await pending; });
+  expect(studio.history).toEqual({ past: [], present: doc, future: [], baseline: null });
+  expect(studio.assets).toEqual(sources); expect(releaseAssets).toHaveBeenCalledWith([asset]);
+  expect(studio.selection).toBeNull(); expect(studio.result).toBeNull();
+  expect(studio.projectName).toBe('next'); expect(studio.dirty).toBe(false); expect(studio.projectBusy).toBe(false);
+});
+
+it('failed project operations preserve the session and late project decoding releases sources after unmount', async () => {
+  await importAndInsert();
+  const before = studio.history, selected = studio.selection;
+  vi.mocked(encodeProject).mockRejectedValueOnce(new Error('Read failed'));
+  await act(async () => studio.saveProject());
+  expect(studio.dirty).toBe(true); expect(downloadBlob).not.toHaveBeenCalled();
+  vi.spyOn(window, 'confirm').mockReturnValue(true);
+  vi.mocked(decodeProject).mockRejectedValueOnce(new Error('Bad project'));
+  await act(async () => studio.openProject(new File([], 'broken.selvedge')));
+  expect(studio.history).toBe(before); expect(studio.selection).toBe(selected);
+  expect(studio.assets).toEqual([asset]); expect(studio.error).toContain('Bad project');
+  expect(studio.projectBusy).toBe(false); expect(releaseAssets).not.toHaveBeenCalled();
+  let finish!: (value: Awaited<ReturnType<typeof decodeProject>>) => void;
+  vi.mocked(decodeProject).mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+  let pending!: Promise<void>;
+  act(() => { pending = studio.openProject(new File([], 'late.selvedge')); });
+  await act(async () => root.unmount()); root = createRoot(host);
+  const sources = [{ ...asset, id: 'late' }];
+  await act(async () => { finish({ doc: INITIAL_DOCUMENT, assets: sources, budget: { count: 1, pixels: 64, bytes: 24 } }); await pending; });
+  expect(releaseAssets).toHaveBeenCalledWith(sources);
 });

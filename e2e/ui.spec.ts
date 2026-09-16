@@ -3,6 +3,36 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
 const state = (page: Page) => page.evaluate(() => window.__studio!.state());
+test('credits stay visible and the GitHub icon is an accessible, working repository link', async ({ page }) => {
+  await page.goto('/');
+  const footer = page.getByRole('contentinfo');
+  const year = await page.evaluate(() => new Date().getFullYear());
+  await expect(footer).toContainText(`© ${year} Adam Owada`);
+  await expect(footer).toContainText('Made with love for my sister Aubrey');
+  const github = footer.getByRole('link', { name: 'View Selvedge Repeat on GitHub (opens in a new tab)' });
+  await expect(github).toHaveAttribute('href', 'https://github.com/adamowada/selvedge-repeat-studio');
+  await expect(github).toHaveAttribute('rel', 'noopener noreferrer');
+  for (const size of [{ width: 900, height: 540 }, { width: 1480, height: 980 }]) {
+    await page.setViewportSize(size);
+    await expect(footer).toBeInViewport();
+    expect(await footer.evaluate(node => node.scrollWidth <= node.clientWidth)).toBe(true);
+    const footerTop = (await footer.boundingBox())!.y;
+    for (const selector of ['.asset-section', '.placement-section', '.workspace', '.output-sidebar']) {
+      const box = (await page.locator(selector).boundingBox())!;
+      expect(box.y + box.height).toBeLessThanOrEqual(footerTop + 1);
+    }
+  }
+  // Exercise keyboard activation without depending on GitHub's network response.
+  await page.context().route('https://github.com/adamowada/selvedge-repeat-studio', route => route.fulfill({ body: 'Repository' }));
+  await github.focus();
+  await expect(github).toBeFocused();
+  const popup = page.waitForEvent('popup');
+  await page.keyboard.press('Enter');
+  const repository = await popup;
+  await expect(repository).toHaveURL('https://github.com/adamowada/selvedge-repeat-studio');
+  await repository.close();
+});
+
 async function demo(page: Page) {
   await page.goto('/');
   await page.getByRole('button', { name: 'Start with demo', exact: true }).click();

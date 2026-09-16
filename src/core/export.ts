@@ -3,6 +3,7 @@ import type { Stage } from 'konva/lib/Stage';
 import { enumerateCopies, outputSize, padBounds, validateDocument } from './geometry';
 import { imageProps } from './transforms';
 import { MAX_SIDE, type AssetMap, type RepeatDocument } from './types';
+import { downloadBlob } from './download';
 
 export interface ExportResult { blob: Blob; width: number; height: number; fingerprint: string }
 export const documentFingerprint = (doc: RepeatDocument) => JSON.stringify(doc);
@@ -58,16 +59,5 @@ export async function exportPng(doc: RepeatDocument, assets: AssetMap): Promise<
 }
 
 export function downloadPng(result: ExportResult) {
-  const url = URL.createObjectURL(result.blob);
-  const a = document.createElement('a');
-  try {
-    a.href = url;
-    a.download = `selvedge-${result.width}x${result.height}.png`;
-    document.body.append(a);
-    a.click();
-  } finally {
-    a.remove();
-    // Give the browser's download task time to consume the URL, then release it.
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
+  downloadBlob(result.blob, `selvedge-${result.width}x${result.height}.png`);
 }

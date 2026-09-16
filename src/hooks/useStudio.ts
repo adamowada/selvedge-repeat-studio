@@ -3,7 +3,9 @@ import type Konva from 'konva';
 import { navigateCamera, preflightCamera, recoverCamera } from '../core/camera';
 import { changePlacement, cleanSelection, reorderPlacement } from '../core/document';
 import { downloadPng, exportPng, type ExportResult } from '../core/export';
-import { enumerateCopies, validateDocument } from '../core/geometry';
+import { CopyLimitError, enumerateCopies, validateDocument } from '../core/geometry';
+import { downloadBlob } from '../core/download';
+import { decodeProject, encodeProject, projectFingerprint } from '../core/project';
 import { createImportBudget, DEMO_FILES, demoFiles, importBatch, releaseAssets } from '../core/png';
 import { fitCamera, imageProps, placementFromNode, screenToModel, viewportBounds, zoomAt } from '../core/transforms';
 import { INITIAL_DOCUMENT, sameCopy, type DocumentSettings, type Camera, type Copy, type CopyKey, type NamedAsset, type Point, type Placement, type RepeatDocument } from '../core/types';
@@ -27,10 +29,16 @@ export function useStudio() {
   const [error, setError] = useState<string | null>(null);
   const [importErrors, setImportErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState(0);
+  const pendingImports = useRef(0);
+  const [projectBusy, setProjectBusy] = useState(false);
+  const [projectName, setProjectName] = useState('Untitled');
+  const [savedSnapshot, setSavedSnapshot] = useState(() => projectFingerprint(INITIAL_DOCUMENT, []));
+  const snapshot = useMemo(() => projectFingerprint(history.present, assets), [history.present, assets]);
+  const dirty = snapshot !== savedSnapshot;
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
   const [result, setResult] = useState<ExportResult | null>(null);
-  const exportingRef = useRef(false);
+  const operationRef = useRef<'export' | 'open' | 'save' | null>(null);
   const mounted = useRef(true);
   const demoIds = useRef(new Map<string, string>());
   const demoLoading = useRef(false);
@@ -65,7 +73,7 @@ export function useStudio() {
   };
   const tryDocument = (next: RepeatDocument, preview = false) => {
     try {
-      if (exportingRef.current) return false;
+      if (operationRef.current) return false;
       // An unrelated commit must not consume a live drag/resize/nudge baseline.
       if (!preview && historyRef.current.baseline !== null) return false;
       if (preview && historyRef.current.baseline === null) return false;
@@ -84,14 +92,14 @@ export function useStudio() {
   ].flatMap(doc => doc.placements.map(p => p.assetId))), [history]);
   const removeAsset = (id: string) => {
     const h = historyRef.current;
-    if (exportingRef.current || h.baseline || [...h.past, h.present, ...h.future].some(doc => doc.placements.some(p => p.assetId === id))) return;
+    if (operationRef.current || h.baseline || [...h.past, h.present, ...h.future].some(doc => doc.placements.some(p => p.assetId === id))) return;
     releaseAssets(assetsRef.current.filter(a => a.id === id));
     assetsRef.current = assetsRef.current.filter(a => a.id !== id);
     for (const [name, assetId] of demoIds.current) if (assetId === id) demoIds.current.delete(name);
     setAssets(assetsRef.current);
   };
   const selectCopy = (copy: CopyKey | null) => {
-    if (pinRef.current || exportingRef.current) return;
+    if (pinRef.current || operationRef.current) return;
     endNudge();
     setSelection(copy);
   };
@@ -117,17 +125,18 @@ export function useStudio() {
     setAssets(assetsRef.current);
   };
   const onFiles = async (files: File[]) => {
-    if (!files.length) return;
+    if (!files.length || operationRef.current === 'open' || operationRef.current === 'save') return;
+    pendingImports.current++;
     setLoading(n => n + 1);
     try {
       const imported = await importBatch(files, importBudget.current);
       addAssets(imported.assets);
       if (mounted.current) setImportErrors(errors => [...errors, ...imported.errors]);
     } catch (e) { if (mounted.current) setImportErrors(errors => [...errors, message(e)]); }
-    finally { if (mounted.current) setLoading(n => n - 1); }
+    finally { pendingImports.current--; if (mounted.current) setLoading(n => n - 1); }
   };
   const insert = (asset: NamedAsset) => {
-    if (historyRef.current.baseline || exportingRef.current) return;
+    if (historyRef.current.baseline || operationRef.current) return;
     const doc = historyRef.current.present;
     const viewport = sizeRef.current;
     const center = screenToModel({ x: viewport.width / 2, y: viewport.height / 2 }, cameraRef.current);
@@ -137,7 +146,7 @@ export function useStudio() {
     focusRef.current?.focus();
   };
   const addDemo = async () => {
-    if (demoLoading.current || historyRef.current.baseline || exportingRef.current) return;
+    if (demoLoading.current || historyRef.current.baseline || operationRef.current) return;
     demoLoading.current = true; setLoading(n => n + 1);
     try {
       const missing = DEMO_FILES.filter(name => !demoIds.current.has(name));
@@ -150,7 +159,7 @@ export function useStudio() {
       if (!mounted.current) return;
       // Loading does not lock editing. Recheck after the async boundary, before
       // insertion, selection, Fit or focus can interrupt a newer operation.
-      if (historyRef.current.baseline !== null || exportingRef.current) {
+      if (historyRef.current.baseline !== null || operationRef.current) {
         setError('Demo images are ready in Source images. Finish the current edit or export, then click Demo to place them.');
         return;
       }
@@ -169,7 +178,7 @@ export function useStudio() {
     finally { demoLoading.current = false; if (mounted.current) setLoading(n => n - 1); }
   };
   const selectPlacement = (id: string) => {
-    if (historyRef.current.baseline || exportingRef.current) return;
+    if (historyRef.current.baseline || operationRef.current) return;
     const doc = historyRef.current.present;
     const p = doc.placements.find(p => p.id === id);
     if (!p) return;
@@ -184,7 +193,7 @@ export function useStudio() {
     focusRef.current?.focus();
   };
   const begin = (copy: Copy) => {
-    if (exportingRef.current) return false;
+    if (operationRef.current) return false;
     if (pinRef.current) return sameCopy(pinRef.current, copy);
     endNudge();
     pinRef.current = copy; setPin(copy); setSelection(copy);
@@ -206,7 +215,7 @@ export function useStudio() {
   };
   function endNudge() { if (nudgeActive.current) { send({ type: 'end' }); nudgeActive.current = false; } }
   const nudge = (dx: number, dy: number) => {
-    if (pinRef.current || exportingRef.current) return;
+    if (pinRef.current || operationRef.current) return;
     const doc = historyRef.current.present;
     const p = doc.placements.find(p => p.id === selectionRef.current?.id);
     if (!p) return;
@@ -214,7 +223,7 @@ export function useStudio() {
     tryDocument(changePlacement(doc, p.id, { x: p.x + dx, y: p.y + dy }), true);
   };
   const action = (action: EditAction) => {
-    if (pinRef.current || exportingRef.current) return;
+    if (pinRef.current || operationRef.current) return;
     endNudge();
     if (action === 'undo' || action === 'redo') {
       send({ type: action });
@@ -237,8 +246,8 @@ export function useStudio() {
     } else { tryDocument(reorderPlacement(doc, p.id, action)); }
   };
   const doExport = async () => {
-    if (exportingRef.current || historyRef.current.baseline) return;
-    exportingRef.current = true; setExporting(true); setExportError(null);
+    if (operationRef.current || historyRef.current.baseline) return;
+    operationRef.current = 'export'; setExporting(true); setExportError(null);
     try {
       const exported = await exportPng(historyRef.current.present, currentAssets());
       if (mounted.current) {
@@ -248,8 +257,56 @@ export function useStudio() {
         setResult(exported);
       }
     } catch (e) { if (mounted.current) setExportError(message(e)); }
-    finally { exportingRef.current = false; if (mounted.current) setExporting(false); }
+    finally { operationRef.current = null; if (mounted.current) setExporting(false); }
   };
+  const canStartProject = () => !operationRef.current && !pendingImports.current && !demoLoading.current && !historyRef.current.baseline;
+  const saveProject = async () => {
+    if (!canStartProject()) return;
+    operationRef.current = 'save'; setProjectBusy(true); setError(null);
+    const doc = historyRef.current.present, sources = assetsRef.current;
+    try {
+      const blob = await encodeProject(doc, sources);
+      if (mounted.current) {
+        downloadBlob(blob, `${projectName}.selvedge`);
+        setSavedSnapshot(projectFingerprint(doc, sources));
+      }
+    } catch (e) { if (mounted.current) setError(`Could not save project: ${message(e)}`); }
+    finally { operationRef.current = null; if (mounted.current) setProjectBusy(false); }
+  };
+  const openProject = async (file: File) => {
+    if (!canStartProject()) return;
+    if (projectFingerprint(historyRef.current.present, assetsRef.current) !== savedSnapshot &&
+      !window.confirm('Open this project and discard unsaved changes? Save your current project first if you want to keep it.')) return;
+    operationRef.current = 'open'; setProjectBusy(true); setError(null);
+    let opened: Awaited<ReturnType<typeof decodeProject>> | undefined;
+    try {
+      opened = await decodeProject(file);
+      if (!mounted.current) return;
+      const { doc, assets: sources, budget } = opened;
+      let nextCamera = fitCamera(doc, sizeRef.current.width, sizeRef.current.height), viewError: string | null = null;
+      try { nextCamera = recoverCamera(doc, new Map(sources.map(a => [a.id, a])), nextCamera, sizeRef.current); }
+      catch (e) { if (!(e instanceof CopyLimitError)) throw e; viewError = message(e); }
+      // Ownership changes only after every source and document have validated.
+      const previous = assetsRef.current;
+      assetsRef.current = sources; importBudget.current = budget; setAssets(sources);
+      send({ type: 'reset', value: doc }); setSelection(null); storeCamera(nextCamera);
+      demoIds.current.clear(); setImportErrors([]); setExportError(null); setResult(null); setError(viewError);
+      setProjectName(file.name.replace(/\.selvedge$/i, '') || 'Untitled');
+      setSavedSnapshot(projectFingerprint(doc, sources));
+      opened = undefined;
+      releaseAssets(previous);
+    } catch (e) { if (mounted.current) setError(`Could not open project: ${message(e)}`); }
+    finally {
+      if (opened) releaseAssets(opened.assets);
+      operationRef.current = null; if (mounted.current) setProjectBusy(false);
+    }
+  };
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ''; };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [dirty]);
   useEffect(() => {
     const valid = cleanSelection(history.present, selectionRef.current);
     if (valid !== selectionRef.current) setSelection(valid);
@@ -258,7 +315,7 @@ export function useStudio() {
     mounted.current = true;
     return () => { mounted.current = false; releaseAssets(assetsRef.current); };
   }, []);
-  return { history, historyRef, assets, assetsRef, assetMap, selection, setSelection, pin, camera, size, error, setError, importErrors, setImportErrors, loading, exporting, exportError, result, focusRef, stageRef,
+  return { history, historyRef, assets, assetsRef, assetMap, selection, setSelection, pin, camera, size, error, setError, importErrors, setImportErrors, loading, exporting, exportError, result, focusRef, stageRef, projectBusy, projectName, dirty, saveProject, openProject,
     tryDocument, commitSettings, commitTransform, retainedAssets, removeAsset, selectCopy, tryCamera, zoom, panBy, onSize, fit, onFiles, insert, addDemo, selectPlacement, begin, onNode, end, nudge, endNudge, action, doExport, onStage };
 }
 export type Studio = ReturnType<typeof useStudio>;

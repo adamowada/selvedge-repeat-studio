@@ -1,7 +1,7 @@
 export const HISTORY_LIMIT = 50;
 export interface History<T> { past: T[]; present: T; future: T[]; baseline: T | null }
 export type HistoryAction<T> =
-  | { type: 'commit'; value: T } | { type: 'preview'; value: T }
+  | { type: 'commit'; value: T } | { type: 'preview'; value: T } | { type: 'reset'; value: T }
   | { type: 'begin' | 'end' | 'cancel' | 'undo' | 'redo' };
 export const initialHistory = <T,>(value: T): History<T> => ({ past: [], present: value, future: [], baseline: null });
 const equal = <T,>(a: T, b: T) => JSON.stringify(a) === JSON.stringify(b);
@@ -11,6 +11,7 @@ function committed<T>(state: History<T>, before: T, after: T): History<T> {
 }
 export function historyReducer<T>(state: History<T>, action: HistoryAction<T>): History<T> {
   switch (action.type) {
+    case 'reset': return initialHistory(action.value);
     case 'begin': return state.baseline === null ? { ...state, baseline: state.present } : state;
     case 'preview': return state.baseline === null ? state : { ...state, present: action.value };
     case 'end': return state.baseline === null ? state : committed(state, state.baseline, state.present);

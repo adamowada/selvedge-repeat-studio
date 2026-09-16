@@ -33,7 +33,7 @@ export const padBounds = (b: Bounds, margin: number): Bounds => ({
 export function outputSize(doc: Pick<RepeatDocument, 'W' | 'H' | 'mode'>) {
   return { width: doc.W * (doc.mode === 'half-drop' ? 2 : 1), height: doc.H * (doc.mode === 'brick' ? 2 : 1) };
 }
-export function validateDocument(doc: RepeatDocument, assets: AssetMap): void {
+export function validateDocument(doc: RepeatDocument, assets: ReadonlyMap<string, Pick<Asset, 'nativeW' | 'nativeH'>>): void {
   if (!Number.isInteger(doc.W) || !Number.isInteger(doc.H) || doc.W < 1 || doc.H < 1 || doc.W > MAX_SIDE || doc.H > MAX_SIDE) {
     throw new Error(`Cell width and height must be whole pixels from 1 to ${MAX_SIDE}.`);
   }

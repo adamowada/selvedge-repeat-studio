@@ -1,6 +1,6 @@
 # Selvedge Repeat
 
-A local desktop-browser compositor for PNG repeat patterns, built with React, TypeScript and Konva. No backend, account or external runtime service. **Refreshing or closing the tab clears all work.**
+A local desktop-browser compositor for PNG repeat patterns, built with React, TypeScript and Konva. No backend, account or external runtime service. **Save a project file before closing the tab to keep your work.**
 
 ## Run
 
@@ -34,6 +34,14 @@ Shortcuts apply only inside the workspace, not form fields. Mod means Ctrl on Wi
 
 Each continuous gesture records one undo step. History retains 50 snapshots; new edits clear redo. Camera, selection and source images are separate from document history.
 
+## Save and resume
+
+**Save project** downloads an editable `.selvedge` file containing the pattern settings, exact placement transforms and stacking order, and every original PNG (including unused sources). **Open project** restores it without needing the original files. Saving downloads a new copy; it does not overwrite the file you opened. Export PNG remains the separate, flattened output.
+
+The header marks unsaved changes, and opening another project asks before discarding them. Files are fully validated and decoded before replacing the current session; a failed open leaves your pattern intact. Opening fits the view and starts fresh undo history with no selection or export proof. There is no autosave; keep the downloaded file to resume later.
+
+The version-1 format is a standard ZIP with `project.json` and `assets/<index>.png`, using STORE entries (no extra compression of already-compressed PNGs). Metadata is limited to 1 MiB; the existing source-count, byte and pixel limits also apply. Unknown versions, unexpected entries, compressed entries and invalid image/document data are rejected. Archive handling uses fflate, not a custom ZIP implementation.
+
 ## Limits and resource handling
 
 PNG sources and output sides are limited to 4096 pixels. A session can retain at most 64 sources, 32 × 1024² decoded pixels (128 MiB of raw RGBA pixels), and 64 MiB of source PNG bytes. Browser overhead and temporary export surfaces use additional memory. Concurrent imports share the same budget; failed decodes release their reservation.
@@ -44,7 +52,7 @@ Each render allows at most 2000 motif copies, checked before allocation; excess 
 
 Straight exports W × H; Half-drop exports 2W × H; Brick exports W × 2H. Export uses pixel ratio 1 and excludes camera transforms and editor guides. Output is browser-canvas PNG, with no DPI/CMYK or production-color guarantees.
 
-The desktop layout requires at least 900 × 540 pixels. Mobile, persistent saving and cross-browser/accessibility conformance are not claimed.
+The desktop layout requires at least 900 × 540 pixels. Mobile and cross-browser/accessibility conformance are not claimed.
 
 ## Verify
 
