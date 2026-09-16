@@ -1,4 +1,5 @@
 import type { Asset, Camera, Copy, Placement, Point, RepeatDocument, Bounds } from './types';
+import type Konva from 'konva';
 
 export const MIN_ZOOM = 0.02;
 export const MAX_ZOOM = 8;
@@ -26,6 +27,15 @@ export function imageProps(p: Placement, asset: Asset, copy: Pick<Copy, 'tx' | '
     x: p.x + copy.tx, y: p.y + copy.ty, rotation: p.deg,
     scaleX: p.s * (p.flipX ? -1 : 1), scaleY: p.s * (p.flipY ? -1 : 1),
     perfectDrawEnabled: false,
+    sceneFunc: asset.contentBounds ? (context: Konva.Context, shape: Konva.Shape) => {
+      const { x, y, width, height } = asset.contentBounds!;
+      if (!width || !height) return;
+      // Downsampling filters can reach beyond a one-pixel transparent margin.
+      // Preserve native-image sampling there; crop only when drawing at >=1:1.
+      const scale = shape.getAbsoluteScale();
+      if (Math.min(Math.abs(scale.x), Math.abs(scale.y)) < 1) context.drawImage(asset.image, 0, 0, asset.nativeW, asset.nativeH);
+      else context.drawImage(asset.image, x, y, width, height, x, y, width, height);
+    } : undefined,
   };
 }
 export interface NodeTransform { x: number; y: number; scaleX: number; scaleY: number; rotation: number }

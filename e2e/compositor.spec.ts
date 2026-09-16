@@ -124,7 +124,7 @@ for (const mode of ['straight', 'half-drop', 'brick'] as Mode[]) {
     const original = { ...first };
     const host = await hostOrigin(page);
     const size = (await state(page)).size;
-    const pointer = { x: size.width * .65, y: size.height * .48 };
+    const pointer = { x: Math.floor(size.width * .65), y: Math.floor(size.height * .48) };
     const preZoom = (await state(page)).camera;
     const modelUnderPointer = { x: (pointer.x - preZoom.x) / preZoom.z, y: (pointer.y - preZoom.y) / preZoom.z };
     await page.mouse.move(host.x + pointer.x, host.y + pointer.y);

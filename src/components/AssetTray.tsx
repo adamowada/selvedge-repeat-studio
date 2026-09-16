@@ -14,8 +14,10 @@ interface Props {
   onInsert: (asset: NamedAsset) => void;
   onSelect: (id: string) => void;
   clearErrors: () => void;
+  retainedAssets: ReadonlySet<string>;
+  onRemove: (id: string) => void;
 }
-export function AssetTray({ assets, placements, selected, loading, busy, errors, onFiles, onInsert, onSelect, clearErrors }: Props) {
+export function AssetTray({ assets, placements, selected, loading, busy, errors, onFiles, onInsert, onSelect, clearErrors, retainedAssets, onRemove }: Props) {
   const input = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
   const compact = assets.length > 0;
@@ -32,7 +34,7 @@ export function AssetTray({ assets, placements, selected, loading, busy, errors,
       </button>
       <input ref={input} data-testid="png-input" type="file" accept=".png,image/png" multiple hidden
         onChange={e => { onFiles(Array.from(e.target.files ?? [])); e.target.value = ''; }} />
-      <p className="source-note">Native pixels + alpha · up to 4096 px/side</p>
+      <p className="source-note" title="Up to 64 sources, 32 megapixels and 64 MiB of PNG files per session">Native pixels + alpha · up to 4096 px/side</p>
       <div className="source-content">
         {!!errors.length && <div className="import-errors" role="alert">
           <div className="message-heading"><Icon name="alert" size={16} /><strong>Some files were not imported</strong>
@@ -40,12 +42,21 @@ export function AssetTray({ assets, placements, selected, loading, busy, errors,
           <div className="import-error-list">{errors.map((error, i) => <p key={i}>{error}</p>)}</div>
         </div>}
         <div className="asset-list">
-          {assets.map(asset => <button key={asset.id} className="asset-card" data-testid="asset-card" aria-label={`Place ${asset.name}`}
+          {assets.map(asset => <div className="asset-row" key={asset.id}><button className="asset-card" data-testid="asset-card" aria-label={`Place ${asset.name}`}
             title={`${asset.name} · ${asset.nativeW} × ${asset.nativeH} px`} disabled={busy} onClick={() => onInsert(asset)}>
             <span className="asset-thumbnail checker"><img src={asset.image.src} alt="" draggable={false} /></span>
             <span className="asset-text"><strong>{asset.name}</strong><span>{asset.nativeW} × {asset.nativeH} px</span></span>
-            <span className="asset-place" aria-hidden="true"><Icon name="plus" size={16} /></span>
-          </button>)}
+          </button><div className="asset-actions">
+            <span className="small-note" id={`source-status-${asset.id}`}>
+              {placements.some(p => p.assetId === asset.id) ? 'In use' : retainedAssets.has(asset.id) ? 'Kept for undo / redo' : 'Not placed'}
+            </span>
+            <button className="text-button remove-source" aria-label={`Remove source ${asset.name}`} aria-describedby={`source-status-${asset.id}`}
+              disabled={busy || retainedAssets.has(asset.id)}
+              title={retainedAssets.has(asset.id) ? 'Cannot remove a source referenced by placements or undo/redo history.' : 'Remove this PNG from the session'}
+              onClick={() => {
+                if (window.confirm(`Remove “${asset.name}” from Source images?\n\nThis cannot be undone. Your original PNG file on disk will not be deleted.`)) onRemove(asset.id);
+              }}><Icon name="trash" size={14} />Remove</button>
+          </div></div>)}
           {!assets.length && <div className="empty-assets"><strong>No source images</strong><p>Drop PNGs above or add the demo.</p></div>}
         </div>
       </div>

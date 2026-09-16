@@ -47,6 +47,7 @@ export default function App() {
     <main className="studio-layout">
       <AssetTray assets={s.assets} placements={doc.placements} selected={s.selection?.id} loading={!!s.loading} busy={busy}
         errors={s.importErrors} onFiles={files => void s.onFiles(files)} onInsert={s.insert} onSelect={s.selectPlacement}
+        retainedAssets={s.retainedAssets} onRemove={s.removeAsset}
         clearErrors={() => s.setImportErrors([])} />
       <Workspace doc={doc} assets={s.assetMap} camera={s.camera} selection={s.selection} selectedName={selectedAsset?.name}
         pin={s.pin} size={s.size} busy={busy} error={s.error} focusRef={s.focusRef} inspect={inspect}
@@ -55,6 +56,7 @@ export default function App() {
         onEnd={s.end} onAction={s.action} onNudge={s.nudge} onNudgeEnd={s.endNudge} onFit={s.fit}
         clearError={() => s.setError(null)} onStage={s.onStage} />
       <OutputPanel doc={doc} selected={selected} asset={selectedAsset} result={s.result} busy={busy}
+        onTransform={s.commitTransform}
         exporting={s.exporting} error={s.exportError} onExport={() => void s.doExport()} />
     </main>
   </div>;

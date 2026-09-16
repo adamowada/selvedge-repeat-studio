@@ -9,12 +9,13 @@ import { ProofPanel } from './ProofPanel';
 interface Props {
   doc: RepeatDocument; selected?: Placement; asset?: NamedAsset; result: ExportResult | null;
   busy: boolean; exporting: boolean; error: string | null; onExport: () => void;
+  onTransform: (id: string, patch: Partial<Pick<Placement, 's' | 'deg'>>) => boolean;
 }
-export function OutputPanel({ doc, selected, asset, result, busy, exporting, error, onExport }: Props) {
+export function OutputPanel({ doc, selected, asset, result, busy, exporting, error, onExport, onTransform }: Props) {
   const { width, height } = outputSize(doc);
   const upscaled = doc.placements.filter(p => p.s > 1).length;
   return <aside className="output-sidebar" aria-label="Inspector and export">
-    <Inspector selected={selected} asset={asset} />
+    <Inspector selected={selected} asset={asset} busy={busy} onTransform={onTransform} />
     <section className="output-section" aria-labelledby="export-heading">
       <div className="section-heading"><h2 id="export-heading">Export</h2><span className="section-meta">PNG</span></div>
       <div className="output-summary">

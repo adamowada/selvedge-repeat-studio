@@ -1,4 +1,5 @@
-import Konva from 'konva';
+import Konva from './konva';
+import type { Stage } from 'konva/lib/Stage';
 import { enumerateCopies, outputSize, padBounds, validateDocument } from './geometry';
 import { imageProps } from './transforms';
 import { MAX_SIDE, type AssetMap, type RepeatDocument } from './types';
@@ -20,7 +21,7 @@ export async function renderPixels(doc: RepeatDocument, assets: AssetMap, width:
   const byId = new Map(doc.placements.map(p => [p.id, p]));
   // Preflight above is complete before any surface or node allocation.
   const container = document.createElement('div');
-  let stage: Konva.Stage | undefined;
+  let stage: Stage | undefined;
   let canvas: HTMLCanvasElement | undefined;
   const ratio = Konva.pixelRatio;
   try {

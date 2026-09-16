@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react';
-import { Group, Image as KonvaImage, Layer, Line, Rect, Stage, Text, Transformer } from 'react-konva';
-import Konva from 'konva';
+import { Group, Image as KonvaImage, Layer, Line, Rect, Stage, Text, Transformer } from 'react-konva/lib/ReactKonvaCore';
+import type Konva from 'konva';
+import '../core/konva';
 import { recoverCamera, renderViewBounds, type ViewSize } from '../core/camera';
 import { enumerateCopies, lattice } from '../core/geometry';
 import { fitCamera, imageProps } from '../core/transforms';

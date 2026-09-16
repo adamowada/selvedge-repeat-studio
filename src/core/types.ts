@@ -5,8 +5,9 @@ export interface Asset {
   image: HTMLImageElement;
   nativeW: number;
   nativeH: number;
+  contentBounds?: { x: number; y: number; width: number; height: number };
 }
-export interface NamedAsset extends Asset { name: string }
+export interface NamedAsset extends Asset { name: string; dispose?: () => void }
 export interface Placement {
   id: string;
   assetId: string;

@@ -3,8 +3,8 @@ import type Konva from 'konva';
 import { navigateCamera, preflightCamera, recoverCamera } from '../core/camera';
 import { changePlacement, cleanSelection, reorderPlacement } from '../core/document';
 import { downloadPng, exportPng, type ExportResult } from '../core/export';
-import { enumerateCopies, outputSize, padBounds, preflightCopies, validateDocument } from '../core/geometry';
-import { demoFiles, importBatch, releaseAssets } from '../core/png';
+import { enumerateCopies, validateDocument } from '../core/geometry';
+import { createImportBudget, DEMO_FILES, demoFiles, importBatch, releaseAssets } from '../core/png';
 import { fitCamera, imageProps, placementFromNode, screenToModel, viewportBounds, zoomAt } from '../core/transforms';
 import { INITIAL_DOCUMENT, sameCopy, type DocumentSettings, type Camera, type Copy, type CopyKey, type NamedAsset, type Point, type Placement, type RepeatDocument } from '../core/types';
 import type { EditAction, Size } from '../components/Workspace';
@@ -14,6 +14,7 @@ export function useStudio() {
   const { history, ref: historyRef, send } = useHistory(INITIAL_DOCUMENT);
   const [assets, setAssets] = useState<NamedAsset[]>([]);
   const assetsRef = useRef<NamedAsset[]>([]);
+  const importBudget = useRef(createImportBudget());
   const assetMap = useMemo(() => new Map(assets.map(a => [a.id, a])), [assets]);
   const [selection, select] = useState<CopyKey | null>(null);
   const selectionRef = useRef<CopyKey | null>(null);
@@ -31,7 +32,7 @@ export function useStudio() {
   const [result, setResult] = useState<ExportResult | null>(null);
   const exportingRef = useRef(false);
   const mounted = useRef(true);
-  const demoIds = useRef<string[]>([]);
+  const demoIds = useRef(new Map<string, string>());
   const demoLoading = useRef(false);
   const nudgeActive = useRef(false);
   const focusRef = useRef<HTMLDivElement>(null);
@@ -76,6 +77,19 @@ export function useStudio() {
   };
   const commitSettings = (patch: Partial<DocumentSettings>) =>
     tryDocument({ ...historyRef.current.present, ...patch });
+  const commitTransform = (id: string, patch: Partial<Pick<Placement, 's' | 'deg'>>) =>
+    tryDocument(changePlacement(historyRef.current.present, id, patch));
+  const retainedAssets = useMemo(() => new Set([
+    ...history.past, history.present, ...history.future, ...(history.baseline ? [history.baseline] : []),
+  ].flatMap(doc => doc.placements.map(p => p.assetId))), [history]);
+  const removeAsset = (id: string) => {
+    const h = historyRef.current;
+    if (exportingRef.current || h.baseline || [...h.past, h.present, ...h.future].some(doc => doc.placements.some(p => p.assetId === id))) return;
+    releaseAssets(assetsRef.current.filter(a => a.id === id));
+    assetsRef.current = assetsRef.current.filter(a => a.id !== id);
+    for (const [name, assetId] of demoIds.current) if (assetId === id) demoIds.current.delete(name);
+    setAssets(assetsRef.current);
+  };
   const selectCopy = (copy: CopyKey | null) => {
     if (pinRef.current || exportingRef.current) return;
     endNudge();
@@ -106,7 +120,7 @@ export function useStudio() {
     if (!files.length) return;
     setLoading(n => n + 1);
     try {
-      const imported = await importBatch(files);
+      const imported = await importBatch(files, importBudget.current);
       addAssets(imported.assets);
       if (mounted.current) setImportErrors(errors => [...errors, ...imported.errors]);
     } catch (e) { if (mounted.current) setImportErrors(errors => [...errors, message(e)]); }
@@ -126,10 +140,11 @@ export function useStudio() {
     if (demoLoading.current || historyRef.current.baseline || exportingRef.current) return;
     demoLoading.current = true; setLoading(n => n + 1);
     try {
-      if (!demoIds.current.length) {
-        const imported = await importBatch(await demoFiles());
+      const missing = DEMO_FILES.filter(name => !demoIds.current.has(name));
+      if (missing.length) {
+        const imported = await importBatch(await demoFiles(missing), importBudget.current);
         addAssets(imported.assets);
-        demoIds.current = imported.assets.map(a => a.id);
+        for (const asset of imported.assets) demoIds.current.set(`${asset.name}.png`, asset.id);
         if (mounted.current) setImportErrors(errors => [...errors, ...imported.errors]);
       }
       if (!mounted.current) return;
@@ -141,10 +156,12 @@ export function useStudio() {
       }
       const doc = historyRef.current.present;
       const positions = [[.25, .28, -12], [.73, .58, 24], [.32, .80, -18]];
-      const added = demoIds.current.map((id, i): Placement => {
+      const added = DEMO_FILES.flatMap((name, i): Placement[] => {
+        const id = demoIds.current.get(name);
+        if (!id) return [];
         const a = assetsRef.current.find(a => a.id === id)!;
-        return { id: crypto.randomUUID(), assetId: id, x: positions[i][0] * doc.W, y: positions[i][1] * doc.H,
-          s: Math.min(1, doc.W * .4 / a.nativeW, doc.H * .4 / a.nativeH), deg: positions[i][2], flipX: false, flipY: false };
+        return [{ id: crypto.randomUUID(), assetId: id, x: positions[i][0] * doc.W, y: positions[i][1] * doc.H,
+          s: Math.min(1, doc.W * .4 / a.nativeW, doc.H * .4 / a.nativeH), deg: positions[i][2], flipX: false, flipY: false }];
       });
       if (tryDocument({ ...doc, placements: [...doc.placements, ...added] })) { setSelection(null); fit(); }
       focusRef.current?.focus();
@@ -241,13 +258,7 @@ export function useStudio() {
     mounted.current = true;
     return () => { mounted.current = false; releaseAssets(assetsRef.current); };
   }, []);
-  const exportCount = (() => {
-    try {
-      const { width, height } = outputSize(history.present);
-      return preflightCopies(history.present, assetMap, padBounds({ left: 0, top: 0, right: width, bottom: height }, 1)).count;
-    } catch { return null; }
-  })();
-  return { history, historyRef, assets, assetsRef, assetMap, selection, setSelection, pin, camera, size, error, setError, importErrors, setImportErrors, loading, exporting, exportError, result, exportCount, focusRef, stageRef,
-    tryDocument, commitSettings, selectCopy, tryCamera, zoom, panBy, onSize, fit, onFiles, insert, addDemo, selectPlacement, begin, onNode, end, nudge, endNudge, action, doExport, onStage };
+  return { history, historyRef, assets, assetsRef, assetMap, selection, setSelection, pin, camera, size, error, setError, importErrors, setImportErrors, loading, exporting, exportError, result, focusRef, stageRef,
+    tryDocument, commitSettings, commitTransform, retainedAssets, removeAsset, selectCopy, tryCamera, zoom, panBy, onSize, fit, onFiles, insert, addDemo, selectPlacement, begin, onNode, end, nudge, endNudge, action, doExport, onStage };
 }
 export type Studio = ReturnType<typeof useStudio>;
