@@ -1,0 +1,5 @@
+Supplemental isolated core typecheck (environment TypeScript 5.8.3):
+$ node /usr/local/slides_js/node_modules/typescript/bin/tsc -p /mnt/data/core-check/tsconfig.json
+mnt/data/repeat-studio/src/core/png.ts(40,49): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+Exit: 2
+

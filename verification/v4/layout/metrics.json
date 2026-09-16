@@ -1,0 +1,4112 @@
+{
+  "scope": "Static source DOM/CSS; SVG scene stub, effects suppressed. Not React/Konva runtime verification.",
+  "results": [
+    {
+      "fixture": "dimensions-900x650",
+      "checks": {
+        "no_page_horizontal_overflow": true,
+        "no_page_vertical_overflow": true,
+        "no_sub_10px_text": true,
+        "no_toolbar_or_metadata_overflow": true,
+        "header_48px": true,
+        "canvas_at_least_400px_wide": true,
+        "proof_aspect_4_to_3": true,
+        "controls_remain_in_view": true
+      },
+      "metrics": {
+        "horizontalOverflow": false,
+        "verticalOverflow": false,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 900,
+          "height": 48
+        },
+        "settings": {
+          "x": 0,
+          "y": 48,
+          "width": 900,
+          "height": 91
+        },
+        "canvas": {
+          "x": 184,
+          "y": 183,
+          "width": 500,
+          "height": 435
+        },
+        "tiny": [],
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Undo",
+            "rect": {
+              "x": 740.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 772.984375,
+              "bottom": 39.5,
+              "left": 740.984375
+            }
+          },
+          {
+            "name": "Redo",
+            "rect": {
+              "x": 776.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 808.984375,
+              "bottom": 39.5,
+              "left": 776.984375
+            }
+          },
+          {
+            "name": "Add demo",
+            "rect": {
+              "x": 833.984375,
+              "y": 7.5,
+              "width": 50.015625,
+              "height": 32,
+              "top": 7.5,
+              "right": 884,
+              "bottom": 39.5,
+              "left": 833.984375
+            }
+          },
+          {
+            "name": "Cell width",
+            "rect": {
+              "x": 60,
+              "y": 57,
+              "width": 56,
+              "height": 32,
+              "top": 57,
+              "right": 116,
+              "bottom": 89,
+              "left": 60
+            }
+          },
+          {
+            "name": "Cell height",
+            "rect": {
+              "x": 143.109375,
+              "y": 57,
+              "width": 56,
+              "height": 32,
+              "top": 57,
+              "right": 199.109375,
+              "bottom": 89,
+              "left": 143.109375
+            }
+          },
+          {
+            "name": "Straight",
+            "rect": {
+              "x": 278.4375,
+              "y": 57,
+              "width": 83.359375,
+              "height": 32,
+              "top": 57,
+              "right": 361.796875,
+              "bottom": 89,
+              "left": 278.4375
+            }
+          },
+          {
+            "name": "Half-drop",
+            "rect": {
+              "x": 363.796875,
+              "y": 57,
+              "width": 91.359375,
+              "height": 32,
+              "top": 57,
+              "right": 455.15625,
+              "bottom": 89,
+              "left": 363.796875
+            }
+          },
+          {
+            "name": "Brick",
+            "rect": {
+              "x": 457.15625,
+              "y": 57,
+              "width": 68.671875,
+              "height": 32,
+              "top": 57,
+              "right": 525.828125,
+              "bottom": 89,
+              "left": 457.15625
+            }
+          },
+          {
+            "name": "Background color",
+            "rect": {
+              "x": 92.046875,
+              "y": 100,
+              "width": 28,
+              "height": 28,
+              "top": 100,
+              "right": 120.046875,
+              "bottom": 128,
+              "left": 92.046875
+            }
+          },
+          {
+            "name": "Transparent background",
+            "rect": {
+              "x": 186.046875,
+              "y": 106,
+              "width": 16,
+              "height": 16,
+              "top": 106,
+              "right": 202.046875,
+              "bottom": 122,
+              "left": 186.046875
+            }
+          },
+          {
+            "name": "Fit",
+            "rect": {
+              "x": 743.953125,
+              "y": 98,
+              "width": 55.34375,
+              "height": 32,
+              "top": 98,
+              "right": 799.296875,
+              "bottom": 130,
+              "left": 743.953125
+            }
+          },
+          {
+            "name": "Inspect",
+            "rect": {
+              "x": 803.296875,
+              "y": 98,
+              "width": 80.703125,
+              "height": 32,
+              "top": 98,
+              "right": 884,
+              "bottom": 130,
+              "left": 803.296875
+            }
+          },
+          {
+            "name": "Duplicate",
+            "rect": {
+              "x": 381.609375,
+              "y": 144.5,
+              "width": 32,
+              "height": 32,
+              "top": 144.5,
+              "right": 413.609375,
+              "bottom": 176.5,
+              "left": 381.609375
+            }
+          },
+          {
+            "name": "Flip horizontal",
+            "rect": {
+              "x": 422.609375,
+              "y": 144.5,
+              "width": 38.671875,
+              "height": 32,
+              "top": 144.5,
+              "right": 461.28125,
+              "bottom": 176.5,
+              "left": 422.609375
+            }
+          },
+          {
+            "name": "Flip vertical",
+            "rect": {
+              "x": 465.28125,
+              "y": 144.5,
+              "width": 38.015625,
+              "height": 32,
+              "top": 144.5,
+              "right": 503.296875,
+              "bottom": 176.5,
+              "left": 465.28125
+            }
+          },
+          {
+            "name": "Bring to front",
+            "rect": {
+              "x": 512.296875,
+              "y": 144.5,
+              "width": 58.015625,
+              "height": 32,
+              "top": 144.5,
+              "right": 570.3125,
+              "bottom": 176.5,
+              "left": 512.296875
+            }
+          },
+          {
+            "name": "Send to back",
+            "rect": {
+              "x": 574.3125,
+              "y": 144.5,
+              "width": 56.6875,
+              "height": 32,
+              "top": 144.5,
+              "right": 631,
+              "bottom": 176.5,
+              "left": 574.3125
+            }
+          },
+          {
+            "name": "Delete",
+            "rect": {
+              "x": 640,
+              "y": 144.5,
+              "width": 32,
+              "height": 32,
+              "top": 144.5,
+              "right": 672,
+              "bottom": 176.5,
+              "left": 640
+            }
+          }
+        ],
+        "proof": {
+          "x": 697,
+          "y": 725.984375,
+          "width": 176,
+          "height": 132
+        }
+      }
+    },
+    {
+      "fixture": "empty-1480x900",
+      "checks": {
+        "no_page_horizontal_overflow": true,
+        "no_page_vertical_overflow": true,
+        "no_sub_10px_text": true,
+        "no_toolbar_or_metadata_overflow": true,
+        "header_48px": true,
+        "canvas_at_least_400px_wide": true,
+        "proof_aspect_4_to_3": true,
+        "controls_remain_in_view": true
+      },
+      "metrics": {
+        "horizontalOverflow": false,
+        "verticalOverflow": false,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 1480,
+          "height": 48
+        },
+        "settings": {
+          "x": 0,
+          "y": 48,
+          "width": 1480,
+          "height": 52
+        },
+        "canvas": {
+          "x": 216,
+          "y": 144,
+          "width": 1032,
+          "height": 724
+        },
+        "tiny": [],
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Undo",
+            "rect": {
+              "x": 1320.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 1352.984375,
+              "bottom": 39.5,
+              "left": 1320.984375
+            }
+          },
+          {
+            "name": "Redo",
+            "rect": {
+              "x": 1356.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 1388.984375,
+              "bottom": 39.5,
+              "left": 1356.984375
+            }
+          },
+          {
+            "name": "Add demo",
+            "rect": {
+              "x": 1413.984375,
+              "y": 7.5,
+              "width": 50.015625,
+              "height": 32,
+              "top": 7.5,
+              "right": 1464,
+              "bottom": 39.5,
+              "left": 1413.984375
+            }
+          },
+          {
+            "name": "Cell width",
+            "rect": {
+              "x": 60,
+              "y": 57.5,
+              "width": 56,
+              "height": 32,
+              "top": 57.5,
+              "right": 116,
+              "bottom": 89.5,
+              "left": 60
+            }
+          },
+          {
+            "name": "Cell height",
+            "rect": {
+              "x": 143.109375,
+              "y": 57.5,
+              "width": 56,
+              "height": 32,
+              "top": 57.5,
+              "right": 199.109375,
+              "bottom": 89.5,
+              "left": 143.109375
+            }
+          },
+          {
+            "name": "Straight",
+            "rect": {
+              "x": 282.4375,
+              "y": 57.5,
+              "width": 83.359375,
+              "height": 32,
+              "top": 57.5,
+              "right": 365.796875,
+              "bottom": 89.5,
+              "left": 282.4375
+            }
+          },
+          {
+            "name": "Half-drop",
+            "rect": {
+              "x": 367.796875,
+              "y": 57.5,
+              "width": 91.359375,
+              "height": 32,
+              "top": 57.5,
+              "right": 459.15625,
+              "bottom": 89.5,
+              "left": 367.796875
+            }
+          },
+          {
+            "name": "Brick",
+            "rect": {
+              "x": 461.15625,
+              "y": 57.5,
+              "width": 68.671875,
+              "height": 32,
+              "top": 57.5,
+              "right": 529.828125,
+              "bottom": 89.5,
+              "left": 461.15625
+            }
+          },
+          {
+            "name": "Background color",
+            "rect": {
+              "x": 622.875,
+              "y": 59.5,
+              "width": 28,
+              "height": 28,
+              "top": 59.5,
+              "right": 650.875,
+              "bottom": 87.5,
+              "left": 622.875
+            }
+          },
+          {
+            "name": "Transparent background",
+            "rect": {
+              "x": 716.875,
+              "y": 65.5,
+              "width": 16,
+              "height": 16,
+              "top": 65.5,
+              "right": 732.875,
+              "bottom": 81.5,
+              "left": 716.875
+            }
+          },
+          {
+            "name": "Fit",
+            "rect": {
+              "x": 1323.953125,
+              "y": 57.5,
+              "width": 55.34375,
+              "height": 32,
+              "top": 57.5,
+              "right": 1379.296875,
+              "bottom": 89.5,
+              "left": 1323.953125
+            }
+          },
+          {
+            "name": "Inspect",
+            "rect": {
+              "x": 1383.296875,
+              "y": 57.5,
+              "width": 80.703125,
+              "height": 32,
+              "top": 57.5,
+              "right": 1464,
+              "bottom": 89.5,
+              "left": 1383.296875
+            }
+          }
+        ],
+        "proof": {
+          "x": 1261,
+          "y": 573.4375,
+          "width": 192,
+          "height": 144
+        }
+      }
+    },
+    {
+      "fixture": "errors-900x600",
+      "checks": {
+        "no_page_horizontal_overflow": true,
+        "no_page_vertical_overflow": true,
+        "no_sub_10px_text": true,
+        "no_toolbar_or_metadata_overflow": true,
+        "header_48px": true,
+        "canvas_at_least_400px_wide": true,
+        "proof_aspect_4_to_3": true,
+        "controls_remain_in_view": true
+      },
+      "metrics": {
+        "horizontalOverflow": false,
+        "verticalOverflow": false,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 900,
+          "height": 48
+        },
+        "settings": {
+          "x": 0,
+          "y": 48,
+          "width": 900,
+          "height": 91
+        },
+        "canvas": {
+          "x": 184,
+          "y": 183,
+          "width": 500,
+          "height": 385
+        },
+        "tiny": [],
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Undo",
+            "rect": {
+              "x": 740.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 772.984375,
+              "bottom": 39.5,
+              "left": 740.984375
+            }
+          },
+          {
+            "name": "Redo",
+            "rect": {
+              "x": 776.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 808.984375,
+              "bottom": 39.5,
+              "left": 776.984375
+            }
+          },
+          {
+            "name": "Add demo",
+            "rect": {
+              "x": 833.984375,
+              "y": 7.5,
+              "width": 50.015625,
+              "height": 32,
+              "top": 7.5,
+              "right": 884,
+              "bottom": 39.5,
+              "left": 833.984375
+            }
+          },
+          {
+            "name": "Cell width",
+            "rect": {
+              "x": 60,
+              "y": 57,
+              "width": 56,
+              "height": 32,
+              "top": 57,
+              "right": 116,
+              "bottom": 89,
+              "left": 60
+            }
+          },
+          {
+            "name": "Cell height",
+            "rect": {
+              "x": 143.109375,
+              "y": 57,
+              "width": 56,
+              "height": 32,
+              "top": 57,
+              "right": 199.109375,
+              "bottom": 89,
+              "left": 143.109375
+            }
+          },
+          {
+            "name": "Straight",
+            "rect": {
+              "x": 278.4375,
+              "y": 57,
+              "width": 83.359375,
+              "height": 32,
+              "top": 57,
+              "right": 361.796875,
+              "bottom": 89,
+              "left": 278.4375
+            }
+          },
+          {
+            "name": "Half-drop",
+            "rect": {
+              "x": 363.796875,
+              "y": 57,
+              "width": 91.359375,
+              "height": 32,
+              "top": 57,
+              "right": 455.15625,
+              "bottom": 89,
+              "left": 363.796875
+            }
+          },
+          {
+            "name": "Brick",
+            "rect": {
+              "x": 457.15625,
+              "y": 57,
+              "width": 68.671875,
+              "height": 32,
+              "top": 57,
+              "right": 525.828125,
+              "bottom": 89,
+              "left": 457.15625
+            }
+          },
+          {
+            "name": "Background color",
+            "rect": {
+              "x": 92.046875,
+              "y": 100,
+              "width": 28,
+              "height": 28,
+              "top": 100,
+              "right": 120.046875,
+              "bottom": 128,
+              "left": 92.046875
+            }
+          },
+          {
+            "name": "Transparent background",
+            "rect": {
+              "x": 186.046875,
+              "y": 106,
+              "width": 16,
+              "height": 16,
+              "top": 106,
+              "right": 202.046875,
+              "bottom": 122,
+              "left": 186.046875
+            }
+          },
+          {
+            "name": "Fit",
+            "rect": {
+              "x": 743.953125,
+              "y": 98,
+              "width": 55.34375,
+              "height": 32,
+              "top": 98,
+              "right": 799.296875,
+              "bottom": 130,
+              "left": 743.953125
+            }
+          },
+          {
+            "name": "Inspect",
+            "rect": {
+              "x": 803.296875,
+              "y": 98,
+              "width": 80.703125,
+              "height": 32,
+              "top": 98,
+              "right": 884,
+              "bottom": 130,
+              "left": 803.296875
+            }
+          },
+          {
+            "name": "Duplicate",
+            "rect": {
+              "x": 381.609375,
+              "y": 144.5,
+              "width": 32,
+              "height": 32,
+              "top": 144.5,
+              "right": 413.609375,
+              "bottom": 176.5,
+              "left": 381.609375
+            }
+          },
+          {
+            "name": "Flip horizontal",
+            "rect": {
+              "x": 422.609375,
+              "y": 144.5,
+              "width": 38.671875,
+              "height": 32,
+              "top": 144.5,
+              "right": 461.28125,
+              "bottom": 176.5,
+              "left": 422.609375
+            }
+          },
+          {
+            "name": "Flip vertical",
+            "rect": {
+              "x": 465.28125,
+              "y": 144.5,
+              "width": 38.015625,
+              "height": 32,
+              "top": 144.5,
+              "right": 503.296875,
+              "bottom": 176.5,
+              "left": 465.28125
+            }
+          },
+          {
+            "name": "Bring to front",
+            "rect": {
+              "x": 512.296875,
+              "y": 144.5,
+              "width": 58.015625,
+              "height": 32,
+              "top": 144.5,
+              "right": 570.3125,
+              "bottom": 176.5,
+              "left": 512.296875
+            }
+          },
+          {
+            "name": "Send to back",
+            "rect": {
+              "x": 574.3125,
+              "y": 144.5,
+              "width": 56.6875,
+              "height": 32,
+              "top": 144.5,
+              "right": 631,
+              "bottom": 176.5,
+              "left": 574.3125
+            }
+          },
+          {
+            "name": "Delete",
+            "rect": {
+              "x": 640,
+              "y": 144.5,
+              "width": 32,
+              "height": 32,
+              "top": 144.5,
+              "right": 672,
+              "bottom": 176.5,
+              "left": 640
+            }
+          }
+        ],
+        "proof": {
+          "x": 697,
+          "y": 725.984375,
+          "width": 176,
+          "height": 132
+        }
+      }
+    },
+    {
+      "fixture": "errors-960x700",
+      "checks": {
+        "no_page_horizontal_overflow": true,
+        "no_page_vertical_overflow": true,
+        "no_sub_10px_text": true,
+        "no_toolbar_or_metadata_overflow": true,
+        "header_48px": true,
+        "canvas_at_least_400px_wide": true,
+        "proof_aspect_4_to_3": true,
+        "controls_remain_in_view": true
+      },
+      "metrics": {
+        "horizontalOverflow": false,
+        "verticalOverflow": false,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 960,
+          "height": 48
+        },
+        "settings": {
+          "x": 0,
+          "y": 48,
+          "width": 960,
+          "height": 91
+        },
+        "canvas": {
+          "x": 184,
+          "y": 183,
+          "width": 560,
+          "height": 485
+        },
+        "tiny": [],
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Undo",
+            "rect": {
+              "x": 800.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 832.984375,
+              "bottom": 39.5,
+              "left": 800.984375
+            }
+          },
+          {
+            "name": "Redo",
+            "rect": {
+              "x": 836.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 868.984375,
+              "bottom": 39.5,
+              "left": 836.984375
+            }
+          },
+          {
+            "name": "Add demo",
+            "rect": {
+              "x": 893.984375,
+              "y": 7.5,
+              "width": 50.015625,
+              "height": 32,
+              "top": 7.5,
+              "right": 944,
+              "bottom": 39.5,
+              "left": 893.984375
+            }
+          },
+          {
+            "name": "Cell width",
+            "rect": {
+              "x": 60,
+              "y": 57,
+              "width": 56,
+              "height": 32,
+              "top": 57,
+              "right": 116,
+              "bottom": 89,
+              "left": 60
+            }
+          },
+          {
+            "name": "Cell height",
+            "rect": {
+              "x": 143.109375,
+              "y": 57,
+              "width": 56,
+              "height": 32,
+              "top": 57,
+              "right": 199.109375,
+              "bottom": 89,
+              "left": 143.109375
+            }
+          },
+          {
+            "name": "Straight",
+            "rect": {
+              "x": 278.4375,
+              "y": 57,
+              "width": 83.359375,
+              "height": 32,
+              "top": 57,
+              "right": 361.796875,
+              "bottom": 89,
+              "left": 278.4375
+            }
+          },
+          {
+            "name": "Half-drop",
+            "rect": {
+              "x": 363.796875,
+              "y": 57,
+              "width": 91.359375,
+              "height": 32,
+              "top": 57,
+              "right": 455.15625,
+              "bottom": 89,
+              "left": 363.796875
+            }
+          },
+          {
+            "name": "Brick",
+            "rect": {
+              "x": 457.15625,
+              "y": 57,
+              "width": 68.671875,
+              "height": 32,
+              "top": 57,
+              "right": 525.828125,
+              "bottom": 89,
+              "left": 457.15625
+            }
+          },
+          {
+            "name": "Background color",
+            "rect": {
+              "x": 92.046875,
+              "y": 100,
+              "width": 28,
+              "height": 28,
+              "top": 100,
+              "right": 120.046875,
+              "bottom": 128,
+              "left": 92.046875
+            }
+          },
+          {
+            "name": "Transparent background",
+            "rect": {
+              "x": 186.046875,
+              "y": 106,
+              "width": 16,
+              "height": 16,
+              "top": 106,
+              "right": 202.046875,
+              "bottom": 122,
+              "left": 186.046875
+            }
+          },
+          {
+            "name": "Fit",
+            "rect": {
+              "x": 803.953125,
+              "y": 98,
+              "width": 55.34375,
+              "height": 32,
+              "top": 98,
+              "right": 859.296875,
+              "bottom": 130,
+              "left": 803.953125
+            }
+          },
+          {
+            "name": "Inspect",
+            "rect": {
+              "x": 863.296875,
+              "y": 98,
+              "width": 80.703125,
+              "height": 32,
+              "top": 98,
+              "right": 944,
+              "bottom": 130,
+              "left": 863.296875
+            }
+          },
+          {
+            "name": "Duplicate",
+            "rect": {
+              "x": 441.609375,
+              "y": 144.5,
+              "width": 32,
+              "height": 32,
+              "top": 144.5,
+              "right": 473.609375,
+              "bottom": 176.5,
+              "left": 441.609375
+            }
+          },
+          {
+            "name": "Flip horizontal",
+            "rect": {
+              "x": 482.609375,
+              "y": 144.5,
+              "width": 38.671875,
+              "height": 32,
+              "top": 144.5,
+              "right": 521.28125,
+              "bottom": 176.5,
+              "left": 482.609375
+            }
+          },
+          {
+            "name": "Flip vertical",
+            "rect": {
+              "x": 525.28125,
+              "y": 144.5,
+              "width": 38.015625,
+              "height": 32,
+              "top": 144.5,
+              "right": 563.296875,
+              "bottom": 176.5,
+              "left": 525.28125
+            }
+          },
+          {
+            "name": "Bring to front",
+            "rect": {
+              "x": 572.296875,
+              "y": 144.5,
+              "width": 58.015625,
+              "height": 32,
+              "top": 144.5,
+              "right": 630.3125,
+              "bottom": 176.5,
+              "left": 572.296875
+            }
+          },
+          {
+            "name": "Send to back",
+            "rect": {
+              "x": 634.3125,
+              "y": 144.5,
+              "width": 56.6875,
+              "height": 32,
+              "top": 144.5,
+              "right": 691,
+              "bottom": 176.5,
+              "left": 634.3125
+            }
+          },
+          {
+            "name": "Delete",
+            "rect": {
+              "x": 700,
+              "y": 144.5,
+              "width": 32,
+              "height": 32,
+              "top": 144.5,
+              "right": 732,
+              "bottom": 176.5,
+              "left": 700
+            }
+          }
+        ],
+        "proof": {
+          "x": 757,
+          "y": 725.984375,
+          "width": 176,
+          "height": 132
+        }
+      }
+    },
+    {
+      "fixture": "exporting-1480x900",
+      "checks": {
+        "no_page_horizontal_overflow": true,
+        "no_page_vertical_overflow": true,
+        "no_sub_10px_text": true,
+        "no_toolbar_or_metadata_overflow": true,
+        "header_48px": true,
+        "canvas_at_least_400px_wide": true,
+        "proof_aspect_4_to_3": true,
+        "controls_remain_in_view": true
+      },
+      "metrics": {
+        "horizontalOverflow": false,
+        "verticalOverflow": false,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 1480,
+          "height": 48
+        },
+        "settings": {
+          "x": 0,
+          "y": 48,
+          "width": 1480,
+          "height": 52
+        },
+        "canvas": {
+          "x": 216,
+          "y": 144,
+          "width": 1032,
+          "height": 724
+        },
+        "tiny": [],
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Undo",
+            "rect": {
+              "x": 1320.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 1352.984375,
+              "bottom": 39.5,
+              "left": 1320.984375
+            }
+          },
+          {
+            "name": "Redo",
+            "rect": {
+              "x": 1356.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 1388.984375,
+              "bottom": 39.5,
+              "left": 1356.984375
+            }
+          },
+          {
+            "name": "Add demo",
+            "rect": {
+              "x": 1413.984375,
+              "y": 7.5,
+              "width": 50.015625,
+              "height": 32,
+              "top": 7.5,
+              "right": 1464,
+              "bottom": 39.5,
+              "left": 1413.984375
+            }
+          },
+          {
+            "name": "Cell width",
+            "rect": {
+              "x": 60,
+              "y": 57.5,
+              "width": 56,
+              "height": 32,
+              "top": 57.5,
+              "right": 116,
+              "bottom": 89.5,
+              "left": 60
+            }
+          },
+          {
+            "name": "Cell height",
+            "rect": {
+              "x": 143.109375,
+              "y": 57.5,
+              "width": 56,
+              "height": 32,
+              "top": 57.5,
+              "right": 199.109375,
+              "bottom": 89.5,
+              "left": 143.109375
+            }
+          },
+          {
+            "name": "Straight",
+            "rect": {
+              "x": 282.4375,
+              "y": 57.5,
+              "width": 83.359375,
+              "height": 32,
+              "top": 57.5,
+              "right": 365.796875,
+              "bottom": 89.5,
+              "left": 282.4375
+            }
+          },
+          {
+            "name": "Half-drop",
+            "rect": {
+              "x": 367.796875,
+              "y": 57.5,
+              "width": 91.359375,
+              "height": 32,
+              "top": 57.5,
+              "right": 459.15625,
+              "bottom": 89.5,
+              "left": 367.796875
+            }
+          },
+          {
+            "name": "Brick",
+            "rect": {
+              "x": 461.15625,
+              "y": 57.5,
+              "width": 68.671875,
+              "height": 32,
+              "top": 57.5,
+              "right": 529.828125,
+              "bottom": 89.5,
+              "left": 461.15625
+            }
+          },
+          {
+            "name": "Background color",
+            "rect": {
+              "x": 622.875,
+              "y": 59.5,
+              "width": 28,
+              "height": 28,
+              "top": 59.5,
+              "right": 650.875,
+              "bottom": 87.5,
+              "left": 622.875
+            }
+          },
+          {
+            "name": "Transparent background",
+            "rect": {
+              "x": 716.875,
+              "y": 65.5,
+              "width": 16,
+              "height": 16,
+              "top": 65.5,
+              "right": 732.875,
+              "bottom": 81.5,
+              "left": 716.875
+            }
+          },
+          {
+            "name": "Fit",
+            "rect": {
+              "x": 1323.953125,
+              "y": 57.5,
+              "width": 55.34375,
+              "height": 32,
+              "top": 57.5,
+              "right": 1379.296875,
+              "bottom": 89.5,
+              "left": 1323.953125
+            }
+          },
+          {
+            "name": "Inspect",
+            "rect": {
+              "x": 1383.296875,
+              "y": 57.5,
+              "width": 80.703125,
+              "height": 32,
+              "top": 57.5,
+              "right": 1464,
+              "bottom": 89.5,
+              "left": 1383.296875
+            }
+          },
+          {
+            "name": "Duplicate",
+            "rect": {
+              "x": 747.546875,
+              "y": 105.5,
+              "width": 88.03125,
+              "height": 32,
+              "top": 105.5,
+              "right": 835.578125,
+              "bottom": 137.5,
+              "left": 747.546875
+            }
+          },
+          {
+            "name": "Flip horizontal",
+            "rect": {
+              "x": 852.578125,
+              "y": 105.5,
+              "width": 69.34375,
+              "height": 32,
+              "top": 105.5,
+              "right": 921.921875,
+              "bottom": 137.5,
+              "left": 852.578125
+            }
+          },
+          {
+            "name": "Flip vertical",
+            "rect": {
+              "x": 925.921875,
+              "y": 105.5,
+              "width": 68.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 994.609375,
+              "bottom": 137.5,
+              "left": 925.921875
+            }
+          },
+          {
+            "name": "Bring to front",
+            "rect": {
+              "x": 1011.609375,
+              "y": 105.5,
+              "width": 66.015625,
+              "height": 32,
+              "top": 105.5,
+              "right": 1077.625,
+              "bottom": 137.5,
+              "left": 1011.609375
+            }
+          },
+          {
+            "name": "Send to back",
+            "rect": {
+              "x": 1081.625,
+              "y": 105.5,
+              "width": 64.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 1146.3125,
+              "bottom": 137.5,
+              "left": 1081.625
+            }
+          },
+          {
+            "name": "Delete",
+            "rect": {
+              "x": 1163.3125,
+              "y": 105.5,
+              "width": 72.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 1236,
+              "bottom": 137.5,
+              "left": 1163.3125
+            }
+          }
+        ],
+        "proof": {
+          "x": 1261,
+          "y": 688.390625,
+          "width": 192,
+          "height": 144
+        }
+      }
+    },
+    {
+      "fixture": "failed-1280x800",
+      "checks": {
+        "no_page_horizontal_overflow": true,
+        "no_page_vertical_overflow": true,
+        "no_sub_10px_text": true,
+        "no_toolbar_or_metadata_overflow": true,
+        "header_48px": true,
+        "canvas_at_least_400px_wide": true,
+        "proof_aspect_4_to_3": true,
+        "controls_remain_in_view": true
+      },
+      "metrics": {
+        "horizontalOverflow": false,
+        "verticalOverflow": false,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 48
+        },
+        "settings": {
+          "x": 0,
+          "y": 48,
+          "width": 1280,
+          "height": 52
+        },
+        "canvas": {
+          "x": 216,
+          "y": 144,
+          "width": 832,
+          "height": 624
+        },
+        "tiny": [],
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Undo",
+            "rect": {
+              "x": 1120.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 1152.984375,
+              "bottom": 39.5,
+              "left": 1120.984375
+            }
+          },
+          {
+            "name": "Redo",
+            "rect": {
+              "x": 1156.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 1188.984375,
+              "bottom": 39.5,
+              "left": 1156.984375
+            }
+          },
+          {
+            "name": "Add demo",
+            "rect": {
+              "x": 1213.984375,
+              "y": 7.5,
+              "width": 50.015625,
+              "height": 32,
+              "top": 7.5,
+              "right": 1264,
+              "bottom": 39.5,
+              "left": 1213.984375
+            }
+          },
+          {
+            "name": "Cell width",
+            "rect": {
+              "x": 60,
+              "y": 57.5,
+              "width": 56,
+              "height": 32,
+              "top": 57.5,
+              "right": 116,
+              "bottom": 89.5,
+              "left": 60
+            }
+          },
+          {
+            "name": "Cell height",
+            "rect": {
+              "x": 143.109375,
+              "y": 57.5,
+              "width": 56,
+              "height": 32,
+              "top": 57.5,
+              "right": 199.109375,
+              "bottom": 89.5,
+              "left": 143.109375
+            }
+          },
+          {
+            "name": "Straight",
+            "rect": {
+              "x": 282.4375,
+              "y": 57.5,
+              "width": 83.359375,
+              "height": 32,
+              "top": 57.5,
+              "right": 365.796875,
+              "bottom": 89.5,
+              "left": 282.4375
+            }
+          },
+          {
+            "name": "Half-drop",
+            "rect": {
+              "x": 367.796875,
+              "y": 57.5,
+              "width": 91.359375,
+              "height": 32,
+              "top": 57.5,
+              "right": 459.15625,
+              "bottom": 89.5,
+              "left": 367.796875
+            }
+          },
+          {
+            "name": "Brick",
+            "rect": {
+              "x": 461.15625,
+              "y": 57.5,
+              "width": 68.671875,
+              "height": 32,
+              "top": 57.5,
+              "right": 529.828125,
+              "bottom": 89.5,
+              "left": 461.15625
+            }
+          },
+          {
+            "name": "Background color",
+            "rect": {
+              "x": 622.875,
+              "y": 59.5,
+              "width": 28,
+              "height": 28,
+              "top": 59.5,
+              "right": 650.875,
+              "bottom": 87.5,
+              "left": 622.875
+            }
+          },
+          {
+            "name": "Transparent background",
+            "rect": {
+              "x": 716.875,
+              "y": 65.5,
+              "width": 16,
+              "height": 16,
+              "top": 65.5,
+              "right": 732.875,
+              "bottom": 81.5,
+              "left": 716.875
+            }
+          },
+          {
+            "name": "Fit",
+            "rect": {
+              "x": 1123.953125,
+              "y": 57.5,
+              "width": 55.34375,
+              "height": 32,
+              "top": 57.5,
+              "right": 1179.296875,
+              "bottom": 89.5,
+              "left": 1123.953125
+            }
+          },
+          {
+            "name": "Inspect",
+            "rect": {
+              "x": 1183.296875,
+              "y": 57.5,
+              "width": 80.703125,
+              "height": 32,
+              "top": 57.5,
+              "right": 1264,
+              "bottom": 89.5,
+              "left": 1183.296875
+            }
+          },
+          {
+            "name": "Duplicate",
+            "rect": {
+              "x": 547.546875,
+              "y": 105.5,
+              "width": 88.03125,
+              "height": 32,
+              "top": 105.5,
+              "right": 635.578125,
+              "bottom": 137.5,
+              "left": 547.546875
+            }
+          },
+          {
+            "name": "Flip horizontal",
+            "rect": {
+              "x": 652.578125,
+              "y": 105.5,
+              "width": 69.34375,
+              "height": 32,
+              "top": 105.5,
+              "right": 721.921875,
+              "bottom": 137.5,
+              "left": 652.578125
+            }
+          },
+          {
+            "name": "Flip vertical",
+            "rect": {
+              "x": 725.921875,
+              "y": 105.5,
+              "width": 68.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 794.609375,
+              "bottom": 137.5,
+              "left": 725.921875
+            }
+          },
+          {
+            "name": "Bring to front",
+            "rect": {
+              "x": 811.609375,
+              "y": 105.5,
+              "width": 66.015625,
+              "height": 32,
+              "top": 105.5,
+              "right": 877.625,
+              "bottom": 137.5,
+              "left": 811.609375
+            }
+          },
+          {
+            "name": "Send to back",
+            "rect": {
+              "x": 881.625,
+              "y": 105.5,
+              "width": 64.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 946.3125,
+              "bottom": 137.5,
+              "left": 881.625
+            }
+          },
+          {
+            "name": "Delete",
+            "rect": {
+              "x": 963.3125,
+              "y": 105.5,
+              "width": 72.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 1036,
+              "bottom": 137.5,
+              "left": 963.3125
+            }
+          }
+        ],
+        "proof": {
+          "x": 1061,
+          "y": 688.390625,
+          "width": 192,
+          "height": 144
+        }
+      }
+    },
+    {
+      "fixture": "longnames-900x650",
+      "checks": {
+        "no_page_horizontal_overflow": true,
+        "no_page_vertical_overflow": true,
+        "no_sub_10px_text": true,
+        "no_toolbar_or_metadata_overflow": true,
+        "header_48px": true,
+        "canvas_at_least_400px_wide": true,
+        "proof_aspect_4_to_3": true,
+        "controls_remain_in_view": true
+      },
+      "metrics": {
+        "horizontalOverflow": false,
+        "verticalOverflow": false,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 900,
+          "height": 48
+        },
+        "settings": {
+          "x": 0,
+          "y": 48,
+          "width": 900,
+          "height": 91
+        },
+        "canvas": {
+          "x": 184,
+          "y": 183,
+          "width": 500,
+          "height": 435
+        },
+        "tiny": [],
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Undo",
+            "rect": {
+              "x": 740.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 772.984375,
+              "bottom": 39.5,
+              "left": 740.984375
+            }
+          },
+          {
+            "name": "Redo",
+            "rect": {
+              "x": 776.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 808.984375,
+              "bottom": 39.5,
+              "left": 776.984375
+            }
+          },
+          {
+            "name": "Add demo",
+            "rect": {
+              "x": 833.984375,
+              "y": 7.5,
+              "width": 50.015625,
+              "height": 32,
+              "top": 7.5,
+              "right": 884,
+              "bottom": 39.5,
+              "left": 833.984375
+            }
+          },
+          {
+            "name": "Cell width",
+            "rect": {
+              "x": 60,
+              "y": 57,
+              "width": 56,
+              "height": 32,
+              "top": 57,
+              "right": 116,
+              "bottom": 89,
+              "left": 60
+            }
+          },
+          {
+            "name": "Cell height",
+            "rect": {
+              "x": 143.109375,
+              "y": 57,
+              "width": 56,
+              "height": 32,
+              "top": 57,
+              "right": 199.109375,
+              "bottom": 89,
+              "left": 143.109375
+            }
+          },
+          {
+            "name": "Straight",
+            "rect": {
+              "x": 278.4375,
+              "y": 57,
+              "width": 83.359375,
+              "height": 32,
+              "top": 57,
+              "right": 361.796875,
+              "bottom": 89,
+              "left": 278.4375
+            }
+          },
+          {
+            "name": "Half-drop",
+            "rect": {
+              "x": 363.796875,
+              "y": 57,
+              "width": 91.359375,
+              "height": 32,
+              "top": 57,
+              "right": 455.15625,
+              "bottom": 89,
+              "left": 363.796875
+            }
+          },
+          {
+            "name": "Brick",
+            "rect": {
+              "x": 457.15625,
+              "y": 57,
+              "width": 68.671875,
+              "height": 32,
+              "top": 57,
+              "right": 525.828125,
+              "bottom": 89,
+              "left": 457.15625
+            }
+          },
+          {
+            "name": "Background color",
+            "rect": {
+              "x": 92.046875,
+              "y": 100,
+              "width": 28,
+              "height": 28,
+              "top": 100,
+              "right": 120.046875,
+              "bottom": 128,
+              "left": 92.046875
+            }
+          },
+          {
+            "name": "Transparent background",
+            "rect": {
+              "x": 186.046875,
+              "y": 106,
+              "width": 16,
+              "height": 16,
+              "top": 106,
+              "right": 202.046875,
+              "bottom": 122,
+              "left": 186.046875
+            }
+          },
+          {
+            "name": "Fit",
+            "rect": {
+              "x": 743.953125,
+              "y": 98,
+              "width": 55.34375,
+              "height": 32,
+              "top": 98,
+              "right": 799.296875,
+              "bottom": 130,
+              "left": 743.953125
+            }
+          },
+          {
+            "name": "Inspect",
+            "rect": {
+              "x": 803.296875,
+              "y": 98,
+              "width": 80.703125,
+              "height": 32,
+              "top": 98,
+              "right": 884,
+              "bottom": 130,
+              "left": 803.296875
+            }
+          },
+          {
+            "name": "Duplicate",
+            "rect": {
+              "x": 381.609375,
+              "y": 144.5,
+              "width": 32,
+              "height": 32,
+              "top": 144.5,
+              "right": 413.609375,
+              "bottom": 176.5,
+              "left": 381.609375
+            }
+          },
+          {
+            "name": "Flip horizontal",
+            "rect": {
+              "x": 422.609375,
+              "y": 144.5,
+              "width": 38.671875,
+              "height": 32,
+              "top": 144.5,
+              "right": 461.28125,
+              "bottom": 176.5,
+              "left": 422.609375
+            }
+          },
+          {
+            "name": "Flip vertical",
+            "rect": {
+              "x": 465.28125,
+              "y": 144.5,
+              "width": 38.015625,
+              "height": 32,
+              "top": 144.5,
+              "right": 503.296875,
+              "bottom": 176.5,
+              "left": 465.28125
+            }
+          },
+          {
+            "name": "Bring to front",
+            "rect": {
+              "x": 512.296875,
+              "y": 144.5,
+              "width": 58.015625,
+              "height": 32,
+              "top": 144.5,
+              "right": 570.3125,
+              "bottom": 176.5,
+              "left": 512.296875
+            }
+          },
+          {
+            "name": "Send to back",
+            "rect": {
+              "x": 574.3125,
+              "y": 144.5,
+              "width": 56.6875,
+              "height": 32,
+              "top": 144.5,
+              "right": 631,
+              "bottom": 176.5,
+              "left": 574.3125
+            }
+          },
+          {
+            "name": "Delete",
+            "rect": {
+              "x": 640,
+              "y": 144.5,
+              "width": 32,
+              "height": 32,
+              "top": 144.5,
+              "right": 672,
+              "bottom": 176.5,
+              "left": 640
+            }
+          }
+        ],
+        "proof": {
+          "x": 697,
+          "y": 725.984375,
+          "width": 176,
+          "height": 132
+        }
+      }
+    },
+    {
+      "fixture": "pending-1280x800",
+      "checks": {
+        "no_page_horizontal_overflow": true,
+        "no_page_vertical_overflow": true,
+        "no_sub_10px_text": true,
+        "no_toolbar_or_metadata_overflow": true,
+        "header_48px": true,
+        "canvas_at_least_400px_wide": true,
+        "proof_aspect_4_to_3": true,
+        "controls_remain_in_view": true
+      },
+      "metrics": {
+        "horizontalOverflow": false,
+        "verticalOverflow": false,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 48
+        },
+        "settings": {
+          "x": 0,
+          "y": 48,
+          "width": 1280,
+          "height": 52
+        },
+        "canvas": {
+          "x": 216,
+          "y": 144,
+          "width": 832,
+          "height": 624
+        },
+        "tiny": [],
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Undo",
+            "rect": {
+              "x": 1120.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 1152.984375,
+              "bottom": 39.5,
+              "left": 1120.984375
+            }
+          },
+          {
+            "name": "Redo",
+            "rect": {
+              "x": 1156.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 1188.984375,
+              "bottom": 39.5,
+              "left": 1156.984375
+            }
+          },
+          {
+            "name": "Add demo",
+            "rect": {
+              "x": 1213.984375,
+              "y": 7.5,
+              "width": 50.015625,
+              "height": 32,
+              "top": 7.5,
+              "right": 1264,
+              "bottom": 39.5,
+              "left": 1213.984375
+            }
+          },
+          {
+            "name": "Cell width",
+            "rect": {
+              "x": 60,
+              "y": 57.5,
+              "width": 56,
+              "height": 32,
+              "top": 57.5,
+              "right": 116,
+              "bottom": 89.5,
+              "left": 60
+            }
+          },
+          {
+            "name": "Cell height",
+            "rect": {
+              "x": 143.109375,
+              "y": 57.5,
+              "width": 56,
+              "height": 32,
+              "top": 57.5,
+              "right": 199.109375,
+              "bottom": 89.5,
+              "left": 143.109375
+            }
+          },
+          {
+            "name": "Straight",
+            "rect": {
+              "x": 282.4375,
+              "y": 57.5,
+              "width": 83.359375,
+              "height": 32,
+              "top": 57.5,
+              "right": 365.796875,
+              "bottom": 89.5,
+              "left": 282.4375
+            }
+          },
+          {
+            "name": "Half-drop",
+            "rect": {
+              "x": 367.796875,
+              "y": 57.5,
+              "width": 91.359375,
+              "height": 32,
+              "top": 57.5,
+              "right": 459.15625,
+              "bottom": 89.5,
+              "left": 367.796875
+            }
+          },
+          {
+            "name": "Brick",
+            "rect": {
+              "x": 461.15625,
+              "y": 57.5,
+              "width": 68.671875,
+              "height": 32,
+              "top": 57.5,
+              "right": 529.828125,
+              "bottom": 89.5,
+              "left": 461.15625
+            }
+          },
+          {
+            "name": "Background color",
+            "rect": {
+              "x": 622.875,
+              "y": 59.5,
+              "width": 28,
+              "height": 28,
+              "top": 59.5,
+              "right": 650.875,
+              "bottom": 87.5,
+              "left": 622.875
+            }
+          },
+          {
+            "name": "Transparent background",
+            "rect": {
+              "x": 716.875,
+              "y": 65.5,
+              "width": 16,
+              "height": 16,
+              "top": 65.5,
+              "right": 732.875,
+              "bottom": 81.5,
+              "left": 716.875
+            }
+          },
+          {
+            "name": "Fit",
+            "rect": {
+              "x": 1123.953125,
+              "y": 57.5,
+              "width": 55.34375,
+              "height": 32,
+              "top": 57.5,
+              "right": 1179.296875,
+              "bottom": 89.5,
+              "left": 1123.953125
+            }
+          },
+          {
+            "name": "Inspect",
+            "rect": {
+              "x": 1183.296875,
+              "y": 57.5,
+              "width": 80.703125,
+              "height": 32,
+              "top": 57.5,
+              "right": 1264,
+              "bottom": 89.5,
+              "left": 1183.296875
+            }
+          },
+          {
+            "name": "Duplicate",
+            "rect": {
+              "x": 547.546875,
+              "y": 105.5,
+              "width": 88.03125,
+              "height": 32,
+              "top": 105.5,
+              "right": 635.578125,
+              "bottom": 137.5,
+              "left": 547.546875
+            }
+          },
+          {
+            "name": "Flip horizontal",
+            "rect": {
+              "x": 652.578125,
+              "y": 105.5,
+              "width": 69.34375,
+              "height": 32,
+              "top": 105.5,
+              "right": 721.921875,
+              "bottom": 137.5,
+              "left": 652.578125
+            }
+          },
+          {
+            "name": "Flip vertical",
+            "rect": {
+              "x": 725.921875,
+              "y": 105.5,
+              "width": 68.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 794.609375,
+              "bottom": 137.5,
+              "left": 725.921875
+            }
+          },
+          {
+            "name": "Bring to front",
+            "rect": {
+              "x": 811.609375,
+              "y": 105.5,
+              "width": 66.015625,
+              "height": 32,
+              "top": 105.5,
+              "right": 877.625,
+              "bottom": 137.5,
+              "left": 811.609375
+            }
+          },
+          {
+            "name": "Send to back",
+            "rect": {
+              "x": 881.625,
+              "y": 105.5,
+              "width": 64.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 946.3125,
+              "bottom": 137.5,
+              "left": 881.625
+            }
+          },
+          {
+            "name": "Delete",
+            "rect": {
+              "x": 963.3125,
+              "y": 105.5,
+              "width": 72.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 1036,
+              "bottom": 137.5,
+              "left": 963.3125
+            }
+          }
+        ],
+        "proof": {
+          "x": 1061,
+          "y": 688.390625,
+          "width": 192,
+          "height": 144
+        }
+      }
+    },
+    {
+      "fixture": "proof-1280x700",
+      "checks": {
+        "no_page_horizontal_overflow": true,
+        "no_page_vertical_overflow": true,
+        "no_sub_10px_text": true,
+        "no_toolbar_or_metadata_overflow": true,
+        "header_48px": true,
+        "canvas_at_least_400px_wide": true,
+        "proof_aspect_4_to_3": true,
+        "controls_remain_in_view": true
+      },
+      "metrics": {
+        "horizontalOverflow": false,
+        "verticalOverflow": false,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 48
+        },
+        "settings": {
+          "x": 0,
+          "y": 48,
+          "width": 1280,
+          "height": 52
+        },
+        "canvas": {
+          "x": 216,
+          "y": 144,
+          "width": 832,
+          "height": 524
+        },
+        "tiny": [],
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Undo",
+            "rect": {
+              "x": 1120.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 1152.984375,
+              "bottom": 39.5,
+              "left": 1120.984375
+            }
+          },
+          {
+            "name": "Redo",
+            "rect": {
+              "x": 1156.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 1188.984375,
+              "bottom": 39.5,
+              "left": 1156.984375
+            }
+          },
+          {
+            "name": "Add demo",
+            "rect": {
+              "x": 1213.984375,
+              "y": 7.5,
+              "width": 50.015625,
+              "height": 32,
+              "top": 7.5,
+              "right": 1264,
+              "bottom": 39.5,
+              "left": 1213.984375
+            }
+          },
+          {
+            "name": "Cell width",
+            "rect": {
+              "x": 60,
+              "y": 57.5,
+              "width": 56,
+              "height": 32,
+              "top": 57.5,
+              "right": 116,
+              "bottom": 89.5,
+              "left": 60
+            }
+          },
+          {
+            "name": "Cell height",
+            "rect": {
+              "x": 143.109375,
+              "y": 57.5,
+              "width": 56,
+              "height": 32,
+              "top": 57.5,
+              "right": 199.109375,
+              "bottom": 89.5,
+              "left": 143.109375
+            }
+          },
+          {
+            "name": "Straight",
+            "rect": {
+              "x": 282.4375,
+              "y": 57.5,
+              "width": 83.359375,
+              "height": 32,
+              "top": 57.5,
+              "right": 365.796875,
+              "bottom": 89.5,
+              "left": 282.4375
+            }
+          },
+          {
+            "name": "Half-drop",
+            "rect": {
+              "x": 367.796875,
+              "y": 57.5,
+              "width": 91.359375,
+              "height": 32,
+              "top": 57.5,
+              "right": 459.15625,
+              "bottom": 89.5,
+              "left": 367.796875
+            }
+          },
+          {
+            "name": "Brick",
+            "rect": {
+              "x": 461.15625,
+              "y": 57.5,
+              "width": 68.671875,
+              "height": 32,
+              "top": 57.5,
+              "right": 529.828125,
+              "bottom": 89.5,
+              "left": 461.15625
+            }
+          },
+          {
+            "name": "Background color",
+            "rect": {
+              "x": 622.875,
+              "y": 59.5,
+              "width": 28,
+              "height": 28,
+              "top": 59.5,
+              "right": 650.875,
+              "bottom": 87.5,
+              "left": 622.875
+            }
+          },
+          {
+            "name": "Transparent background",
+            "rect": {
+              "x": 716.875,
+              "y": 65.5,
+              "width": 16,
+              "height": 16,
+              "top": 65.5,
+              "right": 732.875,
+              "bottom": 81.5,
+              "left": 716.875
+            }
+          },
+          {
+            "name": "Fit",
+            "rect": {
+              "x": 1123.953125,
+              "y": 57.5,
+              "width": 55.34375,
+              "height": 32,
+              "top": 57.5,
+              "right": 1179.296875,
+              "bottom": 89.5,
+              "left": 1123.953125
+            }
+          },
+          {
+            "name": "Inspect",
+            "rect": {
+              "x": 1183.296875,
+              "y": 57.5,
+              "width": 80.703125,
+              "height": 32,
+              "top": 57.5,
+              "right": 1264,
+              "bottom": 89.5,
+              "left": 1183.296875
+            }
+          },
+          {
+            "name": "Duplicate",
+            "rect": {
+              "x": 547.546875,
+              "y": 105.5,
+              "width": 88.03125,
+              "height": 32,
+              "top": 105.5,
+              "right": 635.578125,
+              "bottom": 137.5,
+              "left": 547.546875
+            }
+          },
+          {
+            "name": "Flip horizontal",
+            "rect": {
+              "x": 652.578125,
+              "y": 105.5,
+              "width": 69.34375,
+              "height": 32,
+              "top": 105.5,
+              "right": 721.921875,
+              "bottom": 137.5,
+              "left": 652.578125
+            }
+          },
+          {
+            "name": "Flip vertical",
+            "rect": {
+              "x": 725.921875,
+              "y": 105.5,
+              "width": 68.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 794.609375,
+              "bottom": 137.5,
+              "left": 725.921875
+            }
+          },
+          {
+            "name": "Bring to front",
+            "rect": {
+              "x": 811.609375,
+              "y": 105.5,
+              "width": 66.015625,
+              "height": 32,
+              "top": 105.5,
+              "right": 877.625,
+              "bottom": 137.5,
+              "left": 811.609375
+            }
+          },
+          {
+            "name": "Send to back",
+            "rect": {
+              "x": 881.625,
+              "y": 105.5,
+              "width": 64.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 946.3125,
+              "bottom": 137.5,
+              "left": 881.625
+            }
+          },
+          {
+            "name": "Delete",
+            "rect": {
+              "x": 963.3125,
+              "y": 105.5,
+              "width": 72.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 1036,
+              "bottom": 137.5,
+              "left": 963.3125
+            }
+          }
+        ],
+        "proof": {
+          "x": 1061,
+          "y": 668.390625,
+          "width": 192,
+          "height": 144
+        }
+      }
+    },
+    {
+      "fixture": "selected-1280x800",
+      "checks": {
+        "no_page_horizontal_overflow": true,
+        "no_page_vertical_overflow": true,
+        "no_sub_10px_text": true,
+        "no_toolbar_or_metadata_overflow": true,
+        "header_48px": true,
+        "canvas_at_least_400px_wide": true,
+        "proof_aspect_4_to_3": true,
+        "controls_remain_in_view": true
+      },
+      "metrics": {
+        "horizontalOverflow": false,
+        "verticalOverflow": false,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 48
+        },
+        "settings": {
+          "x": 0,
+          "y": 48,
+          "width": 1280,
+          "height": 52
+        },
+        "canvas": {
+          "x": 216,
+          "y": 144,
+          "width": 832,
+          "height": 624
+        },
+        "tiny": [],
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Undo",
+            "rect": {
+              "x": 1120.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 1152.984375,
+              "bottom": 39.5,
+              "left": 1120.984375
+            }
+          },
+          {
+            "name": "Redo",
+            "rect": {
+              "x": 1156.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 1188.984375,
+              "bottom": 39.5,
+              "left": 1156.984375
+            }
+          },
+          {
+            "name": "Add demo",
+            "rect": {
+              "x": 1213.984375,
+              "y": 7.5,
+              "width": 50.015625,
+              "height": 32,
+              "top": 7.5,
+              "right": 1264,
+              "bottom": 39.5,
+              "left": 1213.984375
+            }
+          },
+          {
+            "name": "Cell width",
+            "rect": {
+              "x": 60,
+              "y": 57.5,
+              "width": 56,
+              "height": 32,
+              "top": 57.5,
+              "right": 116,
+              "bottom": 89.5,
+              "left": 60
+            }
+          },
+          {
+            "name": "Cell height",
+            "rect": {
+              "x": 143.109375,
+              "y": 57.5,
+              "width": 56,
+              "height": 32,
+              "top": 57.5,
+              "right": 199.109375,
+              "bottom": 89.5,
+              "left": 143.109375
+            }
+          },
+          {
+            "name": "Straight",
+            "rect": {
+              "x": 282.4375,
+              "y": 57.5,
+              "width": 83.359375,
+              "height": 32,
+              "top": 57.5,
+              "right": 365.796875,
+              "bottom": 89.5,
+              "left": 282.4375
+            }
+          },
+          {
+            "name": "Half-drop",
+            "rect": {
+              "x": 367.796875,
+              "y": 57.5,
+              "width": 91.359375,
+              "height": 32,
+              "top": 57.5,
+              "right": 459.15625,
+              "bottom": 89.5,
+              "left": 367.796875
+            }
+          },
+          {
+            "name": "Brick",
+            "rect": {
+              "x": 461.15625,
+              "y": 57.5,
+              "width": 68.671875,
+              "height": 32,
+              "top": 57.5,
+              "right": 529.828125,
+              "bottom": 89.5,
+              "left": 461.15625
+            }
+          },
+          {
+            "name": "Background color",
+            "rect": {
+              "x": 622.875,
+              "y": 59.5,
+              "width": 28,
+              "height": 28,
+              "top": 59.5,
+              "right": 650.875,
+              "bottom": 87.5,
+              "left": 622.875
+            }
+          },
+          {
+            "name": "Transparent background",
+            "rect": {
+              "x": 716.875,
+              "y": 65.5,
+              "width": 16,
+              "height": 16,
+              "top": 65.5,
+              "right": 732.875,
+              "bottom": 81.5,
+              "left": 716.875
+            }
+          },
+          {
+            "name": "Fit",
+            "rect": {
+              "x": 1123.953125,
+              "y": 57.5,
+              "width": 55.34375,
+              "height": 32,
+              "top": 57.5,
+              "right": 1179.296875,
+              "bottom": 89.5,
+              "left": 1123.953125
+            }
+          },
+          {
+            "name": "Inspect",
+            "rect": {
+              "x": 1183.296875,
+              "y": 57.5,
+              "width": 80.703125,
+              "height": 32,
+              "top": 57.5,
+              "right": 1264,
+              "bottom": 89.5,
+              "left": 1183.296875
+            }
+          },
+          {
+            "name": "Duplicate",
+            "rect": {
+              "x": 547.546875,
+              "y": 105.5,
+              "width": 88.03125,
+              "height": 32,
+              "top": 105.5,
+              "right": 635.578125,
+              "bottom": 137.5,
+              "left": 547.546875
+            }
+          },
+          {
+            "name": "Flip horizontal",
+            "rect": {
+              "x": 652.578125,
+              "y": 105.5,
+              "width": 69.34375,
+              "height": 32,
+              "top": 105.5,
+              "right": 721.921875,
+              "bottom": 137.5,
+              "left": 652.578125
+            }
+          },
+          {
+            "name": "Flip vertical",
+            "rect": {
+              "x": 725.921875,
+              "y": 105.5,
+              "width": 68.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 794.609375,
+              "bottom": 137.5,
+              "left": 725.921875
+            }
+          },
+          {
+            "name": "Bring to front",
+            "rect": {
+              "x": 811.609375,
+              "y": 105.5,
+              "width": 66.015625,
+              "height": 32,
+              "top": 105.5,
+              "right": 877.625,
+              "bottom": 137.5,
+              "left": 811.609375
+            }
+          },
+          {
+            "name": "Send to back",
+            "rect": {
+              "x": 881.625,
+              "y": 105.5,
+              "width": 64.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 946.3125,
+              "bottom": 137.5,
+              "left": 881.625
+            }
+          },
+          {
+            "name": "Delete",
+            "rect": {
+              "x": 963.3125,
+              "y": 105.5,
+              "width": 72.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 1036,
+              "bottom": 137.5,
+              "left": 963.3125
+            }
+          }
+        ],
+        "proof": {
+          "x": 1061,
+          "y": 688.390625,
+          "width": 192,
+          "height": 144
+        }
+      }
+    },
+    {
+      "fixture": "selected-1480x900",
+      "checks": {
+        "no_page_horizontal_overflow": true,
+        "no_page_vertical_overflow": true,
+        "no_sub_10px_text": true,
+        "no_toolbar_or_metadata_overflow": true,
+        "header_48px": true,
+        "canvas_at_least_400px_wide": true,
+        "proof_aspect_4_to_3": true,
+        "controls_remain_in_view": true
+      },
+      "metrics": {
+        "horizontalOverflow": false,
+        "verticalOverflow": false,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 1480,
+          "height": 48
+        },
+        "settings": {
+          "x": 0,
+          "y": 48,
+          "width": 1480,
+          "height": 52
+        },
+        "canvas": {
+          "x": 216,
+          "y": 144,
+          "width": 1032,
+          "height": 724
+        },
+        "tiny": [],
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Undo",
+            "rect": {
+              "x": 1320.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 1352.984375,
+              "bottom": 39.5,
+              "left": 1320.984375
+            }
+          },
+          {
+            "name": "Redo",
+            "rect": {
+              "x": 1356.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 1388.984375,
+              "bottom": 39.5,
+              "left": 1356.984375
+            }
+          },
+          {
+            "name": "Add demo",
+            "rect": {
+              "x": 1413.984375,
+              "y": 7.5,
+              "width": 50.015625,
+              "height": 32,
+              "top": 7.5,
+              "right": 1464,
+              "bottom": 39.5,
+              "left": 1413.984375
+            }
+          },
+          {
+            "name": "Cell width",
+            "rect": {
+              "x": 60,
+              "y": 57.5,
+              "width": 56,
+              "height": 32,
+              "top": 57.5,
+              "right": 116,
+              "bottom": 89.5,
+              "left": 60
+            }
+          },
+          {
+            "name": "Cell height",
+            "rect": {
+              "x": 143.109375,
+              "y": 57.5,
+              "width": 56,
+              "height": 32,
+              "top": 57.5,
+              "right": 199.109375,
+              "bottom": 89.5,
+              "left": 143.109375
+            }
+          },
+          {
+            "name": "Straight",
+            "rect": {
+              "x": 282.4375,
+              "y": 57.5,
+              "width": 83.359375,
+              "height": 32,
+              "top": 57.5,
+              "right": 365.796875,
+              "bottom": 89.5,
+              "left": 282.4375
+            }
+          },
+          {
+            "name": "Half-drop",
+            "rect": {
+              "x": 367.796875,
+              "y": 57.5,
+              "width": 91.359375,
+              "height": 32,
+              "top": 57.5,
+              "right": 459.15625,
+              "bottom": 89.5,
+              "left": 367.796875
+            }
+          },
+          {
+            "name": "Brick",
+            "rect": {
+              "x": 461.15625,
+              "y": 57.5,
+              "width": 68.671875,
+              "height": 32,
+              "top": 57.5,
+              "right": 529.828125,
+              "bottom": 89.5,
+              "left": 461.15625
+            }
+          },
+          {
+            "name": "Background color",
+            "rect": {
+              "x": 622.875,
+              "y": 59.5,
+              "width": 28,
+              "height": 28,
+              "top": 59.5,
+              "right": 650.875,
+              "bottom": 87.5,
+              "left": 622.875
+            }
+          },
+          {
+            "name": "Transparent background",
+            "rect": {
+              "x": 716.875,
+              "y": 65.5,
+              "width": 16,
+              "height": 16,
+              "top": 65.5,
+              "right": 732.875,
+              "bottom": 81.5,
+              "left": 716.875
+            }
+          },
+          {
+            "name": "Fit",
+            "rect": {
+              "x": 1323.953125,
+              "y": 57.5,
+              "width": 55.34375,
+              "height": 32,
+              "top": 57.5,
+              "right": 1379.296875,
+              "bottom": 89.5,
+              "left": 1323.953125
+            }
+          },
+          {
+            "name": "Inspect",
+            "rect": {
+              "x": 1383.296875,
+              "y": 57.5,
+              "width": 80.703125,
+              "height": 32,
+              "top": 57.5,
+              "right": 1464,
+              "bottom": 89.5,
+              "left": 1383.296875
+            }
+          },
+          {
+            "name": "Duplicate",
+            "rect": {
+              "x": 747.546875,
+              "y": 105.5,
+              "width": 88.03125,
+              "height": 32,
+              "top": 105.5,
+              "right": 835.578125,
+              "bottom": 137.5,
+              "left": 747.546875
+            }
+          },
+          {
+            "name": "Flip horizontal",
+            "rect": {
+              "x": 852.578125,
+              "y": 105.5,
+              "width": 69.34375,
+              "height": 32,
+              "top": 105.5,
+              "right": 921.921875,
+              "bottom": 137.5,
+              "left": 852.578125
+            }
+          },
+          {
+            "name": "Flip vertical",
+            "rect": {
+              "x": 925.921875,
+              "y": 105.5,
+              "width": 68.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 994.609375,
+              "bottom": 137.5,
+              "left": 925.921875
+            }
+          },
+          {
+            "name": "Bring to front",
+            "rect": {
+              "x": 1011.609375,
+              "y": 105.5,
+              "width": 66.015625,
+              "height": 32,
+              "top": 105.5,
+              "right": 1077.625,
+              "bottom": 137.5,
+              "left": 1011.609375
+            }
+          },
+          {
+            "name": "Send to back",
+            "rect": {
+              "x": 1081.625,
+              "y": 105.5,
+              "width": 64.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 1146.3125,
+              "bottom": 137.5,
+              "left": 1081.625
+            }
+          },
+          {
+            "name": "Delete",
+            "rect": {
+              "x": 1163.3125,
+              "y": 105.5,
+              "width": 72.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 1236,
+              "bottom": 137.5,
+              "left": 1163.3125
+            }
+          }
+        ],
+        "proof": {
+          "x": 1261,
+          "y": 688.390625,
+          "width": 192,
+          "height": 144
+        }
+      }
+    },
+    {
+      "fixture": "selected-900x650",
+      "checks": {
+        "no_page_horizontal_overflow": true,
+        "no_page_vertical_overflow": true,
+        "no_sub_10px_text": true,
+        "no_toolbar_or_metadata_overflow": true,
+        "header_48px": true,
+        "canvas_at_least_400px_wide": true,
+        "proof_aspect_4_to_3": true,
+        "controls_remain_in_view": true
+      },
+      "metrics": {
+        "horizontalOverflow": false,
+        "verticalOverflow": false,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 900,
+          "height": 48
+        },
+        "settings": {
+          "x": 0,
+          "y": 48,
+          "width": 900,
+          "height": 91
+        },
+        "canvas": {
+          "x": 184,
+          "y": 183,
+          "width": 500,
+          "height": 435
+        },
+        "tiny": [],
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Undo",
+            "rect": {
+              "x": 740.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 772.984375,
+              "bottom": 39.5,
+              "left": 740.984375
+            }
+          },
+          {
+            "name": "Redo",
+            "rect": {
+              "x": 776.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 808.984375,
+              "bottom": 39.5,
+              "left": 776.984375
+            }
+          },
+          {
+            "name": "Add demo",
+            "rect": {
+              "x": 833.984375,
+              "y": 7.5,
+              "width": 50.015625,
+              "height": 32,
+              "top": 7.5,
+              "right": 884,
+              "bottom": 39.5,
+              "left": 833.984375
+            }
+          },
+          {
+            "name": "Cell width",
+            "rect": {
+              "x": 60,
+              "y": 57,
+              "width": 56,
+              "height": 32,
+              "top": 57,
+              "right": 116,
+              "bottom": 89,
+              "left": 60
+            }
+          },
+          {
+            "name": "Cell height",
+            "rect": {
+              "x": 143.109375,
+              "y": 57,
+              "width": 56,
+              "height": 32,
+              "top": 57,
+              "right": 199.109375,
+              "bottom": 89,
+              "left": 143.109375
+            }
+          },
+          {
+            "name": "Straight",
+            "rect": {
+              "x": 278.4375,
+              "y": 57,
+              "width": 83.359375,
+              "height": 32,
+              "top": 57,
+              "right": 361.796875,
+              "bottom": 89,
+              "left": 278.4375
+            }
+          },
+          {
+            "name": "Half-drop",
+            "rect": {
+              "x": 363.796875,
+              "y": 57,
+              "width": 91.359375,
+              "height": 32,
+              "top": 57,
+              "right": 455.15625,
+              "bottom": 89,
+              "left": 363.796875
+            }
+          },
+          {
+            "name": "Brick",
+            "rect": {
+              "x": 457.15625,
+              "y": 57,
+              "width": 68.671875,
+              "height": 32,
+              "top": 57,
+              "right": 525.828125,
+              "bottom": 89,
+              "left": 457.15625
+            }
+          },
+          {
+            "name": "Background color",
+            "rect": {
+              "x": 92.046875,
+              "y": 100,
+              "width": 28,
+              "height": 28,
+              "top": 100,
+              "right": 120.046875,
+              "bottom": 128,
+              "left": 92.046875
+            }
+          },
+          {
+            "name": "Transparent background",
+            "rect": {
+              "x": 186.046875,
+              "y": 106,
+              "width": 16,
+              "height": 16,
+              "top": 106,
+              "right": 202.046875,
+              "bottom": 122,
+              "left": 186.046875
+            }
+          },
+          {
+            "name": "Fit",
+            "rect": {
+              "x": 743.953125,
+              "y": 98,
+              "width": 55.34375,
+              "height": 32,
+              "top": 98,
+              "right": 799.296875,
+              "bottom": 130,
+              "left": 743.953125
+            }
+          },
+          {
+            "name": "Inspect",
+            "rect": {
+              "x": 803.296875,
+              "y": 98,
+              "width": 80.703125,
+              "height": 32,
+              "top": 98,
+              "right": 884,
+              "bottom": 130,
+              "left": 803.296875
+            }
+          },
+          {
+            "name": "Duplicate",
+            "rect": {
+              "x": 381.609375,
+              "y": 144.5,
+              "width": 32,
+              "height": 32,
+              "top": 144.5,
+              "right": 413.609375,
+              "bottom": 176.5,
+              "left": 381.609375
+            }
+          },
+          {
+            "name": "Flip horizontal",
+            "rect": {
+              "x": 422.609375,
+              "y": 144.5,
+              "width": 38.671875,
+              "height": 32,
+              "top": 144.5,
+              "right": 461.28125,
+              "bottom": 176.5,
+              "left": 422.609375
+            }
+          },
+          {
+            "name": "Flip vertical",
+            "rect": {
+              "x": 465.28125,
+              "y": 144.5,
+              "width": 38.015625,
+              "height": 32,
+              "top": 144.5,
+              "right": 503.296875,
+              "bottom": 176.5,
+              "left": 465.28125
+            }
+          },
+          {
+            "name": "Bring to front",
+            "rect": {
+              "x": 512.296875,
+              "y": 144.5,
+              "width": 58.015625,
+              "height": 32,
+              "top": 144.5,
+              "right": 570.3125,
+              "bottom": 176.5,
+              "left": 512.296875
+            }
+          },
+          {
+            "name": "Send to back",
+            "rect": {
+              "x": 574.3125,
+              "y": 144.5,
+              "width": 56.6875,
+              "height": 32,
+              "top": 144.5,
+              "right": 631,
+              "bottom": 176.5,
+              "left": 574.3125
+            }
+          },
+          {
+            "name": "Delete",
+            "rect": {
+              "x": 640,
+              "y": 144.5,
+              "width": 32,
+              "height": 32,
+              "top": 144.5,
+              "right": 672,
+              "bottom": 176.5,
+              "left": 640
+            }
+          }
+        ],
+        "proof": {
+          "x": 697,
+          "y": 725.984375,
+          "width": 176,
+          "height": 132
+        }
+      }
+    },
+    {
+      "fixture": "selected-960x600",
+      "checks": {
+        "no_page_horizontal_overflow": true,
+        "no_page_vertical_overflow": true,
+        "no_sub_10px_text": true,
+        "no_toolbar_or_metadata_overflow": true,
+        "header_48px": true,
+        "canvas_at_least_400px_wide": true,
+        "proof_aspect_4_to_3": true,
+        "controls_remain_in_view": true
+      },
+      "metrics": {
+        "horizontalOverflow": false,
+        "verticalOverflow": false,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 960,
+          "height": 48
+        },
+        "settings": {
+          "x": 0,
+          "y": 48,
+          "width": 960,
+          "height": 91
+        },
+        "canvas": {
+          "x": 184,
+          "y": 183,
+          "width": 560,
+          "height": 385
+        },
+        "tiny": [],
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Undo",
+            "rect": {
+              "x": 800.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 832.984375,
+              "bottom": 39.5,
+              "left": 800.984375
+            }
+          },
+          {
+            "name": "Redo",
+            "rect": {
+              "x": 836.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 868.984375,
+              "bottom": 39.5,
+              "left": 836.984375
+            }
+          },
+          {
+            "name": "Add demo",
+            "rect": {
+              "x": 893.984375,
+              "y": 7.5,
+              "width": 50.015625,
+              "height": 32,
+              "top": 7.5,
+              "right": 944,
+              "bottom": 39.5,
+              "left": 893.984375
+            }
+          },
+          {
+            "name": "Cell width",
+            "rect": {
+              "x": 60,
+              "y": 57,
+              "width": 56,
+              "height": 32,
+              "top": 57,
+              "right": 116,
+              "bottom": 89,
+              "left": 60
+            }
+          },
+          {
+            "name": "Cell height",
+            "rect": {
+              "x": 143.109375,
+              "y": 57,
+              "width": 56,
+              "height": 32,
+              "top": 57,
+              "right": 199.109375,
+              "bottom": 89,
+              "left": 143.109375
+            }
+          },
+          {
+            "name": "Straight",
+            "rect": {
+              "x": 278.4375,
+              "y": 57,
+              "width": 83.359375,
+              "height": 32,
+              "top": 57,
+              "right": 361.796875,
+              "bottom": 89,
+              "left": 278.4375
+            }
+          },
+          {
+            "name": "Half-drop",
+            "rect": {
+              "x": 363.796875,
+              "y": 57,
+              "width": 91.359375,
+              "height": 32,
+              "top": 57,
+              "right": 455.15625,
+              "bottom": 89,
+              "left": 363.796875
+            }
+          },
+          {
+            "name": "Brick",
+            "rect": {
+              "x": 457.15625,
+              "y": 57,
+              "width": 68.671875,
+              "height": 32,
+              "top": 57,
+              "right": 525.828125,
+              "bottom": 89,
+              "left": 457.15625
+            }
+          },
+          {
+            "name": "Background color",
+            "rect": {
+              "x": 92.046875,
+              "y": 100,
+              "width": 28,
+              "height": 28,
+              "top": 100,
+              "right": 120.046875,
+              "bottom": 128,
+              "left": 92.046875
+            }
+          },
+          {
+            "name": "Transparent background",
+            "rect": {
+              "x": 186.046875,
+              "y": 106,
+              "width": 16,
+              "height": 16,
+              "top": 106,
+              "right": 202.046875,
+              "bottom": 122,
+              "left": 186.046875
+            }
+          },
+          {
+            "name": "Fit",
+            "rect": {
+              "x": 803.953125,
+              "y": 98,
+              "width": 55.34375,
+              "height": 32,
+              "top": 98,
+              "right": 859.296875,
+              "bottom": 130,
+              "left": 803.953125
+            }
+          },
+          {
+            "name": "Inspect",
+            "rect": {
+              "x": 863.296875,
+              "y": 98,
+              "width": 80.703125,
+              "height": 32,
+              "top": 98,
+              "right": 944,
+              "bottom": 130,
+              "left": 863.296875
+            }
+          },
+          {
+            "name": "Duplicate",
+            "rect": {
+              "x": 441.609375,
+              "y": 144.5,
+              "width": 32,
+              "height": 32,
+              "top": 144.5,
+              "right": 473.609375,
+              "bottom": 176.5,
+              "left": 441.609375
+            }
+          },
+          {
+            "name": "Flip horizontal",
+            "rect": {
+              "x": 482.609375,
+              "y": 144.5,
+              "width": 38.671875,
+              "height": 32,
+              "top": 144.5,
+              "right": 521.28125,
+              "bottom": 176.5,
+              "left": 482.609375
+            }
+          },
+          {
+            "name": "Flip vertical",
+            "rect": {
+              "x": 525.28125,
+              "y": 144.5,
+              "width": 38.015625,
+              "height": 32,
+              "top": 144.5,
+              "right": 563.296875,
+              "bottom": 176.5,
+              "left": 525.28125
+            }
+          },
+          {
+            "name": "Bring to front",
+            "rect": {
+              "x": 572.296875,
+              "y": 144.5,
+              "width": 58.015625,
+              "height": 32,
+              "top": 144.5,
+              "right": 630.3125,
+              "bottom": 176.5,
+              "left": 572.296875
+            }
+          },
+          {
+            "name": "Send to back",
+            "rect": {
+              "x": 634.3125,
+              "y": 144.5,
+              "width": 56.6875,
+              "height": 32,
+              "top": 144.5,
+              "right": 691,
+              "bottom": 176.5,
+              "left": 634.3125
+            }
+          },
+          {
+            "name": "Delete",
+            "rect": {
+              "x": 700,
+              "y": 144.5,
+              "width": 32,
+              "height": 32,
+              "top": 144.5,
+              "right": 732,
+              "bottom": 176.5,
+              "left": 700
+            }
+          }
+        ],
+        "proof": {
+          "x": 757,
+          "y": 725.984375,
+          "width": 176,
+          "height": 132
+        }
+      }
+    },
+    {
+      "fixture": "stale-1480x900",
+      "checks": {
+        "no_page_horizontal_overflow": true,
+        "no_page_vertical_overflow": true,
+        "no_sub_10px_text": true,
+        "no_toolbar_or_metadata_overflow": true,
+        "header_48px": true,
+        "canvas_at_least_400px_wide": true,
+        "proof_aspect_4_to_3": true,
+        "controls_remain_in_view": true
+      },
+      "metrics": {
+        "horizontalOverflow": false,
+        "verticalOverflow": false,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 1480,
+          "height": 48
+        },
+        "settings": {
+          "x": 0,
+          "y": 48,
+          "width": 1480,
+          "height": 52
+        },
+        "canvas": {
+          "x": 216,
+          "y": 144,
+          "width": 1032,
+          "height": 724
+        },
+        "tiny": [],
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Undo",
+            "rect": {
+              "x": 1320.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 1352.984375,
+              "bottom": 39.5,
+              "left": 1320.984375
+            }
+          },
+          {
+            "name": "Redo",
+            "rect": {
+              "x": 1356.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 1388.984375,
+              "bottom": 39.5,
+              "left": 1356.984375
+            }
+          },
+          {
+            "name": "Add demo",
+            "rect": {
+              "x": 1413.984375,
+              "y": 7.5,
+              "width": 50.015625,
+              "height": 32,
+              "top": 7.5,
+              "right": 1464,
+              "bottom": 39.5,
+              "left": 1413.984375
+            }
+          },
+          {
+            "name": "Cell width",
+            "rect": {
+              "x": 60,
+              "y": 57.5,
+              "width": 56,
+              "height": 32,
+              "top": 57.5,
+              "right": 116,
+              "bottom": 89.5,
+              "left": 60
+            }
+          },
+          {
+            "name": "Cell height",
+            "rect": {
+              "x": 143.109375,
+              "y": 57.5,
+              "width": 56,
+              "height": 32,
+              "top": 57.5,
+              "right": 199.109375,
+              "bottom": 89.5,
+              "left": 143.109375
+            }
+          },
+          {
+            "name": "Straight",
+            "rect": {
+              "x": 282.4375,
+              "y": 57.5,
+              "width": 83.359375,
+              "height": 32,
+              "top": 57.5,
+              "right": 365.796875,
+              "bottom": 89.5,
+              "left": 282.4375
+            }
+          },
+          {
+            "name": "Half-drop",
+            "rect": {
+              "x": 367.796875,
+              "y": 57.5,
+              "width": 91.359375,
+              "height": 32,
+              "top": 57.5,
+              "right": 459.15625,
+              "bottom": 89.5,
+              "left": 367.796875
+            }
+          },
+          {
+            "name": "Brick",
+            "rect": {
+              "x": 461.15625,
+              "y": 57.5,
+              "width": 68.671875,
+              "height": 32,
+              "top": 57.5,
+              "right": 529.828125,
+              "bottom": 89.5,
+              "left": 461.15625
+            }
+          },
+          {
+            "name": "Background color",
+            "rect": {
+              "x": 622.875,
+              "y": 59.5,
+              "width": 28,
+              "height": 28,
+              "top": 59.5,
+              "right": 650.875,
+              "bottom": 87.5,
+              "left": 622.875
+            }
+          },
+          {
+            "name": "Transparent background",
+            "rect": {
+              "x": 716.875,
+              "y": 65.5,
+              "width": 16,
+              "height": 16,
+              "top": 65.5,
+              "right": 732.875,
+              "bottom": 81.5,
+              "left": 716.875
+            }
+          },
+          {
+            "name": "Fit",
+            "rect": {
+              "x": 1323.953125,
+              "y": 57.5,
+              "width": 55.34375,
+              "height": 32,
+              "top": 57.5,
+              "right": 1379.296875,
+              "bottom": 89.5,
+              "left": 1323.953125
+            }
+          },
+          {
+            "name": "Inspect",
+            "rect": {
+              "x": 1383.296875,
+              "y": 57.5,
+              "width": 80.703125,
+              "height": 32,
+              "top": 57.5,
+              "right": 1464,
+              "bottom": 89.5,
+              "left": 1383.296875
+            }
+          },
+          {
+            "name": "Duplicate",
+            "rect": {
+              "x": 747.546875,
+              "y": 105.5,
+              "width": 88.03125,
+              "height": 32,
+              "top": 105.5,
+              "right": 835.578125,
+              "bottom": 137.5,
+              "left": 747.546875
+            }
+          },
+          {
+            "name": "Flip horizontal",
+            "rect": {
+              "x": 852.578125,
+              "y": 105.5,
+              "width": 69.34375,
+              "height": 32,
+              "top": 105.5,
+              "right": 921.921875,
+              "bottom": 137.5,
+              "left": 852.578125
+            }
+          },
+          {
+            "name": "Flip vertical",
+            "rect": {
+              "x": 925.921875,
+              "y": 105.5,
+              "width": 68.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 994.609375,
+              "bottom": 137.5,
+              "left": 925.921875
+            }
+          },
+          {
+            "name": "Bring to front",
+            "rect": {
+              "x": 1011.609375,
+              "y": 105.5,
+              "width": 66.015625,
+              "height": 32,
+              "top": 105.5,
+              "right": 1077.625,
+              "bottom": 137.5,
+              "left": 1011.609375
+            }
+          },
+          {
+            "name": "Send to back",
+            "rect": {
+              "x": 1081.625,
+              "y": 105.5,
+              "width": 64.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 1146.3125,
+              "bottom": 137.5,
+              "left": 1081.625
+            }
+          },
+          {
+            "name": "Delete",
+            "rect": {
+              "x": 1163.3125,
+              "y": 105.5,
+              "width": 72.6875,
+              "height": 32,
+              "top": 105.5,
+              "right": 1236,
+              "bottom": 137.5,
+              "left": 1163.3125
+            }
+          }
+        ],
+        "proof": {
+          "x": 1261,
+          "y": 806.140625,
+          "width": 192,
+          "height": 144
+        }
+      }
+    },
+    {
+      "fixture": "stale-900x650",
+      "checks": {
+        "no_page_horizontal_overflow": true,
+        "no_page_vertical_overflow": true,
+        "no_sub_10px_text": true,
+        "no_toolbar_or_metadata_overflow": true,
+        "header_48px": true,
+        "canvas_at_least_400px_wide": true,
+        "proof_aspect_4_to_3": true,
+        "controls_remain_in_view": true
+      },
+      "metrics": {
+        "horizontalOverflow": false,
+        "verticalOverflow": false,
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 900,
+          "height": 48
+        },
+        "settings": {
+          "x": 0,
+          "y": 48,
+          "width": 900,
+          "height": 91
+        },
+        "canvas": {
+          "x": 184,
+          "y": 183,
+          "width": 500,
+          "height": 435
+        },
+        "tiny": [],
+        "overflow": [],
+        "controls": [
+          {
+            "name": "Undo",
+            "rect": {
+              "x": 740.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 772.984375,
+              "bottom": 39.5,
+              "left": 740.984375
+            }
+          },
+          {
+            "name": "Redo",
+            "rect": {
+              "x": 776.984375,
+              "y": 7.5,
+              "width": 32,
+              "height": 32,
+              "top": 7.5,
+              "right": 808.984375,
+              "bottom": 39.5,
+              "left": 776.984375
+            }
+          },
+          {
+            "name": "Add demo",
+            "rect": {
+              "x": 833.984375,
+              "y": 7.5,
+              "width": 50.015625,
+              "height": 32,
+              "top": 7.5,
+              "right": 884,
+              "bottom": 39.5,
+              "left": 833.984375
+            }
+          },
+          {
+            "name": "Cell width",
+            "rect": {
+              "x": 60,
+              "y": 57,
+              "width": 56,
+              "height": 32,
+              "top": 57,
+              "right": 116,
+              "bottom": 89,
+              "left": 60
+            }
+          },
+          {
+            "name": "Cell height",
+            "rect": {
+              "x": 143.109375,
+              "y": 57,
+              "width": 56,
+              "height": 32,
+              "top": 57,
+              "right": 199.109375,
+              "bottom": 89,
+              "left": 143.109375
+            }
+          },
+          {
+            "name": "Straight",
+            "rect": {
+              "x": 278.4375,
+              "y": 57,
+              "width": 83.359375,
+              "height": 32,
+              "top": 57,
+              "right": 361.796875,
+              "bottom": 89,
+              "left": 278.4375
+            }
+          },
+          {
+            "name": "Half-drop",
+            "rect": {
+              "x": 363.796875,
+              "y": 57,
+              "width": 91.359375,
+              "height": 32,
+              "top": 57,
+              "right": 455.15625,
+              "bottom": 89,
+              "left": 363.796875
+            }
+          },
+          {
+            "name": "Brick",
+            "rect": {
+              "x": 457.15625,
+              "y": 57,
+              "width": 68.671875,
+              "height": 32,
+              "top": 57,
+              "right": 525.828125,
+              "bottom": 89,
+              "left": 457.15625
+            }
+          },
+          {
+            "name": "Background color",
+            "rect": {
+              "x": 92.046875,
+              "y": 100,
+              "width": 28,
+              "height": 28,
+              "top": 100,
+              "right": 120.046875,
+              "bottom": 128,
+              "left": 92.046875
+            }
+          },
+          {
+            "name": "Transparent background",
+            "rect": {
+              "x": 186.046875,
+              "y": 106,
+              "width": 16,
+              "height": 16,
+              "top": 106,
+              "right": 202.046875,
+              "bottom": 122,
+              "left": 186.046875
+            }
+          },
+          {
+            "name": "Fit",
+            "rect": {
+              "x": 743.953125,
+              "y": 98,
+              "width": 55.34375,
+              "height": 32,
+              "top": 98,
+              "right": 799.296875,
+              "bottom": 130,
+              "left": 743.953125
+            }
+          },
+          {
+            "name": "Inspect",
+            "rect": {
+              "x": 803.296875,
+              "y": 98,
+              "width": 80.703125,
+              "height": 32,
+              "top": 98,
+              "right": 884,
+              "bottom": 130,
+              "left": 803.296875
+            }
+          },
+          {
+            "name": "Duplicate",
+            "rect": {
+              "x": 381.609375,
+              "y": 144.5,
+              "width": 32,
+              "height": 32,
+              "top": 144.5,
+              "right": 413.609375,
+              "bottom": 176.5,
+              "left": 381.609375
+            }
+          },
+          {
+            "name": "Flip horizontal",
+            "rect": {
+              "x": 422.609375,
+              "y": 144.5,
+              "width": 38.671875,
+              "height": 32,
+              "top": 144.5,
+              "right": 461.28125,
+              "bottom": 176.5,
+              "left": 422.609375
+            }
+          },
+          {
+            "name": "Flip vertical",
+            "rect": {
+              "x": 465.28125,
+              "y": 144.5,
+              "width": 38.015625,
+              "height": 32,
+              "top": 144.5,
+              "right": 503.296875,
+              "bottom": 176.5,
+              "left": 465.28125
+            }
+          },
+          {
+            "name": "Bring to front",
+            "rect": {
+              "x": 512.296875,
+              "y": 144.5,
+              "width": 58.015625,
+              "height": 32,
+              "top": 144.5,
+              "right": 570.3125,
+              "bottom": 176.5,
+              "left": 512.296875
+            }
+          },
+          {
+            "name": "Send to back",
+            "rect": {
+              "x": 574.3125,
+              "y": 144.5,
+              "width": 56.6875,
+              "height": 32,
+              "top": 144.5,
+              "right": 631,
+              "bottom": 176.5,
+              "left": 574.3125
+            }
+          },
+          {
+            "name": "Delete",
+            "rect": {
+              "x": 640,
+              "y": 144.5,
+              "width": 32,
+              "height": 32,
+              "top": 144.5,
+              "right": 672,
+              "bottom": 176.5,
+              "left": 640
+            }
+          }
+        ],
+        "proof": {
+          "x": 697,
+          "y": 843.734375,
+          "width": 176,
+          "height": 132
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+SHA-256 comparison against the supplied v2 archive; no application code executed.
+All pre-existing core implementations (except default background in types.ts), hooks, assets and tests are preserved.
+
+UNCHANGED 8a3269ff12d821441d94c4b4c1907c36456f658a12e89595b61941b6ad755f05  src/core/camera.ts
+UNCHANGED 3ca1f74bf4fdf8b58f0bf4343540ef8cf9dac4704ac7eb8075f93ad1d4f98ac8  src/core/document.ts
+UNCHANGED 407708f2b540cf0d35d36f108f46e8826db5fdc822098a52dd5748067cee132a  src/core/export.ts
+UNCHANGED 93d137e9b0d1428b518b8b6b16e0cbc34366a60732651a4b2816b89ad0ed7f51  src/core/geometry.ts
+UNCHANGED 0e3afca561c6d73c287a5ef62ce32316f9d1445fed2dcf2ee6a1a2197c803c2c  src/core/history.ts
+UNCHANGED 98bf42da66f72c64a9712eac87bdd3086cc18aaba9475650cfba63a793e728a2  src/core/png.ts
+UNCHANGED f76d1b4c4e2d9ed3300d1f7d8bc2198a34d83109bc34fb46c795196678eb93a7  src/core/proof.ts
+UNCHANGED 9968b01ddd2d393ee75a4ebba42f52a6cb7f50b8f948e66cbb5778a4f3c5757c  src/core/transforms.ts
+UNCHANGED 83c49a9142209b9f2f36c3d831de872112b1da623e971a9614c8624728e36603  src/hooks/useHistory.ts
+UNCHANGED 4b1721d0df0dac84720d89e42d428b72a220ec0da63bab721428cb450a24f5d1  src/hooks/useStudio.ts
+UNCHANGED 16200b0a38a1b585678639bbb2c5a87f1f9be806708fa22dfeabd121f2f8a7ce  public/demo/coral-stem.png
+UNCHANGED e54005638f806762961d4a1766d7c6c085efe7185dd3ea1f031837c52df812fa  public/demo/ochre-petal.png
+UNCHANGED 255c84c9c631876a9362338011fdc8494e3359bcc65ea9965a6b18b7cc485929  public/demo/sage-sprig.png
+UNCHANGED 4469f55df289a68e592d2db45b46a0e5b23abd41e555c8877c4c44e4953590ae  tests/camera.test.ts
+UNCHANGED 5a103709cd1c92c7796cdb13f69052448d42c5dc5aa8c5074e648095a4b85477  tests/fixtures.ts
+UNCHANGED 5094cc04e040eaaa7340177c19c7653215932d4b53cbd10246b499064fdabcc9  tests/geometry.test.ts
+UNCHANGED e2e6f474e3fb400f4ca01ebce37f9cbb7df17cc5fb20202410987e489b6a9223  tests/history.test.ts
+UNCHANGED c5b469e3bfd18d31a2ad864a7f01200b616391122cba8e24e148205b4596e475  tests/png.test.ts
+UNCHANGED 2bd2197c709a1884c3bdedd2668b16db119ab959033b1164e139bb212770cdcc  tests/transforms.test.ts
+UNCHANGED 7de9fb5f1f80e8bd7c98415f7dff341a996d2925067e936fa6e43bf5726399bd  e2e/camera-recovery.spec.ts
+UNCHANGED 8ace42929ce5fde568242b877d4989a1abe51a862090d8c8fd44be6a59458731  e2e/compositor.spec.ts
+
+21 unchanged files verified.
+Allowed core/types.ts delta: INITIAL_DOCUMENT.background #f6f1e7 -> #ffffff only.

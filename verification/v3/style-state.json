@@ -1,0 +1,80 @@
+{
+  "scope": "Native DOM/CSS on static source fixtures; NOT React/Konva runtime verification. Not a full accessibility audit.",
+  "results": [
+    {
+      "name": "native color input supports the browser regression test action",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "keyboard field focus has a 2px outline",
+      "passed": true,
+      "detail": "2px"
+    },
+    {
+      "name": "delete hover communicates destructive intent",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "active repeat mode uses the selection accent",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "desktop settings bar is at most 52px",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "--text on --bg-panel contrast >= 4.5",
+      "passed": true,
+      "detail": 15.161578259311923
+    },
+    {
+      "name": "--text-muted on --bg-subtle contrast >= 4.5",
+      "passed": true,
+      "detail": 5.362853090988
+    },
+    {
+      "name": "--accent on --bg-panel contrast >= 4.5",
+      "passed": true,
+      "detail": 6.814284814353323
+    },
+    {
+      "name": "--border-control on --bg-panel contrast >= 3",
+      "passed": true,
+      "detail": 3.2710189801107417
+    },
+    {
+      "name": "--warning on --warning-soft contrast >= 4.5",
+      "passed": true,
+      "detail": 6.735802021008399
+    },
+    {
+      "name": "--danger on --danger-soft contrast >= 4.5",
+      "passed": true,
+      "detail": 6.484584433982508
+    },
+    {
+      "name": "processing primary action retains 80% opacity",
+      "passed": true,
+      "detail": "0.8"
+    },
+    {
+      "name": "valid imported sources are reachable without dismissing errors",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "source scroll keeps valid assets inside their section",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "export action fits the initial 900x650 selected layout",
+      "passed": true,
+      "detail": null
+    }
+  ]
+}

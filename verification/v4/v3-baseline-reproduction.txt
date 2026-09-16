@@ -1,0 +1,127 @@
+FAIL P2-01: delayed demo cannot commit over an active pointer transaction
+AssertionError [ERR_ASSERTION]: Expected "actual" to be reference-equal to "expected":
++ actual - expected
+... Skipped lines
+
+  {
+    H: 1000,
+    W: 1000,
+    background: '#ffffff',
+    mode: 'straight',
+...
+      },
++     {
++       assetId: 'd0',
++       deg: -12,
++       flipX: false,
++       flipY: false,
++       id: 'ec0c6bba-6b03-4426-923d-6461e48cceae',
++       s: 1,
++       x: 250,
++       y: 280
++     },
++     {
++       assetId: 'd1',
++       deg: 24,
++       flipX: false,
++       flipY: false,
++       id: '7e56d7e4-70fd-45b3-a731-b6d2deb744af',
++       s: 1,
++       x: 730,
++       y: 580
++     },
++     {
++       assetId: 'd2',
++       deg: -18,
++       flipX: false,
++       flipY: false,
++       id: 'b7154a5b-0533-4a1a-8f73-4d65fb033ec3',
++       s: 1,
++       x: 320,
++       y: 800
++     }
+    ]
+  }
+
+    at file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:38:10
+    at async check (file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:12:9)
+    at async file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:29:1
+FAIL P2-01: a generic document commit cannot close a held nudge
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+true !== false
+
+    at file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:53:10
+    at async check (file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:12:9)
+    at async file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:50:1
+FAIL P2-02: real source pan handlers do not snap back after wheel zoom
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  {
++   x: 125,
++   y: 66,
++   z: 1
+-   x: 15,
+-   y: 26,
+-   z: 2
+  }
+
+    at file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:178:10
+    at check (file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:12:15)
+    at file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:168:7
+FAIL P2-06: releasing one held arrow keeps the nudge open until the last release
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+1 !== 0
+
+    at file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:197:73
+    at check (file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:12:15)
+    at file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:193:7
+FAIL P2-03: picker native change commits without blur and input draft does not
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+0 !== 1
+
+    at file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:234:10
+    at check (file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:12:15)
+    at file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:230:7
+FAIL P2-04: non-file image/URL drops are canceled before browser default navigation
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+false !== true
+
+    at file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:270:10
+    at check (file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:12:15)
+    at file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:266:7
+FAIL P2-04: thumbnails are explicitly non-draggable in both source and placement lists
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ undefined
+- false
+
+    at file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:277:12
+    at check (file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:12:15)
+    at file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:273:7
+FAIL P2-05: a thrown download initiation cannot publish a new proof
+AssertionError [ERR_ASSERTION]: Expected "actual" to be reference-equal to "expected":
++ actual - expected
+
+  {
+    blob: Blob {
+      [Symbol(kHandle)]: Blob {},
+      [Symbol(kLength)]: 17,
+      [Symbol(kType)]: ''
+    },
++   fingerprint: '{"W":1000,"H":1000,"mode":"straight","background":"#345678","placements":[{"id":"4016397b-75d9-49d8-a45f-d39cf71e6b06","assetId":"source","x":499.9999999999999,"y":499.9999999999999,"s":1,"deg":0,"flipX":false,"flipY":false}]}',
+-   fingerprint: '{"W":1000,"H":1000,"mode":"straight","background":"#ffffff","placements":[{"id":"4016397b-75d9-49d8-a45f-d39cf71e6b06","assetId":"source","x":499.9999999999999,"y":499.9999999999999,"s":1,"deg":0,"flipX":false,"flipY":false}]}',
+    height: 1000,
+    width: 1000
+  }
+
+    at file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:295:10
+    at async check (file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:12:9)
+    at async file:///mnt/data/selvedge-repeat-studio-v4/verification/v4/interaction-check.mjs:290:1
+
+v3 baseline invariant replay: 0 passed; 8 failed. NOT React/Konva runtime verification.

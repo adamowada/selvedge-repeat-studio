@@ -1,0 +1,1 @@
+TypeScript 5.8.3; 35 TS/TSX files syntax-transpiled; 0 errors. Not a semantic app typecheck.

@@ -1,0 +1,48 @@
+{
+  "browser": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/144.0.0.0 Safari/537.36",
+  "execution": "In-memory modules; no app/React/Konva loaded",
+  "batch": {
+    "valid": 3,
+    "errors": 1
+  },
+  "decodedDimensions": [
+    [
+      280,
+      360
+    ],
+    [
+      320,
+      260
+    ],
+    [
+      220,
+      200
+    ]
+  ],
+  "fixtures": [
+    {
+      "name": "coral-stem.png",
+      "transparent": 78804,
+      "translucent": 1962,
+      "sourceBytesPreserved": true
+    },
+    {
+      "name": "sage-sprig.png",
+      "transparent": 65975,
+      "translucent": 2126,
+      "sourceBytesPreserved": true
+    },
+    {
+      "name": "ochre-petal.png",
+      "transparent": 30234,
+      "translucent": 13276,
+      "sourceBytesPreserved": true
+    }
+  ],
+  "proof": {
+    "width": 576,
+    "height": 432,
+    "source": "Original fixture Blob, NOT compositor export"
+  },
+  "fullCompositorSmoke": "NOT RUN: npm dependencies unavailable; loopback navigation also blocked by browser policy"
+}

@@ -1,0 +1,2647 @@
+diff --git a/DESIGN-CHANGES-v3.md b/DESIGN-CHANGES-v3.md
+new file mode 100644
+index 0000000..15c113f
+--- /dev/null
++++ b/DESIGN-CHANGES-v3.md
+@@ -0,0 +1,75 @@
++# v3 design-change checklist
++
++All 61 recommendations from the preceding frontend review are implemented below. Where the review offered alternatives, this records the chosen MVP-sized treatment rather than introducing every alternative. No mobile redesign, UI library, custom Transformer handles, storage, or generic editor framework was added.
++
++Paths abbreviate `src/components/`, `src/styles.css`, and `src/ui/presentation.ts`. Detailed verification and limitations are in `REVIEW-v3.md`.
++
++| # | Review topic | Implemented treatment | Main location |
++| --- | --- | --- | --- |
++| 1 | Canvas priority | 48px header; 52px desktop settings; 44px selection toolbar; 32px footer; narrower sidebars. | styles.css |
++| 2 | Editorial branding | Removed floral logo, serif treatments, slogan, and decorative empty-state emblem. System sans-serif throughout. | App; Workspace; styles |
++| 3 | Legibility | 12–13px primary UI, 11px metadata, 10px only tertiary selection caption; no 8–9px UI text. | styles |
++| 4 | Color system | Neutral surface/text/border tokens; one blue focus/selection/export accent; semantic warning/error states. | styles; ui/presentation |
++| 5 | Horizontal hierarchy | History and Demo in compact application bar; cell/repeat/background/Fit/Inspect together below; contextual selection row belongs to canvas. | App; CellControls |
++| 6 | Contextual toolbar | No selection shows a short instruction instead of six disabled action buttons. | SelectionToolbar |
++| 7 | Explicit groups | Separate duplicate, flip, stack, and delete groups; no nth-child spacing logic for actions. | SelectionToolbar; styles |
++| 8 | Desktop adaptation | 900px minimum width; responsive sidebar widths; narrow settings wrap by group; panels scroll independently. | styles |
++| 9 | Session messaging | One persistent Local session / Refresh clears work message; removed duplicate footer/marketing status. | App; AssetTray |
++| 10 | Demo hierarchy | Subordinate text action in header and task-oriented empty-state CTA, not a primary action. | App; Workspace |
++| 11 | Dimension capacity | 56px numeric fields fit four digits without cramped units. | CellControls; styles |
++| 12 | Compact dimensions | W/H pair with shared px label and accessible individual names. | CellControls |
++| 13 | Background grouping | One labeled group combines swatch, optional hex value, and Transparent; swatch is disabled while transparent. | CellControls |
++| 14 | Repeat diagrams | 20px diagrams use 6px cells and visible 4px stagger offsets; text labels remain. | styles |
++| 15 | Narrow labels | Cell, Repeat, and Background labels stay visible; wrap groups rather than removing labels. | styles |
++| 16 | Import footprint | Large empty drop target collapses to a 36px Add PNGs target after first import. | AssetTray; styles |
++| 17 | Placement affordance | Whole source row places image; descriptive accessible label, border hover, and plus at wider widths; removed zoom animation. | AssetTray; styles |
++| 18 | Source rows | One-column thumbnail/name/native-dimensions list replaces cramped two-column cards. | AssetTray; styles |
++| 19 | Asset empty state | Removed decorative stitches; No source images plus direct import/demo instruction. | AssetTray |
++| 20 | Placement stack | Dense rows, readable metadata, tabular numbers, distinct hover and selected 2px accent edge. | AssetTray; styles |
++| 21 | Stack direction | Visible Topmost first caption describes both order and obscured-item selection. | AssetTray |
++| 22 | Ambiguous numbering | Removed unlabeled stack/index numbers. Array stacking behavior is unchanged. | AssetTray |
++| 23 | Canvas label | Removed always-true LIVE REPEAT overlay. | Workspace |
++| 24 | Cell outline | Neutral gray origin-cell outline instead of selection accent. | Workspace; ui/presentation |
++| 25 | Origin label | 11px screen-equivalent label with neutral color, not zoom-shrinking text. | Workspace |
++| 26 | Transformer acquisition | 11px native corner anchors; native rotation anchor has distinct rounded, filled styling. No custom handles. | Workspace |
++| 27 | Selected identity | Selected source name appears in canvas toolbar with ellipsis and full-name title. | SelectionToolbar |
++| 28 | Action discoverability | Visible Flip H/V and Front/Back labels; compact H/V on narrow canvas; accessible names and native titles retained for icon actions. | SelectionToolbar |
++| 29 | Destructive action | Delete has red hover/focus treatment rather than identical action styling. | SelectionToolbar; styles |
++| 30 | Pan feedback | Footer switches to Panning while Space is held; grab/grabbing cursors remain. | Workspace |
++| 31 | Copy budget status | Zoom is primary; copy count is subdued and gets warning emphasis at 90% of render cap. | Workspace; styles |
++| 32 | Shortcut hints | Selection switches footer to nudge/Shift-step hints; wider canvas adds duplicate/delete; no selection shows pan/zoom. | Workspace |
++| 33 | Canvas empty state | No placements yet, exact source-click instruction, and Add demo CTA. | Workspace |
++| 34 | Neutral empty canvas | Removed beige overlay; initial document background is white; transparency checker remains. | Workspace; types; styles |
++| 35 | Right-panel architecture | Separated Inspector, Export, and PNG verification with task headings and borders. | Inspector; OutputPanel; ProofPanel |
++| 36 | Inspector priority | Selection data precedes export and proof. | OutputPanel |
++| 37 | Output numerals | 18px semibold system sans-serif with tabular numerals, no Georgia. | styles |
++| 38 | Technical diagram | Small rectangle diagram communicates baked tile structure without decorative shadow. | OutputPanel; styles |
++| 39 | Diagram clutter | Removed tiny 0,0 origin annotation. | OutputPanel |
++| 40 | Primary action | Export PNG is the single filled primary action. | OutputPanel; styles |
++| 41 | Progress semantics | Rendering label and aria-busy depend only on export state, not gesture lock; busy button remains visible at 80% opacity. | App; OutputPanel; styles |
++| 42 | Stale proof | Prominent OUT OF DATE badge and explicit edits-not-included status. | ProofPanel; styles |
++| 43 | Proof purpose | PNG verification heading and same-download explanation distinguish proof from live scene. | ProofPanel |
++| 44 | Pixel disclaimer | Readable pixels-only / no DPI-CMYK settings note; no unsupported claim about encoder metadata. | OutputPanel; styles |
++| 45 | Upscale feedback | Global count of placements exceeding native size plus warning for selected enlarged placement. | Inspector; OutputPanel |
++| 46 | Inspector typography | 11px labels, 12px tabular values; values visually outrank labels. | Inspector; styles |
++| 47 | Flip state | Explicit Not flipped, H flipped, V flipped, or H + V flipped in Inspector; placement rows show actual orientation. | Inspector; AssetTray; ui/presentation |
++| 48 | Precise linkage copy | Editing any repeat copy updates this placement. | Inspector |
++| 49 | Focus coverage | Visible focus covers buttons, inputs, selects, textareas, and focusable workspace. | styles |
++| 50 | Native checkbox | 16px native checkbox with consistent accent and focus styling; no custom checkbox component. | styles |
++| 51 | Hover semantics | Neutral toolbar hover, local segmented state, border source hover, red destructive state, distinct primary hover. | styles |
++| 52 | Disabled visibility | Ordinary disabled buttons at 50%; active export at 80%. | styles |
++| 53 | Click targets | 32px minimum action buttons across widths; no 28px toolbar shrinking. | styles |
++| 54 | Constrained errors | Canvas message limited to 440px and available bounds rather than a full-width artwork slab. | Workspace; styles |
++| 55 | Recovery hierarchy | Heading/message/action/close structure; Fit view appears only after count-aware preflight; active render guard stays visible until resolved. | Workspace |
++| 56 | Import validation | Neutral, filename-first errors in source section; readable text and dismiss control; valid sources remain reachable by scrolling. | AssetTray; styles |
++| 57 | Spacing | Shared 4/8/12/16/24px spacing tokens; small optical/diagram offsets are explicit exceptions. | styles |
++| 58 | Radii | 4px controls and 6px panels; native anchors and tiny swatch inset retain purposeful geometry. | styles |
++| 59 | Shadows | Removed decorative drop/segment/diagram shadows; borders and surfaces establish separation. | styles |
++| 60 | Task language | Removed marketing headlines and metaphors in favor of direct import/place/edit/export instructions. | App; AssetTray; Workspace; Inspector |
++| 61 | Terminology | Source image = PNG; placement = independent transform; repeat copy = derived lattice image; tile = exported rectangle. | UI copy; README |
++
++## Functional safeguards accompanying the styling
++
++The previous camera-recovery correction remains intact. New UI state does not enter document history. Native-image import, transforms, enumeration, stacking, undo/redo, and isolated PNG rendering are unchanged. Busy gestures cannot claim an export is rendering. Proof state is keyed to the exact exported Blob; older success state is never reused for a pending or failed new decode. Narrow layouts preserve settings labels, proof aspect ratio, and scroll access to valid imports.
++
++The static Chromium evidence validates layout/CSS only. The complete React/Konva app and its authored browser tests remain unverified because npm dependency installation was blocked. No generated lockfile or production build is included.
+diff --git a/README.md b/README.md
+index 11ed8c2..61a30c4 100644
+--- a/README.md
++++ b/README.md
+@@ -1,16 +1,16 @@
+-# Selvedge · Repeat studio — v2
++# Selvedge Repeat — v3
+ 
+-A one-screen, local desktop-browser compositor for finished PNG motifs. Built with Vite, React, TypeScript, Konva/react-konva, plain CSS, and Vitest. There is no backend, persistence, authentication, external runtime service, or account setup.
++A one-screen, local desktop-browser compositor for finished PNGs. Vite, React, TypeScript, Konva/react-konva, plain CSS, and Vitest. No backend, account, persistence, or external runtime service.
+ 
+-**Delivery status:** v2 implements the P1 camera-recovery correction. The source implementation, regression tests, and `REVIEW-v2.md` are included. This environment could not reach the npm registry (`EAI_AGAIN`), so dependency installation, the npm-generated lockfile, and full app verification are not complete. Do not treat the supplemental checks below as a successful production build or full compositor smoke test.
++**Delivery status:** v3 implements the full 61-item frontend design review and preserves v2's camera-recovery correction. The diff review, recommendation-by-recommendation checklist, regression tests, and observed verification logs are included. npm registry access still fails with `EAI_AGAIN`; **there is no generated `package-lock.json`, installed dependency tree, or production build**. Full app typechecking, Vitest, and live-app Playwright verification did not succeed. Supplemental results below are not substitutes for those checks.
+ 
+-## v2 correction
++## What's changed in v3
+ 
+-Undo/Redo and workspace resizing now preflight the restored view and, when necessary, zoom closer around the same model-space center. Fit starts with the usual several-repeat view and uses the same bounded, copy-count-aware fallback. A camera that is already safe is left unchanged. The placement-list recentering fallback also uses this recovery path.
++The canvas is now framed by a 48px application bar, compact grouped document controls, a contextual selection toolbar, and narrower neutral sidebars. System sans-serif text, readable metadata, restrained borders, consistent spacing, and one selection accent replace the decorative branding. Source images use compact rows; placements have clear stacking direction and explicit flip state. Inspector comes first on the right, followed by Export and PNG verification. Export is the only filled primary action.
+ 
+-When no view at the requested center fits within 800% zoom, an inline error is shown. An already-safe view is preserved on a failed Fit. If a history change or resize leaves the current view over budget, finite, bounded pan/zoom navigation remains available, including through still-over-limit intermediate views. Those intermediate scenes render **zero motif copies**, never a truncated scene. This lets wheel increments accumulate and lets Space-pan reach a less dense center even at maximum zoom.
++The empty state is task-oriented. Pan state, focus, destructive actions, native-size warnings, rejected edits, render-budget recovery, pending exports, proof failures, and stale proofs have distinct feedback. Settings retain their labels at narrow desktop widths; sidebars scroll independently. Desktop layouts were statically audited from **900 × 600** through **1480 × 900**. The shell has a 900px minimum width and 540px minimum height; smaller windows are outside the intended layout. No mobile interface is added.
+ 
+-The 2000-copy cap, document/placement transforms, undo snapshots, assets, and PNG export path are unchanged. No dependencies or app features were added. Version metadata is now 2.0.0.
++All 61 recommendations are mapped to implementation in `DESIGN-CHANGES-v3.md`. `REVIEW-v3.md` records the operational/design diff review and its limitations. The model, enumeration, gesture/history hooks, PNG import/export/proof implementations, and three bundled PNGs are unchanged; the only core-module change is the new document's default white background. The v2 camera-recovery behavior remains intact, including navigation through over-budget views without allocating partial scenes.
+ 
+ ## Install and run
+ 
+@@ -94,7 +94,7 @@ The pure enumerator uses the viewport and each transformed image's bounds, inclu
+ 
+ Stacking is placement-array order, then numeric lexicographic `(i,j)` order within each placement. Preview and export share enumeration, transforms, and native-image props. Export renders on an isolated Konva surface at **pixelRatio=1**, without camera transforms, device-pixel-ratio scaling, cell outlines, or selection handles.
+ 
+-**Export PNG** encodes a PNG Blob, decodes it to verify its requested dimensions, and downloads that Blob. The proof decodes the **same Blob** into a fixed **576 × 432** tiled canvas; it does not re-render the live scene or allocate a giant tiled bitmap. The proof is marked as a previous export when the document changes. Concurrent proof decodes are canceled before drawing stale results. Scales greater than 1 are flagged because they enlarge source pixels. Encoding, decoding, allocation, and download-path exceptions are reported inline; temporary Konva nodes, canvases, bitmaps, and download URLs are disposed without revoking session asset URLs.
++**Export PNG** encodes a PNG Blob, decodes it to verify its requested dimensions, and downloads that Blob. The proof decodes the **same Blob** into a fixed **576 × 432** tiled canvas; it does not re-render the live scene or allocate a giant tiled bitmap. The proof receives an **Out of date** badge when the document changes. A new export hides the previous canvas until that exact new Blob has decoded successfully; decode failures never show a verification check. Concurrent proof decodes are canceled before drawing stale results. Scales greater than 1 are flagged because they enlarge source pixels. Encoding, decoding, allocation, and download-path exceptions are reported inline; temporary Konva nodes, canvases, bitmaps, and download URLs are disposed without revoking session asset URLs.
+ 
+ **Use Basic/Straight repeat elsewhere; staggering is baked in.**
+ 
+@@ -102,34 +102,51 @@ Output is pixel-only browser-canvas PNG. There are no DPI/CMYK controls or produ
+ 
+ ## Source layout
+ 
+-`src/core/geometry.ts` contains lattice bases, transformed bounds, analytic preflight, and enumeration. `transforms.ts` contains camera conversions, shared image props, and copy-to-placement mapping. `camera.ts` shares padded preview bounds and implements count-aware recovery/navigation without allocating copies. `history.ts` is the pure snapshot reducer. `png.ts`, `export.ts`, and `proof.ts` separate import, isolated export, and decoded proof handling. `useStudio.ts` coordinates session assets and document/camera gestures; UI components remain separate from geometry. All styling is in plain `styles.css`.
++`src/core/geometry.ts` contains lattice bases, transformed bounds, analytic preflight, and enumeration. `transforms.ts` contains camera conversions, shared image props, and copy-to-placement mapping. `camera.ts` implements count-aware recovery/navigation without allocating copies. `history.ts` is the snapshot reducer. `png.ts`, `export.ts`, and `proof.ts` separate import, isolated export, and decoded proof handling. `useStudio.ts` coordinates session assets and document/camera gestures.
++
++`App.tsx` owns view-only Inspect state and routes the existing studio handlers. `CellControls`, `AssetTray`, `SelectionToolbar`, `Workspace`, `Inspector`, `OutputPanel`, and `ProofPanel` have distinct UI responsibilities. `src/ui/presentation.ts` holds small pure presentation helpers and shared canvas colors. Styling remains plain `src/styles.css`; no UI kit, router, state library, or additional runtime dependency was added.
+ 
+ ## Tests and actual verification results
+ 
+-The Vitest suite contains **72 cases**: the original 45 cases plus 27 camera-recovery regressions. New coverage includes the original 4096px motif/cell-history counterexample, all three repeat modes, count-aware Fit, Redo-triggered invalidation, resizing, cumulative wheel recovery, off-center pointer invariance, panning at maximum zoom, invalid inputs, pinned-copy accounting, termination, and unchanged history/transforms.
++There are **87 Vitest cases**: the existing 72 geometry, history, and camera-recovery cases plus 15 presentation cases. The new cases cover mode/flip labels, empty/pending/verified/stale/failed proof states, canvas/CSS color consistency, readable typography, and proof aspect-ratio rules.
+ 
+-There are **14 Playwright tests**: the original eight compositor/import/PNG tests plus six camera-regression tests. The new tests drive real Undo/Redo, Fit, placement nudging, ResizeObserver callbacks, and Space-pan. They use a generated 32px alpha PNG scaled to 4096 × 4096 model-space bounds; the unit counterexample uses a native 4096 × 4096 asset. These browser tests are authored but **have not run successfully** in this environment.
++There are **23 Playwright tests**: the existing 14 compositor/camera tests plus nine UI regressions. New browser cases cover 900/960/1280/1480px layouts, import and selection state, flip undo/redo, native background controls, rejected dimension commits, Fit/Inspect focus, Space mode, gesture/export state separation, stale proof, and proof decode failure. These tests are authored but **not successfully executed against the running app in this environment**.
+ 
+-### v2 commands actually attempted
++### Commands actually attempted for v3
+ 
+-Environment: Node 22.16.0, npm 10.9.2. The supplemental compiler is the environment's TypeScript 5.8.3, **not** the uninstalled pinned 5.9.3 toolchain.
++Environment: Node 22.16.0, npm 10.9.2. The supplemental compiler is the environment's TypeScript **5.8.3**, not the uninstalled pinned 5.9.3 toolchain.
+ 
+-| Command/check | Observed v2 result |
++| Command/check | Observed v3 result |
+ | --- | --- |
+-| `npm install --fetch-retries=0 --fetch-timeout=5000 --no-audit --no-fund` | Failed: npm registry DNS `EAI_AGAIN`. No dependencies or generated lockfile. |
++| `npm install --fetch-retries=0 --fetch-timeout=1000 --no-audit --no-fund` | Stopped by a 30-second timeout without dependencies or lockfile. A separate registry ping confirmed DNS `EAI_AGAIN`. |
++| `npm ping --fetch-retries=0 --fetch-timeout=5000` | Failed: npm registry DNS `EAI_AGAIN`. |
+ | `npm run typecheck` | Failed: dependency-provided `node` and `vite/client` types unavailable. |
+-| `npm run build` | Failed: `vite` executable unavailable. No production build. |
+-| `npm run test` | Failed: `vitest` executable unavailable. |
+-| `npm run test:browser` | Failed: the local JavaScript Playwright package is unavailable; the environment's other CLI rejects `test`. |
+-| Supplemental strict core typecheck | Passed for types, geometry, transforms, camera recovery, history, and document modules. Exact command in `verification/v2/core-typecheck.txt`. |
+-| Supplemental Node assertion replay | **72 passed, 0 failed.** Uses the test bodies against transpiled pure modules and Node assertions, not Vitest or a browser. |
++| `npm run build` | Failed: `vite` unavailable. No production build. |
++| `npm run test` | Failed: `vitest` unavailable. |
++| `npm run test:browser` | Failed: JavaScript Playwright unavailable; the environment's other CLI rejects `test`. |
++| Supplemental isolated strict typecheck | Passed for core model/geometry/camera/history/document modules and UI helpers. Not a full app typecheck. |
++| Supplemental Node assertion replay | **87 passed, 0 failed.** Transpiled pure test bodies with Node assertions, not a Vitest run. |
++| Component source/handler checks | **22 passed, 0 failed.** Actual component functions with a lightweight hook/JSX capture adapter; effects suppressed. Not React/Konva runtime verification. |
++| TS/TSX syntax transpilation | **35 files, zero syntax errors.** Not semantic dependency typechecking. |
++| In-memory Chromium layout audit | **15 fixtures, 120 assertions passed.** Actual source-generated markup and CSS, with a static SVG scene projection, not live React/Konva. |
++| In-memory Chromium style/state audit | **15 checks passed**, including focus/hover, selected state, specified palette contrast pairs, busy opacity, valid-source reachability, and Export visibility at 900 × 650. |
++| Baseline preservation | SHA-256 comparison verified **21 pre-existing core/hook/asset/test files unchanged**; default background change separately reviewed. |
++
++All current results and exact commands are under `verification/v3/`. Historical `verification/v1/`, `verification/v2/`, and `REVIEW-v2.md` are retained as history, not represented as new v3 checks.
++
++### Supplemental audit reproduction
+ 
+-The audit-only replay script is included in `verification/v2/replay-core.mjs`. It uses local TypeScript when installed, or an explicitly supplied module path. The exact command used here was:
++The ordinary validation path is `npm run typecheck`, `npm run test`, `npm run build`, and `npm run test:browser`. The audit-only scripts below are optional evidence tools, not application dependencies or replacement test runners. They use local TypeScript when available, or the explicitly supplied `TYPESCRIPT_PATH`. The paths in these observed commands refer to this delivery environment:
+ 
+ ```sh
+-TYPESCRIPT_PATH=/opt/nvm/versions/node/v22.16.0/lib/node_modules/typescript node verification/v2/replay-core.mjs
++TYPESCRIPT_PATH=/opt/nvm/versions/node/v22.16.0/lib/node_modules/typescript node verification/v3/replay-core.mjs
++TYPESCRIPT_PATH=/opt/nvm/versions/node/v22.16.0/lib/node_modules/typescript node verification/v3/component-check.mjs
++TYPESCRIPT_PATH=/opt/nvm/versions/node/v22.16.0/lib/node_modules/typescript node verification/v3/syntax-check.mjs
++TYPESCRIPT_PATH=/opt/nvm/versions/node/v22.16.0/lib/node_modules/typescript node verification/v3/source-harness.mjs /mnt/data/v3-ui-fixtures
++PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium python verification/v3/layout-audit.py /mnt/data/v3-ui-fixtures
++PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium python verification/v3/style-state-audit.py /mnt/data/v3-ui-fixtures
+ ```
+ 
+-The normal validation command remains `npm run test`; the replay does not validate Vitest integration or React/Konva behavior. V2 logs are in `verification/v2/`. Prior delivery logs are preserved separately in `verification/v1/` and are not new v2 verification.
++The last two scripts require Python Playwright and Chromium; these were available in the delivery environment. Static audit screenshots are explicitly fixtures: React effects are suppressed and the scene is SVG, not Konva. They establish DOM/CSS layout, not real gesture or export correctness.
+ 
+-**Still unverified:** full pinned-dependency type compatibility/build; actual browser camera/gesture integration; compositor export dimensions, stacking, and tiled-PNG/reference comparisons. **`package-lock.json` remains missing** because registry access failed; no incomplete lockfile has been fabricated. See `REVIEW-v2.md` for the adversarial review of the correction and its code traces.
++**Still unverified:** installed pinned-dependency type compatibility/build; actual React effect scheduling and Konva gestures after the UI change; compositor-generated PNG dimensions, stacking, translucent overlap, and tiled-PNG/reference comparisons. The authored full-app tests target these areas. No cross-browser, screen-reader, or full accessibility-conformance claim is made.
+diff --git a/e2e/ui.spec.ts b/e2e/ui.spec.ts
+new file mode 100644
+index 0000000..e338cb1
+--- /dev/null
++++ b/e2e/ui.spec.ts
+@@ -0,0 +1,150 @@
++import { test, expect, type Page } from '@playwright/test';
++import { readFileSync } from 'node:fs';
++import path from 'node:path';
++
++const state = (page: Page) => page.evaluate(() => window.__studio!.state());
++async function demo(page: Page) {
++  await page.goto('/');
++  await page.getByRole('button', { name: 'Start with demo', exact: true }).click();
++  await expect(page.getByTestId('placement-item')).toHaveCount(3);
++  await page.getByTestId('placement-item').last().click();
++}
++
++for (const width of [900, 960, 1280, 1480]) {
++  test(`utility layout at ${width}px: no clipped controls, visible groups and selection identity`, async ({ page }) => {
++    await page.setViewportSize({ width, height: 800 });
++    await demo(page);
++    await expect(page.locator('.selection-context')).toContainText('coral-stem');
++    await expect(page.locator('.upload-zone')).toHaveClass(/compact/);
++    await expect(page.getByRole('heading', { name: 'Inspector', exact: true })).toBeVisible();
++    await expect(page.getByRole('button', { name: 'Bring to front', exact: true })).toBeVisible();
++    await expect(page.getByRole('button', { name: 'Send to back', exact: true })).toBeVisible();
++    const metrics = await page.evaluate(() => {
++      const el = (s: string) => document.querySelector<HTMLElement>(s)!;
++      const groups = ['.app-header', '.document-toolbar', '.canvas-toolbar', '.canvas-footer', '.output-summary'];
++      return {
++        pageOverflow: document.documentElement.scrollWidth > innerWidth,
++        groupOverflow: groups.filter(s => el(s).scrollWidth > el(s).clientWidth + 1),
++        canvasWidth: el('.canvas-host').clientWidth,
++        headerHeight: el('.app-header').offsetHeight,
++        inspectorFirst: el('.output-sidebar').firstElementChild?.classList.contains('selection-section'),
++        tinyText: [...document.querySelectorAll<HTMLElement>('button, p, small, dt, dd')]
++          .filter(e => e.checkVisibility() && parseFloat(getComputedStyle(e).fontSize) < 10).length,
++      };
++    });
++    expect(metrics.pageOverflow).toBe(false);
++    expect(metrics.groupOverflow).toEqual([]);
++    expect(metrics.canvasWidth).toBeGreaterThanOrEqual(400);
++    expect(metrics.headerHeight).toBe(48);
++    expect(metrics.inspectorFirst).toBe(true);
++    expect(metrics.tinyText).toBe(0);
++  });
++}
++
++test('empty controls, compact batch import and selection transform feedback', async ({ page }) => {
++  await page.goto('/');
++  await expect(page.getByRole('heading', { name: 'No placements yet' })).toBeVisible();
++  await expect(page.getByRole('button', { name: 'Delete', exact: true })).toHaveCount(0);
++  await page.getByTestId('png-input').setInputFiles([
++    { name: 'broken.png', mimeType: 'image/png', buffer: Buffer.from('not png') },
++    { name: 'source.png', mimeType: 'image/png', buffer: readFileSync(path.resolve('public/demo/coral-stem.png')) },
++  ]);
++  await expect(page.getByTestId('asset-card')).toHaveCount(1);
++  await expect(page.getByRole('alert')).toContainText('broken.png');
++  await expect(page.locator('.upload-zone')).toContainText('Add PNGs');
++  await page.getByTestId('asset-card').click();
++  await page.getByRole('button', { name: 'Flip horizontal', exact: true }).click();
++  await expect(page.getByTestId('selected-flips')).toHaveText('H flipped');
++  await page.getByRole('button', { name: 'Flip vertical', exact: true }).click();
++  await expect(page.getByTestId('selected-flips')).toHaveText('H + V flipped');
++  await page.keyboard.press('Control+z');
++  await expect(page.getByTestId('selected-flips')).toHaveText('H flipped');
++  await page.keyboard.press('Control+Shift+z');
++  await expect(page.getByTestId('selected-flips')).toHaveText('H + V flipped');
++});
++
++test('background is one control, remembers last color and validates on commit', async ({ page }) => {
++  await demo(page);
++  const before = (await state(page)).doc.placements;
++  const color = page.getByLabel('Background color', { exact: true });
++  await color.fill('#345678');
++  await page.getByLabel('Cell width', { exact: true }).focus();
++  expect((await state(page)).doc.background).toBe('#345678');
++  await page.getByLabel('Transparent background', { exact: true }).check();
++  expect((await state(page)).doc.background).toBeNull();
++  await expect(color).toBeDisabled();
++  await page.getByLabel('Transparent background', { exact: true }).uncheck();
++  expect((await state(page)).doc.background).toBe('#345678');
++  await expect(color).toBeEnabled();
++  const field = page.getByLabel('Cell width', { exact: true });
++  await field.fill('1.5'); await field.press('Enter');
++  await expect(field).toHaveValue('1000');
++  await expect(page.getByRole('alert')).toContainText('whole pixels');
++  expect((await state(page)).doc.placements).toEqual(before);
++});
++
++test('Fit/Inspect focus, Space mode and gesture lock do not masquerade as exporting', async ({ page }) => {
++  await demo(page);
++  await page.getByRole('button', { name: 'Inspect', exact: true }).click();
++  await expect(page.getByTestId('workspace')).toBeFocused();
++  await expect(page.getByRole('button', { name: 'Inspect', exact: true })).toHaveAttribute('aria-pressed', 'true');
++  const before = await state(page);
++  await page.keyboard.down('Space');
++  await expect(page.getByTestId('workspace-hint')).toContainText('Panning');
++  await page.keyboard.up('Space');
++  await expect(page.getByTestId('pan-surface')).toHaveCount(0);
++  await page.keyboard.down('ArrowRight');
++  await expect(page.getByRole('button', { name: 'Export PNG', exact: true })).toBeDisabled();
++  await expect(page.getByRole('button', { name: 'Export PNG', exact: true })).toHaveAttribute('aria-busy', 'false');
++  await expect(page.getByText('Rendering PNG…', { exact: true })).toHaveCount(0);
++  await page.keyboard.up('ArrowRight');
++  await expect(page.getByRole('button', { name: 'Export PNG', exact: true })).toBeEnabled();
++  expect((await state(page)).past).toBe(before.past + 1);
++  await page.getByLabel('Cell width', { exact: true }).focus();
++  const after = await state(page);
++  await page.keyboard.press('Control+d');
++  expect((await state(page)).doc.placements).toEqual(after.doc.placements);
++});
++
++test('PNG verification marks edited output stale and only resets after a new verified export', async ({ page }) => {
++  await demo(page);
++  for (const name of ['Cell width', 'Cell height']) {
++    const field = page.getByLabel(name, { exact: true });
++    await field.fill('501'); await field.press('Enter');
++  }
++  const downloaded = page.waitForEvent('download');
++  await page.getByRole('button', { name: 'Export PNG', exact: true }).click();
++  await downloaded;
++  await expect(page.getByTestId('proof-status')).toHaveText('Decoded PNG · dimensions verified');
++  await expect(page.getByTestId('proof-stale')).toHaveCount(0);
++  await page.getByTestId('workspace').focus();
++  await page.keyboard.press('ArrowRight');
++  await expect(page.getByTestId('proof-stale')).toHaveText('Out of date');
++  await expect(page.getByTestId('proof-status')).toHaveText('Previous export · edits not included');
++  await expect(page.getByTestId('export-proof')).toBeVisible();
++  const second = page.waitForEvent('download');
++  await page.getByRole('button', { name: 'Export PNG', exact: true }).click();
++  await second;
++  await expect(page.getByTestId('proof-status')).toHaveText('Decoded PNG · dimensions verified');
++  await expect(page.getByTestId('proof-stale')).toHaveCount(0);
++  expect(await page.getByTestId('export-proof').evaluate((canvas: HTMLCanvasElement) => [canvas.width, canvas.height])).toEqual([576, 432]);
++});
++
++test('proof decode failure is explicit and never displays a success indicator', async ({ page }) => {
++  await demo(page);
++  await page.evaluate(() => {
++    const decode = window.createImageBitmap.bind(window);
++    let calls = 0;
++    // First decode is export's dimension check; second is the proof's same-Blob decode.
++    window.createImageBitmap = ((...args: Parameters<typeof createImageBitmap>) => {
++      if (++calls === 2) return Promise.reject(new Error('Deliberate proof decode failure'));
++      return Reflect.apply(decode, window, args);
++    }) as typeof createImageBitmap;
++  });
++  const downloaded = page.waitForEvent('download');
++  await page.getByRole('button', { name: 'Export PNG', exact: true }).click();
++  await downloaded;
++  await expect(page.getByTestId('proof-status')).toHaveText('PNG verification failed');
++  await expect(page.getByRole('alert')).toContainText('Deliberate proof decode failure');
++  await expect(page.getByTestId('export-proof')).toBeHidden();
++});
+diff --git a/index.html b/index.html
+index e51bb50..264edce 100644
+--- a/index.html
++++ b/index.html
+@@ -3,9 +3,9 @@
+   <head>
+     <meta charset="UTF-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+-    <meta name="theme-color" content="#f6f4ef" />
++    <meta name="theme-color" content="#f7f8fa" />
+     <meta name="description" content="A local, pixel-only textile repeat compositor. Your images stay in your browser." />
+-    <title>Selvedge — Repeat studio</title>
++    <title>Selvedge Repeat</title>
+   </head>
+   <body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body>
+ </html>
+diff --git a/package.json b/package.json
+index 342b8ea..23f50d2 100644
+--- a/package.json
++++ b/package.json
+@@ -1,7 +1,7 @@
+ {
+   "name": "selvedge-repeat-studio",
+   "private": true,
+-  "version": "2.0.0",
++  "version": "3.0.0",
+   "type": "module",
+   "engines": { "node": ">=22.12.0" },
+   "scripts": {
+diff --git a/src/App.tsx b/src/App.tsx
+index 53f0168..bd185cc 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -1,4 +1,4 @@
+-import { useEffect, useRef } from 'react';
++import { useEffect, useRef, useState } from 'react';
+ import { AssetTray } from './components/AssetTray';
+ import { CellControls } from './components/CellControls';
+ import { Icon } from './components/Icon';
+@@ -9,6 +9,7 @@ import { makeSmokeBridge } from './smokeBridge';
+ 
+ export default function App() {
+   const s = useStudio();
++  const [inspect, setInspect] = useState(false);
+   const latest = useRef(s);
+   latest.current = s;
+   useEffect(() => {
+@@ -19,19 +20,39 @@ export default function App() {
+   }, []);
+   const doc = s.history.present;
+   const selected = doc.placements.find(p => p.id === s.selection?.id);
++  const selectedAsset = s.assets.find(a => a.id === selected?.assetId);
+   const busy = s.history.baseline !== null || s.exporting;
+-  return <div className="app-shell" onDragOver={e => { if (e.dataTransfer.types.includes('Files')) e.preventDefault(); }} onDrop={e => { if (e.dataTransfer.files.length) { e.preventDefault(); void s.onFiles(Array.from(e.dataTransfer.files)); } }}>
++  const focusWorkspace = () => s.focusRef.current?.focus({ preventScroll: true });
++
++  return <div className="app-shell"
++    onDragOver={e => { if (e.dataTransfer.types.includes('Files')) e.preventDefault(); }}
++    onDrop={e => { if (e.dataTransfer.files.length) { e.preventDefault(); void s.onFiles(Array.from(e.dataTransfer.files)); } }}>
+     <header className="app-header">
+-      <div className="brand"><span className="brand-mark" aria-hidden="true"><i /><i /><i /><i /></span><span className="brand-name">selvedge<span>REPEAT STUDIO</span></span></div>
+-      <div className="header-caption">Your motifs. <span>An endless canvas.</span></div>
+-      <div className="header-actions"><span className="local-badge"><span className="status-dot" />Made locally. Stays local.</span><button className="demo-button" disabled={!!s.loading || busy} onClick={() => void s.addDemo()}><Icon name="grid" size={16} />Add demo</button></div>
++      <span className="brand-name">Selvedge <span>Repeat</span></span>
++      <span className="session-note">Local session <span aria-hidden="true">·</span> Refresh clears work</span>
++      <div className="header-actions">
++        <div className="history-buttons" role="group" aria-label="Document history">
++          <button className="icon-button" aria-label="Undo" title="Undo · Ctrl/Cmd Z" disabled={!s.history.past.length || busy} onClick={() => s.action('undo')}><Icon name="undo" /></button>
++          <button className="icon-button" aria-label="Redo" title="Redo · Ctrl/Cmd Shift Z" disabled={!s.history.future.length || busy} onClick={() => s.action('redo')}><Icon name="redo" /></button>
++        </div>
++        <button className="text-button demo-button" aria-label="Add demo" disabled={!!s.loading || busy} onClick={() => void s.addDemo()}>Demo</button>
++      </div>
+     </header>
+-    <CellControls doc={doc} busy={busy} canUndo={!!s.history.past.length} canRedo={!!s.history.future.length} commit={s.tryDocument} undo={() => s.action('undo')} redo={() => s.action('redo')} />
++    <CellControls doc={doc} busy={busy} commit={s.tryDocument} inspect={inspect}
++      onFit={() => { s.fit(); focusWorkspace(); }}
++      onInspect={() => { setInspect(value => !value); focusWorkspace(); }} />
+     <main className="studio-layout">
+-      <AssetTray assets={s.assets} placements={doc.placements} selected={s.selection?.id} loading={!!s.loading} errors={s.importErrors} onFiles={files => void s.onFiles(files)} onInsert={s.insert} onSelect={s.selectPlacement} clearErrors={() => s.setImportErrors([])} />
+-      <Workspace doc={doc} assets={s.assetMap} camera={s.camera} selection={s.selection} pin={s.pin} size={s.size} busy={busy} error={s.error} focusRef={s.focusRef}
+-        onSize={s.onSize} onCamera={s.tryCamera} onSelect={s.setSelection} onBegin={s.begin} onNode={s.onNode} onEnd={s.end} onAction={s.action} onNudge={s.nudge} onNudgeEnd={s.endNudge} onFit={s.fit} clearError={() => s.setError(null)} onStage={s.onStage} />
+-      <OutputPanel doc={doc} selected={selected} asset={s.assets.find(a => a.id === selected?.assetId)} result={s.result} busy={busy} error={s.exportError} onExport={() => void s.doExport()} />
++      <AssetTray assets={s.assets} placements={doc.placements} selected={s.selection?.id} loading={!!s.loading} busy={busy}
++        errors={s.importErrors} onFiles={files => void s.onFiles(files)} onInsert={s.insert} onSelect={s.selectPlacement}
++        clearErrors={() => s.setImportErrors([])} />
++      <Workspace doc={doc} assets={s.assetMap} camera={s.camera} selection={s.selection} selectedName={selectedAsset?.name}
++        pin={s.pin} size={s.size} busy={busy} error={s.error} focusRef={s.focusRef} inspect={inspect}
++        demoBusy={!!s.loading || busy} onDemo={() => void s.addDemo()}
++        onSize={s.onSize} onCamera={s.tryCamera} onSelect={s.setSelection} onBegin={s.begin} onNode={s.onNode}
++        onEnd={s.end} onAction={s.action} onNudge={s.nudge} onNudgeEnd={s.endNudge} onFit={s.fit}
++        clearError={() => s.setError(null)} onStage={s.onStage} />
++      <OutputPanel doc={doc} selected={selected} asset={selectedAsset} result={s.result} busy={busy}
++        exporting={s.exporting} error={s.exportError} onExport={() => void s.doExport()} />
+     </main>
+   </div>;
+ }
+diff --git a/src/components/AssetTray.tsx b/src/components/AssetTray.tsx
+index cd9d33e..94e2aa0 100644
+--- a/src/components/AssetTray.tsx
++++ b/src/components/AssetTray.tsx
+@@ -1,5 +1,6 @@
+ import { useRef, useState } from 'react';
+ import type { NamedAsset, Placement } from '../core/types';
++import { flipLabel } from '../ui/presentation';
+ import { Icon } from './Icon';
+ 
+ interface Props {
+@@ -7,51 +8,63 @@ interface Props {
+   placements: Placement[];
+   selected: string | undefined;
+   loading: boolean;
++  busy: boolean;
+   errors: string[];
+   onFiles: (files: File[]) => void;
+   onInsert: (asset: NamedAsset) => void;
+   onSelect: (id: string) => void;
+   clearErrors: () => void;
+ }
+-export function AssetTray({ assets, placements, selected, loading, errors, onFiles, onInsert, onSelect, clearErrors }: Props) {
++export function AssetTray({ assets, placements, selected, loading, busy, errors, onFiles, onInsert, onSelect, clearErrors }: Props) {
+   const input = useRef<HTMLInputElement>(null);
+   const [over, setOver] = useState(false);
+-  return <aside className="asset-sidebar">
+-    <section className="asset-section">
+-      <div className="section-heading"><h2>Source images</h2><span className="count">{assets.length.toString().padStart(2, '0')}</span></div>
+-      <button className={`upload-zone ${over ? 'drag-over' : ''}`} disabled={loading} onClick={() => input.current?.click()}
+-        onDragOver={e => { e.preventDefault(); e.stopPropagation(); setOver(true); }} onDragLeave={() => setOver(false)}
++  const compact = assets.length > 0;
++  return <aside className="asset-sidebar" aria-label="Sources and placements">
++    <section className="asset-section" aria-labelledby="sources-heading">
++      <div className="section-heading"><h2 id="sources-heading">Source images</h2><span className="count">{assets.length}</span></div>
++      <button className={`upload-zone ${compact ? 'compact' : ''} ${over ? 'drag-over' : ''}`} disabled={loading}
++        onClick={() => input.current?.click()}
++        onDragOver={e => { e.preventDefault(); e.stopPropagation(); if (e.dataTransfer.types.includes('Files')) setOver(true); }}
++        onDragLeave={e => { if (!(e.relatedTarget instanceof Node) || !e.currentTarget.contains(e.relatedTarget)) setOver(false); }}
+         onDrop={e => { e.preventDefault(); e.stopPropagation(); setOver(false); onFiles(Array.from(e.dataTransfer.files)); }}>
+-        <span className="upload-icon"><Icon name="upload" size={20} /></span>
+-        <strong>{loading ? 'Reading your PNGs…' : 'Drop your PNGs here'}</strong>
+-        <span>or <u>browse files</u></span>
++        <Icon name={compact ? 'plus' : 'upload'} size={18} />
++        <strong>{loading ? 'Reading PNGs…' : compact ? 'Add PNGs' : 'Drop PNGs or browse'}</strong>
+       </button>
+-      <input ref={input} data-testid="png-input" type="file" accept=".png,image/png" multiple hidden onChange={e => { onFiles(Array.from(e.target.files ?? [])); e.target.value = ''; }} />
+-      <p className="small-note">Original pixels & alpha kept.<br />Up to 4096 × 4096 px per image.</p>
+-      {!!errors.length && <div className="import-errors" role="alert"><button aria-label="Dismiss import errors" onClick={clearErrors}><Icon name="close" size={14} /></button>{errors.map((error, i) => <p key={i}>{error}</p>)}</div>}
+-      <div className="asset-grid">
+-        {assets.map(asset => <button key={asset.id} className="asset-card" data-testid="asset-card" title={`Place ${asset.name}`} onClick={() => onInsert(asset)}>
+-          <div className="asset-thumbnail checker"><img src={asset.image.src} alt={asset.name} /><span className="asset-plus"><Icon name="plus" size={14} /></span></div>
+-          <span className="asset-name">{asset.name}</span><span className="asset-dimensions">{asset.nativeW} × {asset.nativeH}</span>
+-        </button>)}
++      <input ref={input} data-testid="png-input" type="file" accept=".png,image/png" multiple hidden
++        onChange={e => { onFiles(Array.from(e.target.files ?? [])); e.target.value = ''; }} />
++      <p className="source-note">Native pixels + alpha · up to 4096 px/side</p>
++      <div className="source-content">
++        {!!errors.length && <div className="import-errors" role="alert">
++          <div className="message-heading"><Icon name="alert" size={16} /><strong>Some files were not imported</strong>
++            <button className="icon-button" aria-label="Dismiss import errors" onClick={clearErrors}><Icon name="close" size={16} /></button></div>
++          <div className="import-error-list">{errors.map((error, i) => <p key={i}>{error}</p>)}</div>
++        </div>}
++        <div className="asset-list">
++          {assets.map(asset => <button key={asset.id} className="asset-card" data-testid="asset-card" aria-label={`Place ${asset.name}`}
++            title={`${asset.name} · ${asset.nativeW} × ${asset.nativeH} px`} disabled={busy} onClick={() => onInsert(asset)}>
++            <span className="asset-thumbnail checker"><img src={asset.image.src} alt="" /></span>
++            <span className="asset-text"><strong>{asset.name}</strong><span>{asset.nativeW} × {asset.nativeH} px</span></span>
++            <span className="asset-place" aria-hidden="true"><Icon name="plus" size={16} /></span>
++          </button>)}
++          {!assets.length && <div className="empty-assets"><strong>No source images</strong><p>Drop PNGs above or add the demo.</p></div>}
++        </div>
+       </div>
+-      {!assets.length && <div className="empty-assets"><span className="empty-stitches" aria-hidden="true">＋ ＋ ＋</span><p>Your motif library starts here.</p><span>Add finished PNGs or try the demo.</span></div>}
+     </section>
+-    <section className="placement-section">
+-      <div className="section-heading"><h2>Placements</h2><span className="count">{placements.length.toString().padStart(2, '0')}</span></div>
+-      <p className="small-note">Front to back · select hidden motifs here.</p>
++    <section className="placement-section" aria-labelledby="placements-heading">
++      <div className="section-heading"><h2 id="placements-heading">Placements</h2><span className="count">{placements.length}</span></div>
++      <p className="list-caption">Topmost first · select obscured items here</p>
+       <div className="placement-list" data-testid="placement-list">
+-        {[...placements].reverse().map((p, i) => {
++        {[...placements].reverse().map(p => {
+           const a = assets.find(a => a.id === p.assetId);
+-          return <button key={p.id} className={`placement-item ${selected === p.id ? 'selected' : ''}`} data-testid="placement-item" aria-pressed={selected === p.id} onClick={() => onSelect(p.id)}>
++          return <button key={p.id} className={`placement-item ${selected === p.id ? 'selected' : ''}`} data-testid="placement-item"
++            aria-pressed={selected === p.id} title={`${a?.name ?? 'Source image'} · ${flipLabel(p)}`} disabled={busy} onClick={() => onSelect(p.id)}>
+             <span className="placement-thumb checker">{a && <img src={a.image.src} alt="" />}</span>
+-            <span className="placement-title"><strong>{a?.name ?? 'Image'}</strong><small>{Math.round(p.s * 100)}% · {Math.round(p.deg)}°{p.flipX || p.flipY ? ' · flipped' : ''}</small></span>
+-            <span className="placement-index">{String(placements.length - i).padStart(2, '0')}</span>
++            <span className="placement-title"><strong>{a?.name ?? 'Source image'}</strong>
++              <small>{Math.round(p.s * 100)}% · {Math.round(p.deg)}°{p.flipX || p.flipY ? ` · ${flipLabel(p)}` : ''}</small></span>
+           </button>;
+         })}
+-        {!placements.length && <p className="placement-empty">Click an image to place it.<br />Every repeat stays linked.</p>}
++        {!placements.length && <p className="placement-empty">Click a source image to create a placement.</p>}
+       </div>
+     </section>
+-    <div className="session-note"><span className="status-dot" /><span>Local session only<br /><small>Refresh clears your work.</small></span></div>
+   </aside>;
+ }
+diff --git a/src/components/CellControls.tsx b/src/components/CellControls.tsx
+index a05f556..36d3c28 100644
+--- a/src/components/CellControls.tsx
++++ b/src/components/CellControls.tsx
+@@ -1,20 +1,20 @@
+ import { useEffect, useState } from 'react';
+ import type { Mode, RepeatDocument } from '../core/types';
++import { MODE_LABELS } from '../ui/presentation';
+ import { Icon } from './Icon';
+ 
+ interface Props {
+   doc: RepeatDocument;
+   busy: boolean;
+-  canUndo: boolean;
+-  canRedo: boolean;
+   commit: (next: RepeatDocument) => boolean;
+-  undo: () => void;
+-  redo: () => void;
++  inspect: boolean;
++  onFit: () => void;
++  onInspect: () => void;
+ }
+-export function CellControls({ doc, busy, canUndo, canRedo, commit, undo, redo }: Props) {
++export function CellControls({ doc, busy, commit, inspect, onFit, onInspect }: Props) {
+   const [width, setWidth] = useState(String(doc.W));
+   const [height, setHeight] = useState(String(doc.H));
+-  const [color, setColor] = useState(doc.background ?? '#f6f1e7');
++  const [color, setColor] = useState(doc.background ?? '#ffffff');
+   useEffect(() => { setWidth(String(doc.W)); setHeight(String(doc.H)); }, [doc.W, doc.H]);
+   useEffect(() => { if (doc.background) setColor(doc.background); }, [doc.background]);
+   const dimensions = () => {
+@@ -22,26 +22,47 @@ export function CellControls({ doc, busy, canUndo, canRedo, commit, undo, redo }
+     const H = /^\d+$/.test(height) ? Number(height) : NaN;
+     if (!commit({ ...doc, W, H })) { setWidth(String(doc.W)); setHeight(String(doc.H)); }
+   };
+-  return <div className="document-toolbar">
+-    <div className="toolbar-group size-group">
++  const commitColor = () => {
++    if (doc.background && !commit({ ...doc, background: color })) setColor(doc.background);
++  };
++  return <div className="document-toolbar" aria-label="Repeat settings">
++    <div className="toolbar-group size-group" role="group" aria-label="Cell size">
+       <span className="toolbar-label">Cell</span>
+-      <label className="dimension"><span>W</span><input aria-label="Cell width" value={width} inputMode="numeric" disabled={busy} onChange={e => setWidth(e.target.value)} onBlur={dimensions} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); }} /><span>px</span></label>
+-      <span className="times">×</span>
+-      <label className="dimension"><span>H</span><input aria-label="Cell height" value={height} inputMode="numeric" disabled={busy} onChange={e => setHeight(e.target.value)} onBlur={dimensions} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); }} /><span>px</span></label>
++      <div className="dimension-pair">
++        <label className="dimension"><span>W</span><input aria-label="Cell width" value={width} inputMode="numeric" disabled={busy}
++          onChange={e => setWidth(e.target.value)} onBlur={dimensions}
++          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); } }} /></label>
++        <span className="times" aria-hidden="true">×</span>
++        <label className="dimension"><span>H</span><input aria-label="Cell height" value={height} inputMode="numeric" disabled={busy}
++          onChange={e => setHeight(e.target.value)} onBlur={dimensions}
++          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); } }} /></label>
++      </div>
++      <span className="unit">px</span>
+     </div>
+     <div className="toolbar-group mode-group">
+       <span className="toolbar-label">Repeat</span>
+-      <div className="segments" aria-label="Repeat mode">
+-        {(['straight', 'half-drop', 'brick'] as Mode[]).map(mode => <button key={mode} aria-pressed={doc.mode === mode} disabled={busy} onClick={() => commit({ ...doc, mode })}><span className={`mode-icon ${mode}`} aria-hidden="true"><i /><i /><i /><i /></span>{mode === 'half-drop' ? 'Half-drop' : mode === 'straight' ? 'Straight' : 'Brick'}</button>)}
++      <div className="segments" role="group" aria-label="Repeat mode">
++        {(['straight', 'half-drop', 'brick'] as Mode[]).map(mode =>
++          <button key={mode} aria-pressed={doc.mode === mode} disabled={busy} onClick={() => commit({ ...doc, mode })}>
++            <span className={`mode-icon ${mode}`} aria-hidden="true"><i /><i /><i /><i /></span>{MODE_LABELS[mode]}
++          </button>)}
+       </div>
+     </div>
+-    <div className="toolbar-group background-group">
+-      <label className="color-input" title="Background color"><input aria-label="Background color" type="color" value={color} disabled={busy || !doc.background} onChange={e => setColor(e.target.value)} onBlur={() => { if (doc.background) commit({ ...doc, background: color }); }} /><span>Background</span></label>
+-      <label className="check-label"><input aria-label="Transparent background" type="checkbox" checked={!doc.background} disabled={busy} onChange={e => commit({ ...doc, background: e.target.checked ? null : color })} />Transparent</label>
++    <div className="toolbar-group background-group" role="group" aria-label="Background">
++      <span className="toolbar-label">Background</span>
++      <div className={`background-control ${!doc.background ? 'is-transparent' : ''}`}>
++        <label className="color-input" title={doc.background ? 'Background color' : 'Turn off Transparent to choose a color'}>
++          <input aria-label="Background color" type="color" value={color} disabled={busy || !doc.background}
++            onChange={e => setColor(e.target.value)} onBlur={commitColor} />
++          <span className="color-value" aria-hidden="true">{doc.background ? color.toUpperCase() : 'None'}</span>
++        </label>
++        <label className="check-label"><input aria-label="Transparent background" type="checkbox" checked={!doc.background} disabled={busy}
++          onChange={e => commit({ ...doc, background: e.target.checked ? null : color })} />Transparent</label>
++      </div>
+     </div>
+-    <div className="history-buttons">
+-      <button className="icon-button" aria-label="Undo" title="Undo · Ctrl/Cmd Z" disabled={!canUndo || busy} onClick={undo}><Icon name="undo" /></button>
+-      <button className="icon-button" aria-label="Redo" title="Redo · Ctrl/Cmd Shift Z" disabled={!canRedo || busy} onClick={redo}><Icon name="redo" /></button>
++    <div className="view-tools" role="group" aria-label="View">
++      <button disabled={busy} onClick={onFit}><Icon name="fit" size={16} />Fit</button>
++      <button aria-pressed={inspect} disabled={busy} onClick={onInspect}><Icon name="eye" size={16} />Inspect</button>
+     </div>
+   </div>;
+ }
+diff --git a/src/components/Icon.tsx b/src/components/Icon.tsx
+index 01d72ed..d5c1268 100644
+--- a/src/components/Icon.tsx
++++ b/src/components/Icon.tsx
+@@ -1,6 +1,7 @@
+ import type { CSSProperties } from 'react';
+ 
+ const paths = {
++  alert: 'M12 3 2 21h20L12 3Zm0 6v5m0 3v.1',
+   upload: 'M12 16V3m-5 5 5-5 5 5M4 15v5h16v-5',
+   plus: 'M12 5v14M5 12h14',
+   undo: 'M9 5 4 10l5 5M4 10h10a6 6 0 0 1 0 12',
+diff --git a/src/components/Inspector.tsx b/src/components/Inspector.tsx
+new file mode 100644
+index 0000000..991b54e
+--- /dev/null
++++ b/src/components/Inspector.tsx
+@@ -0,0 +1,19 @@
++import type { NamedAsset, Placement } from '../core/types';
++import { flipLabel } from '../ui/presentation';
++
++export function Inspector({ selected, asset }: { selected?: Placement; asset?: NamedAsset }) {
++  return <section className="selection-section" aria-labelledby="inspector-heading">
++    <div className="section-heading"><h2 id="inspector-heading">Inspector</h2><span className="section-meta">Placement</span></div>
++    {selected ? <>
++      <strong className="selected-name" title={asset?.name}>{asset?.name ?? 'Source image'}</strong>
++      <dl className="selection-details">
++        <dt>Center X / Y</dt><dd data-testid="selected-position">{selected.x.toFixed(1)} / {selected.y.toFixed(1)}</dd>
++        <dt>Scale</dt><dd data-testid="selected-scale">{(selected.s * 100).toFixed(1)}%</dd>
++        <dt>Rotation</dt><dd data-testid="selected-rotation">{selected.deg.toFixed(1)}°</dd>
++        <dt>Orientation</dt><dd data-testid="selected-flips">{flipLabel(selected)}</dd>
++      </dl>
++      {selected.s > 1 && <p className="native-warning" data-testid="selected-upscale">Exceeds native size</p>}
++      <p className="small-note">Editing any repeat copy updates this placement.</p>
++    </> : <p className="small-note">Select a repeat copy or an item in Placements to inspect its transform.</p>}
++  </section>;
++}
+diff --git a/src/components/OutputPanel.tsx b/src/components/OutputPanel.tsx
+index f257af2..7cdf4b3 100644
+--- a/src/components/OutputPanel.tsx
++++ b/src/components/OutputPanel.tsx
+@@ -1,51 +1,43 @@
+-import { useEffect, useRef, useState } from 'react';
+ import { documentFingerprint, type ExportResult } from '../core/export';
+-import { drawProof } from '../core/proof';
+ import { outputSize } from '../core/geometry';
+ import type { NamedAsset, Placement, RepeatDocument } from '../core/types';
++import { MODE_LABELS } from '../ui/presentation';
+ import { Icon } from './Icon';
++import { Inspector } from './Inspector';
++import { ProofPanel } from './ProofPanel';
+ 
+-interface Props { doc: RepeatDocument; selected?: Placement; asset?: NamedAsset; result: ExportResult | null; busy: boolean; error: string | null; onExport: () => void }
+-export function OutputPanel({ doc, selected, asset, result, busy, error, onExport }: Props) {
+-  const proof = useRef<HTMLCanvasElement>(null);
+-  const [proofError, setProofError] = useState<string | null>(null);
+-  const [proved, setProved] = useState<Blob | null>(null);
++interface Props {
++  doc: RepeatDocument; selected?: Placement; asset?: NamedAsset; result: ExportResult | null;
++  busy: boolean; exporting: boolean; error: string | null; onExport: () => void;
++}
++export function OutputPanel({ doc, selected, asset, result, busy, exporting, error, onExport }: Props) {
+   const { width, height } = outputSize(doc);
+   const upscaled = doc.placements.filter(p => p.s > 1).length;
+-  const stale = !!result && result.fingerprint !== documentFingerprint(doc);
+-  useEffect(() => {
+-    let alive = true;
+-    const controller = new AbortController();
+-    setProved(null); setProofError(null);
+-    if (result && proof.current) {
+-      drawProof(result.blob, proof.current, controller.signal).then(() => { if (alive) setProved(result.blob); }).catch(error => { if (alive) setProofError(error instanceof Error ? error.message : 'Proof failed.'); });
+-    }
+-    return () => { alive = false; controller.abort(); };
+-  }, [result]);
+-  return <aside className="output-sidebar">
+-    <section className="output-section">
+-      <div className="section-heading"><h2>Repeat tile</h2><span className="tiny-badge">PNG</span></div>
+-      <div className="tile-diagram" aria-hidden="true"><div className={`tile-shape ${doc.mode}`}><span /><span /></div><span className="diagram-origin">0,0</span></div>
+-      <div className="output-size" data-testid="output-size">{width.toLocaleString()} <span>×</span> {height.toLocaleString()}<small>pixels · rectangular tile</small></div>
+-      <div className="output-specs"><span>Layout</span><strong>{doc.mode === 'straight' ? '1W × 1H' : doc.mode === 'half-drop' ? '2W × 1H' : '1W × 2H'}</strong><span>Background</span><strong>{doc.background ? doc.background.toUpperCase() : 'Transparent'}</strong></div>
++  return <aside className="output-sidebar" aria-label="Inspector and export">
++    <Inspector selected={selected} asset={asset} />
++    <section className="output-section" aria-labelledby="export-heading">
++      <div className="section-heading"><h2 id="export-heading">Export</h2><span className="section-meta">PNG</span></div>
++      <div className="output-summary">
++        <svg className="tile-diagram" width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
++          <rect x="2" y={doc.mode === 'half-drop' ? 10 : 2} width={doc.mode === 'brick' ? 18 : 36} height={doc.mode === 'half-drop' ? 18 : 36} />
++          {doc.mode === 'half-drop' && <path d="M20 10v18" />}
++          {doc.mode === 'brick' && <path d="M2 20h18" />}
++        </svg>
++        <div className="output-size" data-testid="output-size">{width.toLocaleString()} <span>×</span> {height.toLocaleString()}<small>px · rectangular tile</small></div>
++      </div>
++      <dl className="output-specs">
++        <dt>Repeat</dt><dd>{MODE_LABELS[doc.mode]}</dd>
++        <dt>Layout</dt><dd>{doc.mode === 'straight' ? '1W × 1H' : doc.mode === 'half-drop' ? '2W × 1H' : '1W × 2H'}</dd>
++        <dt>Background</dt><dd>{doc.background ? doc.background.toUpperCase() : 'Transparent'}</dd>
++      </dl>
+       <p className="export-note">Use Basic/Straight repeat elsewhere; staggering is baked in.</p>
+-      {!!upscaled && <p className="warning" role="status">{upscaled} placement{upscaled > 1 ? 's are' : ' is'} enlarged beyond source pixels (s &gt; 1).</p>}
+-      <button className="primary export-panel-button" disabled={busy} onClick={onExport}><span>{busy ? 'Rendering PNG…' : 'Export PNG'}</span><Icon name="arrow" /></button>
++      {!!upscaled && <p className="warning" role="status"><Icon name="alert" size={16} /><span>{upscaled} placement{upscaled > 1 ? 's exceed' : ' exceeds'} native size.</span></p>}
++      <button className="primary export-panel-button" disabled={busy} aria-busy={exporting} onClick={onExport}>
++        <span>{exporting ? 'Rendering PNG…' : 'Export PNG'}</span>{!exporting && <Icon name="arrow" size={16} />}
++      </button>
+       {error && <p className="error-text" role="alert">{error}</p>}
+-      <p className="pixel-note">Pixel-only PNG. No DPI or CMYK settings.</p>
+-    </section>
+-    <section className="proof-section">
+-      <div className="section-heading"><h2>Export proof</h2>{result && proved === result.blob && <Icon name="check" size={16} />}</div>
+-      <div className={`proof-container checker ${!result ? 'no-proof' : ''}`}>
+-        <canvas ref={proof} aria-label="Tiled proof from decoded exported PNG" data-testid="export-proof" hidden={!result} />
+-        {!result && <div><Icon name="grid" size={26} /><p>Export to check your tile.</p><span>The downloaded PNG is decoded<br />and tiled here, not the live canvas.</span></div>}
+-      </div>
+-      {result && <><p className={`proof-status ${stale ? 'stale' : ''}`} data-testid="proof-status">{stale ? 'Previous export · edits not included' : proved === result.blob ? 'Decoded PNG · dimensions verified' : 'Decoding exported PNG…'}</p><p className="small-note">{result.width} × {result.height} px · bounded tiled proof</p></>}
+-      {proofError && <p className="error-text" role="alert">{proofError}</p>}
+-    </section>
+-    <section className="selection-section">
+-      <div className="section-heading"><h2>Selected motif</h2><span className="selection-dot" /></div>
+-      {selected ? <><strong className="selected-name">{asset?.name}</strong><dl className="selection-details"><dt>Center X / Y</dt><dd data-testid="selected-position">{selected.x.toFixed(1)} / {selected.y.toFixed(1)}</dd><dt>Scale</dt><dd data-testid="selected-scale">{(selected.s * 100).toFixed(1)}%</dd><dt>Rotation</dt><dd data-testid="selected-rotation">{selected.deg.toFixed(1)}°</dd></dl></> : <p className="small-note">Select a motif or any visible repeat.<br />All copies share one transform.</p>}
++      <p className="pixel-note">PNG · pixels only · no DPI/CMYK settings</p>
+     </section>
++    <ProofPanel result={result} fingerprint={documentFingerprint(doc)} />
+   </aside>;
+ }
+diff --git a/src/components/ProofPanel.tsx b/src/components/ProofPanel.tsx
+new file mode 100644
+index 0000000..b35389a
+--- /dev/null
++++ b/src/components/ProofPanel.tsx
+@@ -0,0 +1,50 @@
++import { useEffect, useRef, useState } from 'react';
++import type { ExportResult } from '../core/export';
++import { drawProof } from '../core/proof';
++import { proofStatus } from '../ui/presentation';
++import { Icon } from './Icon';
++
++interface DecodeState { blob: Blob; decoded: boolean; error: string | null }
++export function ProofPanel({ result, fingerprint }: { result: ExportResult | null; fingerprint: string }) {
++  const proof = useRef<HTMLCanvasElement>(null);
++  const [decode, setDecode] = useState<DecodeState | null>(null);
++  // Key the visible state to the exact Blob. A new export must never display
++  // the previous canvas or its success badge while the new decode is pending.
++  const current = result && decode?.blob === result.blob ? decode : null;
++  const decoded = !!current?.decoded;
++  const error = current?.error;
++  const stale = !!result && result.fingerprint !== fingerprint;
++  const status = proofStatus(result?.fingerprint ?? null, fingerprint, decoded, !!error);
++  useEffect(() => {
++    const controller = new AbortController();
++    if (result && proof.current) {
++      setDecode({ blob: result.blob, decoded: false, error: null });
++      drawProof(result.blob, proof.current, controller.signal).then(() => {
++        if (!controller.signal.aborted) setDecode({ blob: result.blob, decoded: true, error: null });
++      }).catch(error => {
++        if (!controller.signal.aborted) setDecode({ blob: result.blob, decoded: false, error: error instanceof Error ? error.message : 'Proof failed.' });
++      });
++    }
++    return () => controller.abort();
++  }, [result]);
++  const statusText = {
++    empty: 'Export to verify the downloaded PNG.',
++    decoding: 'Decoding exported PNG…',
++    verified: 'Decoded PNG · dimensions verified',
++    stale: 'Previous export · edits not included',
++    failed: 'PNG verification failed',
++  }[status];
++  return <section className="proof-section" aria-labelledby="proof-heading">
++    <div className="section-heading"><h2 id="proof-heading">PNG verification</h2>
++      {status === 'verified' && <Icon name="check" size={16} />}</div>
++    {stale && <span className="proof-badge" data-testid="proof-stale">Out of date</span>}
++    <div className={`proof-container checker ${!decoded ? 'no-proof' : ''}`} aria-busy={!!result && !decoded && !error}>
++      <canvas ref={proof} aria-label="Tiled proof from decoded exported PNG" data-testid="export-proof" hidden={!decoded} />
++      {!decoded && <p>{result ? error ? 'Proof unavailable' : 'Decoding PNG…' : 'No exported PNG yet'}</p>}
++    </div>
++    <p className={`proof-status ${stale ? 'stale' : ''}`} data-testid="proof-status" role="status">{statusText}</p>
++    {result ? <p className="small-note">{result.width} × {result.height} px · tiled from the download</p>
++      : <p className="small-note">The downloaded PNG is decoded and tiled here, not the live scene.</p>}
++    {error && <p className="error-text" role="alert">{error}</p>}
++  </section>;
++}
+diff --git a/src/components/SelectionToolbar.tsx b/src/components/SelectionToolbar.tsx
+new file mode 100644
+index 0000000..0054ba3
+--- /dev/null
++++ b/src/components/SelectionToolbar.tsx
+@@ -0,0 +1,33 @@
++import type { EditAction } from './Workspace';
++import { Icon, type IconName } from './Icon';
++
++const groups: { label: string; tools: { action: EditAction; icon: IconName; label: string; text: string; short?: string }[] }[] = [
++  { label: 'Duplicate placement', tools: [{ action: 'duplicate', icon: 'duplicate', label: 'Duplicate', text: 'Duplicate' }] },
++  { label: 'Flip placement', tools: [
++    { action: 'flipH', icon: 'flipH', label: 'Flip horizontal', text: 'Flip H', short: 'H' },
++    { action: 'flipV', icon: 'flipV', label: 'Flip vertical', text: 'Flip V', short: 'V' },
++  ] },
++  { label: 'Placement stacking', tools: [
++    { action: 'front', icon: 'front', label: 'Bring to front', text: 'Front' },
++    { action: 'back', icon: 'back', label: 'Send to back', text: 'Back' },
++  ] },
++  { label: 'Delete placement', tools: [{ action: 'delete', icon: 'trash', label: 'Delete', text: 'Delete' }] },
++];
++interface Props { selected: boolean; name?: string; busy: boolean; onAction: (action: EditAction) => void }
++export function SelectionToolbar({ selected, name, busy, onAction }: Props) {
++  return <div className="canvas-toolbar" aria-label="Placement actions">
++    {!selected ? <span className="no-selection">No selection <span>· Click a repeat copy or use Placements</span></span> : <>
++      <div className="selection-context" title={name}><span>Selected</span><strong>{name ?? 'Placement'}</strong></div>
++      <div className="selection-tools">
++        {groups.map(group => <div className="selection-group" key={group.label} role="group" aria-label={group.label}>
++          {group.tools.map(tool => <button key={tool.action}
++            className={`selection-button ${tool.action === 'delete' ? 'danger-button' : ''} ${tool.action === 'duplicate' || tool.action === 'delete' ? 'optional-label' : ''}`}
++            title={tool.label} aria-label={tool.label} disabled={busy} onClick={() => onAction(tool.action)}>
++            <Icon name={tool.icon} size={16} /><span className={tool.short ? 'tool-full' : ''}>{tool.text}</span>
++            {tool.short && <span className="tool-short" aria-hidden="true">{tool.short}</span>}
++          </button>)}
++        </div>)}
++      </div>
++    </>}
++  </div>;
++}
+diff --git a/src/components/Workspace.tsx b/src/components/Workspace.tsx
+index 63557f1..46d7340 100644
+--- a/src/components/Workspace.tsx
++++ b/src/components/Workspace.tsx
+@@ -1,17 +1,20 @@
+ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react';
+ import { Group, Image as KonvaImage, Layer, Line, Rect, Stage, Text, Transformer } from 'react-konva';
+ import Konva from 'konva';
+-import { renderViewBounds, type ViewSize } from '../core/camera';
++import { recoverCamera, renderViewBounds, type ViewSize } from '../core/camera';
+ import { enumerateCopies, lattice } from '../core/geometry';
+-import { imageProps, zoomAt } from '../core/transforms';
+-import { copyKey, type AssetMap, type Camera, type Copy, type CopyKey, type RepeatDocument } from '../core/types';
+-import { Icon, type IconName } from './Icon';
++import { fitCamera, imageProps, zoomAt } from '../core/transforms';
++import { MAX_COPIES, copyKey, type AssetMap, type Camera, type Copy, type CopyKey, type RepeatDocument } from '../core/types';
++import { CANVAS_COLORS } from '../ui/presentation';
++import { Icon } from './Icon';
++import { SelectionToolbar } from './SelectionToolbar';
+ 
+ export type EditAction = 'duplicate' | 'delete' | 'flipH' | 'flipV' | 'front' | 'back' | 'undo' | 'redo';
+ export type Size = ViewSize;
+ interface Props {
+   doc: RepeatDocument; assets: AssetMap; camera: Camera; selection: CopyKey | null; pin: CopyKey | null;
+-  size: Size; busy: boolean; error: string | null;
++  size: Size; busy: boolean; error: string | null; selectedName?: string; inspect: boolean;
++  demoBusy: boolean; onDemo: () => void;
+   focusRef: RefObject<HTMLDivElement | null>;
+   onSize: (size: Size) => void; onCamera: (camera: Camera) => boolean;
+   onSelect: (copy: CopyKey | null) => void;
+@@ -19,24 +22,15 @@ interface Props {
+   onAction: (action: EditAction) => void; onNudge: (dx: number, dy: number) => void; onNudgeEnd: () => void;
+   onFit: () => void; clearError: () => void; onStage: (stage: Konva.Stage | null) => void;
+ }
+-const tools: { action: EditAction; icon: IconName; label: string }[] = [
+-  { action: 'duplicate', icon: 'duplicate', label: 'Duplicate' },
+-  { action: 'flipH', icon: 'flipH', label: 'Flip horizontal' },
+-  { action: 'flipV', icon: 'flipV', label: 'Flip vertical' },
+-  { action: 'front', icon: 'front', label: 'Bring to front' },
+-  { action: 'back', icon: 'back', label: 'Send to back' },
+-  { action: 'delete', icon: 'trash', label: 'Delete' },
+-];
+ function isField(target: EventTarget | null) {
+   return target instanceof HTMLElement && !!target.closest('input,textarea,select,[contenteditable="true"]');
+ }
+ export function Workspace(props: Props) {
+-  const { doc, assets, camera, selection, pin, size, busy, error, focusRef } = props;
++  const { doc, assets, camera, selection, pin, size, busy, error, focusRef, inspect } = props;
+   const host = useRef<HTMLDivElement>(null);
+   const stage = useRef<Konva.Stage>(null);
+   const transformer = useRef<Konva.Transformer>(null);
+   const nodes = useRef(new Map<string, Konva.Image>());
+-  const [inspect, setInspect] = useState(false);
+   const [space, setSpace] = useState(false);
+   const pan = useRef<{ x: number; y: number; camera: Camera } | null>(null);
+   const latest = useRef(props);
+@@ -85,6 +79,13 @@ export function Workspace(props: Props) {
+   }, []);
+   useEffect(() => { props.onStage(stage.current); return () => props.onStage(null); }, [props.onStage]);
+   const issue = error ?? rendered.error;
++  const canRecoverWithFit = useMemo(() => {
++    if (!rendered.error || busy) return false;
++    try {
++      recoverCamera(doc, assets, fitCamera(doc, size.width, size.height), size, pin);
++      return true;
++    } catch { return false; }
++  }, [rendered.error, busy, doc, assets, size, pin]);
+   return <section className="workspace" ref={focusRef} tabIndex={0} aria-label="Repeat workspace" data-testid="workspace"
+     onKeyDown={e => {
+       if (isField(e.target)) return;
+@@ -105,10 +106,8 @@ export function Workspace(props: Props) {
+     }}
+     onKeyUp={e => { if (!isField(e.target) && e.key.startsWith('Arrow')) { e.preventDefault(); props.onNudgeEnd(); } }}
+     onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget)) { setSpace(false); pan.current = null; props.onNudgeEnd(); } }}>
+-    <div className="canvas-toolbar">
+-      <div className="selection-tools">{tools.map(tool => <button key={tool.action} className="icon-button" title={tool.label} aria-label={tool.label} disabled={!selection || busy} onClick={() => { props.onAction(tool.action); focusRef.current?.focus(); }}><Icon name={tool.icon} size={17} /></button>)}</div>
+-      <div className="view-tools"><button disabled={busy} onClick={props.onFit}><Icon name="fit" size={16} />Fit</button><button aria-pressed={inspect} disabled={busy} onClick={() => setInspect(!inspect)}><Icon name="eye" size={16} />Inspect</button></div>
+-    </div>
++    <SelectionToolbar selected={!!selection} name={props.selectedName} busy={busy}
++      onAction={action => { props.onAction(action); focusRef.current?.focus({ preventScroll: true }); }} />
+     <div className={`canvas-host checker ${space ? 'panning' : ''}`} ref={host} data-testid="canvas-host" onMouseDown={() => focusRef.current?.focus({ preventScroll: true })}>
+       <Stage ref={stage} width={size.width} height={size.height} onMouseDown={e => { if (e.target === e.target.getStage()) props.onSelect(null); }}>
+         <Layer>
+@@ -125,17 +124,60 @@ export function Workspace(props: Props) {
+                 onTransformStart={() => props.onBegin(copy)} onTransform={e => props.onNode(copy, e.target as Konva.Image)}
+                 onTransformEnd={e => { props.onNode(copy, e.target as Konva.Image); props.onEnd(); }} />;
+             })}
+-            {!inspect && <><Line points={[0, 0, a.x, a.y, a.x + b.x, a.y + b.y, b.x, b.y]} closed stroke="#74658a" strokeWidth={1 / camera.z} dash={[5 / camera.z, 5 / camera.z]} opacity={.72} listening={false} /><Text text="ORIGIN CELL" x={0} y={-19 / camera.z} fontFamily="Arial, sans-serif" fontSize={9 / camera.z} letterSpacing={1.2 / camera.z} fill="#74658a" listening={false} /></>}
+-            <Transformer ref={transformer} visible={!inspect && !space} listening={!busy || !!pin} enabledAnchors={['top-left', 'top-right', 'bottom-left', 'bottom-right']} keepRatio flipEnabled={false} rotateEnabled rotateAnchorOffset={26} anchorSize={8} anchorCornerRadius={2} borderStroke="#6c4a86" anchorStroke="#6c4a86" anchorFill="#ffffff" borderStrokeWidth={1.2} padding={0}
++            {!inspect && <>
++              <Line points={[0, 0, a.x, a.y, a.x + b.x, a.y + b.y, b.x, b.y]} closed
++                stroke={CANVAS_COLORS.outline} strokeWidth={1 / camera.z} dash={[5 / camera.z, 5 / camera.z]} opacity={.72} listening={false} />
++              <Text text="Origin cell" x={0} y={-19 / camera.z} fontFamily="Arial, sans-serif"
++                fontSize={11 / camera.z} fill={CANVAS_COLORS.outline} listening={false} />
++            </>}
++            <Transformer ref={transformer} visible={!inspect && !space} listening={!busy || !!pin}
++              enabledAnchors={['top-left', 'top-right', 'bottom-left', 'bottom-right']}
++              keepRatio flipEnabled={false} rotateEnabled rotateAnchorOffset={26}
++              anchorSize={11} anchorCornerRadius={2} borderStroke={CANVAS_COLORS.accent}
++              anchorStroke={CANVAS_COLORS.accent} anchorFill={CANVAS_COLORS.handle} borderStrokeWidth={1.2} padding={0}
++              anchorStyleFunc={anchor => {
++                anchor.cornerRadius(anchor.hasName('rotater') ? 6 : 2);
++                anchor.fill(anchor.hasName('rotater') ? CANVAS_COLORS.accent : CANVAS_COLORS.handle);
++              }}
+               boundBoxFunc={(oldBox, newBox) => Object.values(newBox).every(Number.isFinite) && Math.abs(newBox.width) >= 1 && Math.abs(newBox.height) >= 1 ? newBox : oldBox} />
+           </Group>
+         </Layer>
+       </Stage>
+-      <div className="canvas-label"><span />LIVE REPEAT</div>
+-      {!doc.placements.length && <div className="canvas-empty"><div className="empty-emblem" aria-hidden="true">s.</div><h1>A motif. A thousand possibilities.</h1><p>Add your finished PNGs, then place, turn, and repeat.<br />Every copy is a window into the same design.</p><span>START WITH AN IMAGE ON THE LEFT</span></div>}
+-      {space && <div className="pan-surface" data-testid="pan-surface" onPointerDown={e => { e.preventDefault(); e.currentTarget.setPointerCapture(e.pointerId); pan.current = { x: e.clientX, y: e.clientY, camera }; }} onPointerMove={e => { if (pan.current) props.onCamera({ ...pan.current.camera, x: pan.current.camera.x + e.clientX - pan.current.x, y: pan.current.camera.y + e.clientY - pan.current.y }); }} onPointerUp={e => { pan.current = null; e.currentTarget.releasePointerCapture(e.pointerId); }} onPointerCancel={() => { pan.current = null; }} />}
+-      {issue && <div className="canvas-error" role="alert"><span>{issue}</span><button aria-label="Dismiss workspace message" onClick={props.clearError}><Icon name="close" size={16} /></button></div>}
++      {!doc.placements.length && <div className="canvas-empty">
++        <h1>No placements yet</h1>
++        <p>Add PNGs in Source images, then click an image to place it.</p>
++        <button className="secondary" aria-label="Start with demo" disabled={props.demoBusy} onClick={props.onDemo}>Add demo</button>
++      </div>}
++      {space && <div className="pan-surface" data-testid="pan-surface"
++        onPointerDown={e => {
++          e.preventDefault(); e.currentTarget.setPointerCapture(e.pointerId);
++          pan.current = { x: e.clientX, y: e.clientY, camera };
++        }}
++        onPointerMove={e => {
++          if (pan.current) props.onCamera({ ...pan.current.camera,
++            x: pan.current.camera.x + e.clientX - pan.current.x,
++            y: pan.current.camera.y + e.clientY - pan.current.y });
++        }}
++        onPointerUp={e => {
++          pan.current = null;
++          if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
++        }}
++        onPointerCancel={() => { pan.current = null; }} onLostPointerCapture={() => { pan.current = null; }} />}
++      {issue && <div className="canvas-error" role="alert">
++        <Icon name="alert" size={16} />
++        <div className="canvas-error-body"><strong>{rendered.error ? 'View cannot be rendered' : 'Action not applied'}</strong><p>{issue}</p>
++          {canRecoverWithFit && <button className="secondary" disabled={busy} onClick={props.onFit}>Fit view</button>}</div>
++        {/* Active render guards remain visible until recovered; transient rejected edits can be dismissed. */}
++        {!rendered.error && <button className="icon-button" aria-label="Dismiss workspace message" onClick={props.clearError}><Icon name="close" size={16} /></button>}
++      </div>}
++    </div>
++    <div className="canvas-footer">
++      <span className="workspace-hint" data-testid="workspace-hint">{space ? 'Panning · drag to move view' : selection
++        ? <><span>Arrows nudge · Shift 10 px</span><span className="extra-hint"> · Ctrl/Cmd+D duplicate · Delete</span></>
++        : 'Space+drag to pan · Scroll to zoom'}</span>
++      <div className="view-status"><strong data-testid="zoom-value">{(camera.z * 100).toFixed(0)}%</strong>
++        <span data-testid="copy-count" className={`copy-count ${rendered.copies.length >= MAX_COPIES * .9 ? 'near-limit' : ''}`}
++          title={`Maximum ${MAX_COPIES.toLocaleString()} copies per render`}>{rendered.copies.length.toLocaleString()} copies</span></div>
+     </div>
+-    <div className="canvas-footer"><span><kbd>Space</kbd> drag to pan <i />Scroll to zoom</span><span data-testid="copy-count">{rendered.copies.length} copies <i /><strong data-testid="zoom-value">{(camera.z * 100).toFixed(0)}%</strong></span></div>
+   </section>;
+ }
+diff --git a/src/core/types.ts b/src/core/types.ts
+index 224c722..7641bde 100644
+--- a/src/core/types.ts
++++ b/src/core/types.ts
+@@ -33,7 +33,7 @@ export type AssetMap = ReadonlyMap<string, Asset>;
+ export const MAX_SIDE = 4096;
+ export const MAX_COPIES = 2000;
+ export const INITIAL_DOCUMENT: RepeatDocument = {
+-  W: 1000, H: 1000, mode: 'straight', background: '#f6f1e7', placements: [],
++  W: 1000, H: 1000, mode: 'straight', background: '#ffffff', placements: [],
+ };
+ export const copyKey = (c: CopyKey) => `${c.id}:${c.i}:${c.j}`;
+ export const sameCopy = (a: CopyKey, b: CopyKey) => a.id === b.id && a.i === b.i && a.j === b.j;
+diff --git a/src/styles.css b/src/styles.css
+index 464711b..58d10a9 100644
+--- a/src/styles.css
++++ b/src/styles.css
+@@ -1,1304 +1,251 @@
++/* Neutral utility chrome. One accent is reserved for focus, selection and Export. */
+ :root {
+-  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+-  color:#302d32;
+-  background:#fbfaf7;
+-  font-synthesis:none;
+-  font-weight:400;
+-  font-size:13px;
+-  --ink:#302d32;
+-  --muted:#89848b;
+-  --line:#e7e3e6;
+-  --plum:#634b70;
+-  --pale:#f2edf5;
+-  --paper:#fbfaf7;
++  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
++  font-size: 13px;
++  line-height: 1.45;
++  font-synthesis: none;
++  text-rendering: optimizeLegibility;
++  -webkit-font-smoothing: antialiased;
++  color-scheme: light;
++  --bg-app: #f0f1f3;
++  --bg-panel: #ffffff;
++  --bg-subtle: #f7f8fa;
++  --bg-hover: #e9ecf1;
++  --border: #d8dce3;
++  --border-control: #858f9e;
++  --text: #23262c;
++  --text-muted: #606773;
++  --accent: #2855b8;
++  --accent-hover: #214798;
++  --accent-soft: #edf2fc;
++  --danger: #a22c35;
++  --danger-soft: #fff1f2;
++  --warning: #785000;
++  --warning-soft: #fff8e8;
++  --success: #346246;
++  --space-1: 4px;
++  --space-2: 8px;
++  --space-3: 12px;
++  --space-4: 16px;
++  --space-6: 24px;
++  --radius-control: 4px;
++  --radius-panel: 6px;
++  color: var(--text);
++  background: var(--bg-app);
++}
++* { box-sizing: border-box; }
++body { margin: 0; }
++button, input, select, textarea { font: inherit; color: inherit; }
++button { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 32px; padding: var(--space-1) var(--space-2); border: 1px solid transparent; border-radius: var(--radius-control); background: transparent; font-size: 12px; font-weight: 500; cursor: pointer; }
++button svg { flex: none; }
++button:disabled { opacity: .5; cursor: not-allowed; }
++button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
++input { min-width: 0; }
++input[type="checkbox"] { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); cursor: pointer; }
++input[type="checkbox"]:disabled { cursor: not-allowed; }
++h1, h2, p, dl { margin: 0; }
++h2 { font-size: 13px; font-weight: 600; line-height: 20px; }
++img { display: block; }
++[hidden] { display: none !important; }
++
++.app-shell { height: 100dvh; min-height: 540px; min-width: 900px; display: grid; grid-template-rows: 48px auto minmax(0, 1fr); overflow: hidden; }
++.app-header { display: flex; align-items: center; gap: var(--space-4); padding: 0 var(--space-4); border-bottom: 1px solid var(--border); background: var(--bg-panel); }
++.brand-name { font-size: 14px; font-weight: 650; white-space: nowrap; }
++.brand-name span { font-weight: 400; }
++.session-note { font-size: 11px; color: var(--text-muted); }
++.session-note > span { padding: 0 var(--space-1); }
++.header-actions { display: flex; align-items: center; gap: var(--space-3); margin-left: auto; }
++.history-buttons { display: flex; gap: var(--space-1); padding-right: var(--space-3); border-right: 1px solid var(--border); }
++.icon-button { flex: none; width: 32px; height: 32px; padding: 0; }
++.icon-button:hover:not(:disabled), .text-button:hover:not(:disabled), .view-tools button:hover:not(:disabled), .selection-button:hover:not(:disabled) { background: var(--bg-hover); }
++.text-button { color: var(--text-muted); }
++.secondary { border-color: var(--border-control); background: var(--bg-panel); }
++.secondary:hover:not(:disabled) { background: var(--bg-hover); }
++.primary { color: var(--bg-panel); background: var(--accent); border-color: var(--accent); font-weight: 600; }
++.primary:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); }
++.primary:disabled[aria-busy="true"] { opacity: .8; cursor: progress; }
++
++/* Document settings stay grouped; narrower desktops wrap groups, not labels. */
++.document-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); padding: var(--space-2) var(--space-4); min-height: 52px; border-bottom: 1px solid var(--border); background: var(--bg-panel); }
++.toolbar-group { display: flex; align-items: center; gap: var(--space-2); min-height: 32px; }
++.toolbar-label { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
++.dimension-pair { display: flex; align-items: center; gap: var(--space-1); }
++.dimension { display: flex; align-items: center; gap: var(--space-1); }
++.dimension > span { color: var(--text-muted); font-size: 12px; }
++.times, .unit { color: var(--text-muted); font-size: 11px; }
++.dimension input { width: 56px; height: 32px; padding: var(--space-1); border: 1px solid var(--border-control); border-radius: var(--radius-control); background: var(--bg-panel); text-align: right; font-variant-numeric: tabular-nums; }
++.dimension input:disabled { opacity: .5; }
++.segments { display: flex; align-items: center; gap: 2px; padding: 0; border: 1px solid var(--border); border-radius: var(--radius-panel); background: var(--bg-subtle); }
++.segments button { gap: var(--space-1); padding: var(--space-1) var(--space-2); min-height: 32px; white-space: nowrap; }
++.segments button:hover:not(:disabled) { background: var(--bg-hover); }
++.segments button[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
++.mode-icon { flex: none; position: relative; display: inline-block; width: 20px; height: 20px; }
++.mode-icon i { position: absolute; width: 6px; height: 6px; border: 1px solid currentColor; }
++.mode-icon i:nth-child(1) { left: 1px; top: 1px; }
++.mode-icon i:nth-child(2) { left: 10px; top: 1px; }
++.mode-icon i:nth-child(3) { left: 1px; top: 10px; }
++.mode-icon i:nth-child(4) { left: 10px; top: 10px; }
++.mode-icon.half-drop i:nth-child(even) { transform: translateY(4px); }
++.mode-icon.brick i:nth-child(n+3) { transform: translateX(4px); }
++.background-control { display: flex; align-items: center; gap: var(--space-2); padding-left: var(--space-1); }
++.color-input { display: flex; align-items: center; gap: var(--space-1); min-height: 32px; }
++.color-input input { width: 28px; height: 28px; padding: 2px; border: 1px solid var(--border-control); border-radius: var(--radius-control); background: var(--bg-panel); cursor: pointer; }
++.color-input input::-webkit-color-swatch-wrapper { padding: 0; }
++.color-input input::-webkit-color-swatch { border: 0; border-radius: 2px; }
++.color-input input::-moz-color-swatch { border: 0; border-radius: 2px; }
++.color-input input:disabled { opacity: .5; cursor: not-allowed; }
++.color-value { min-width: 54px; font-size: 11px; font-variant-numeric: tabular-nums; }
++.is-transparent .color-value { color: var(--text-muted); }
++.check-label { display: flex; align-items: center; gap: var(--space-1); min-height: 32px; font-size: 12px; cursor: pointer; }
++.view-tools { display: flex; gap: var(--space-1); margin-left: auto; }
++.view-tools button { padding: var(--space-1) var(--space-2); }
++.view-tools button[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
++
++.studio-layout { display: grid; grid-template-columns: 216px minmax(0, 1fr) 232px; min-height: 0; }
++.asset-sidebar, .output-sidebar { background: var(--bg-panel); min-width: 0; min-height: 0; }
++.asset-sidebar { border-right: 1px solid var(--border); display: grid; grid-template-rows: minmax(220px, 1.15fr) minmax(164px, 1fr); }
++.asset-section, .placement-section { display: flex; flex-direction: column; min-height: 0; padding: var(--space-4) var(--space-3) var(--space-3); }
++.placement-section { border-top: 1px solid var(--border); }
++.section-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-2); }
++.count, .section-meta { font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
++.small-note, .list-caption, .source-note, .pixel-note { font-size: 11px; line-height: 1.55; color: var(--text-muted); }
++.list-caption { margin: calc(-1 * var(--space-1)) 0 var(--space-2); }
++.source-note { margin: var(--space-2) 0 var(--space-3); }
++.upload-zone { flex: none; flex-direction: column; gap: var(--space-2); width: 100%; min-height: 88px; border: 1px dashed var(--border-control); border-radius: var(--radius-panel); background: var(--bg-subtle); }
++.upload-zone strong { font-size: 12px; font-weight: 500; }
++.upload-zone.compact { flex-direction: row; min-height: 36px; }
++.upload-zone:hover:not(:disabled) { background: var(--bg-hover); }
++.upload-zone.drag-over { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
++.source-content, .placement-list { min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-gutter: stable; padding: 2px; }
++.source-content { flex: 1; }
++.asset-card { width: 100%; justify-content: flex-start; text-align: left; min-height: 64px; padding: var(--space-2) var(--space-1); gap: var(--space-2); border: 1px solid transparent; }
++.asset-card:hover:not(:disabled) { border-color: var(--border-control); background: var(--bg-subtle); }
++.asset-card:focus-visible { outline-offset: -2px; }
++.asset-thumbnail { flex: none; width: 44px; height: 44px; border-radius: var(--radius-control); overflow: hidden; }
++.asset-thumbnail img, .placement-thumb img { width: 100%; height: 100%; object-fit: contain; }
++.asset-text { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: var(--space-1); }
++.asset-text strong { font-size: 12px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
++.asset-text > span { font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
++.asset-place { color: var(--text-muted); display: flex; }
++.asset-card:hover:not(:disabled) .asset-place { color: var(--text); }
++.empty-assets { padding: var(--space-3) 0; }
++.empty-assets strong { font-size: 12px; font-weight: 500; }
++.empty-assets p, .placement-empty { margin-top: var(--space-1); font-size: 12px; color: var(--text-muted); }
++.placement-item { position: relative; width: 100%; min-height: 56px; justify-content: flex-start; gap: var(--space-2); padding: var(--space-2); text-align: left; border: 1px solid transparent; }
++.placement-item:hover:not(:disabled) { background: var(--bg-hover); }
++.placement-item.selected { background: var(--accent-soft); border-color: var(--border); }
++.placement-item.selected::before { content: ''; position: absolute; left: 0; top: var(--space-1); bottom: var(--space-1); width: 2px; background: var(--accent); }
++.placement-item:focus-visible { outline-offset: -2px; }
++.placement-thumb { flex: none; width: 32px; height: 32px; overflow: hidden; border-radius: var(--radius-control); }
++.placement-title { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
++.placement-title strong { font-size: 12px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
++.placement-title small { font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; line-height: 1.4; }
++.import-errors { flex: none; border: 1px solid var(--border); border-left: 2px solid var(--danger); border-radius: var(--radius-control); padding: var(--space-2); margin-bottom: var(--space-2); font-size: 11px; }
++.message-heading { display: flex; align-items: flex-start; gap: var(--space-1); }
++.message-heading > svg { flex: none; margin-top: var(--space-2); color: var(--text-muted); }
++.message-heading strong { flex: 1; font-weight: 500; padding-top: var(--space-1); }
++.message-heading .icon-button { width: 32px; margin: -4px -4px 0 0; }
++.import-error-list { max-height: 88px; overflow: auto; overflow-wrap: anywhere; }
++.import-error-list p { margin-top: var(--space-2); }
++
++/* The workspace gets all remaining space; no branding overlays obscure artwork. */
++.workspace { min-width: 0; min-height: 0; display: grid; grid-template-rows: 44px minmax(0, 1fr) 32px; container-type: inline-size; container-name: workspace; outline-offset: -2px; }
++.workspace:focus-visible { outline-offset: -2px; }
++.canvas-toolbar { display: flex; align-items: center; gap: var(--space-2); padding: 0 var(--space-3); border-bottom: 1px solid var(--border); background: var(--bg-subtle); min-width: 0; }
++.no-selection { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
++.no-selection > span { font-size: 11px; }
++.selection-context { display: flex; flex-direction: column; flex: 1; gap: 0; min-width: 60px; max-width: 200px; }
++.selection-context > span { font-size: 10px; color: var(--text-muted); }
++.selection-context strong { font-size: 12px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
++.selection-tools { display: flex; align-items: center; gap: var(--space-2); margin-left: auto; flex: none; }
++.selection-group { display: flex; gap: var(--space-1); }
++.selection-group + .selection-group { border-left: 1px solid var(--border); padding-left: var(--space-2); }
++.selection-button { gap: var(--space-1); padding: var(--space-1) var(--space-2); min-width: 32px; height: 32px; white-space: nowrap; }
++.tool-short { display: none; }
++.danger-button:hover:not(:disabled), .danger-button:focus-visible { color: var(--danger); background: var(--danger-soft); }
++.canvas-host { position: relative; min-width: 0; min-height: 0; overflow: hidden; isolation: isolate; }
++.checker { background-color: var(--bg-panel); background-image: linear-gradient(45deg, var(--bg-hover) 25%, transparent 25%), linear-gradient(-45deg, var(--bg-hover) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, var(--bg-hover) 75%), linear-gradient(-45deg, transparent 75%, var(--bg-hover) 75%); background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0; }
++.canvas-empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: var(--space-3); padding: var(--space-6); pointer-events: none; text-align: center; }
++.canvas-empty h1 { font-size: 18px; font-weight: 600; }
++.canvas-empty p { max-width: 300px; font-size: 13px; line-height: 1.6; color: var(--text-muted); }
++.canvas-empty button { pointer-events: auto; margin-top: var(--space-1); }
++.pan-surface { position: absolute; inset: 0; z-index: 2; cursor: grab; touch-action: none; }
++.pan-surface:active { cursor: grabbing; }
++.canvas-error { position: absolute; z-index: 3; left: var(--space-4); bottom: var(--space-4); max-width: min(440px, calc(100% - 32px)); max-height: calc(100% - 32px); overflow-y: auto; display: flex; align-items: flex-start; gap: var(--space-2); padding: var(--space-3); border: 1px solid var(--border); border-left: 2px solid var(--danger); border-radius: var(--radius-panel); background: var(--bg-panel); font-size: 12px; }
++.canvas-error > svg { flex: none; margin-top: 2px; color: var(--text-muted); }
++.canvas-error .icon-button { margin: -4px -4px 0 0; }
++.canvas-error-body { min-width: 0; overflow-wrap: anywhere; }
++.canvas-error-body strong { font-weight: 600; }
++.canvas-error-body p { color: var(--text-muted); margin-top: var(--space-1); }
++.canvas-error-body button { margin-top: var(--space-2); }
++.canvas-footer { display: flex; align-items: center; gap: var(--space-3); padding: 0 var(--space-3); min-width: 0; border-top: 1px solid var(--border); background: var(--bg-subtle); font-size: 11px; color: var(--text-muted); }
++.workspace-hint { min-width: 0; white-space: nowrap; }
++.view-status { display: flex; align-items: center; gap: var(--space-3); flex: none; margin-left: auto; font-variant-numeric: tabular-nums; }
++.view-status strong { color: var(--text); font-size: 12px; font-weight: 600; }
++.copy-count.near-limit { color: var(--warning); background: var(--warning-soft); padding: 0 var(--space-1); border-radius: var(--radius-control); }
++
++.output-sidebar { overflow-y: auto; border-left: 1px solid var(--border); scrollbar-gutter: stable; }
++.output-sidebar section { padding: var(--space-4) var(--space-3); }
++.output-sidebar section + section { border-top: 1px solid var(--border); }
++.selected-name { display: block; font-size: 12px; font-weight: 600; margin-bottom: var(--space-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
++.selection-details, .output-specs { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: var(--space-2); row-gap: var(--space-2); font-size: 12px; }
++.selection-details dt, .output-specs dt { color: var(--text-muted); font-size: 11px; }
++.selection-details dd, .output-specs dd { margin: 0; text-align: right; font-weight: 500; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
++.selection-section .small-note { margin-top: var(--space-2); }
++.selection-details { row-gap: var(--space-1); }
++.native-warning { margin-top: var(--space-2); color: var(--warning); font-size: 11px; font-weight: 500; }
++.output-summary { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-4); }
++.tile-diagram { flex: none; fill: var(--bg-subtle); stroke: var(--border-control); stroke-width: 1; }
++.output-size { font-size: 18px; font-weight: 600; line-height: 1.35; font-variant-numeric: tabular-nums; white-space: nowrap; }
++.output-size > span { color: var(--text-muted); font-weight: 400; }
++.output-size small { display: block; font-size: 11px; line-height: 1.6; color: var(--text-muted); font-weight: 400; }
++.export-note { font-size: 12px; color: var(--text-muted); line-height: 1.55; margin: var(--space-4) 0; }
++.export-panel-button { width: 100%; min-height: 36px; justify-content: space-between; padding: var(--space-2) var(--space-3); }
++.pixel-note { margin-top: var(--space-2); }
++.warning { display: flex; align-items: flex-start; gap: var(--space-2); font-size: 11px; color: var(--warning); background: var(--warning-soft); padding: var(--space-2); margin-bottom: var(--space-3); border-radius: var(--radius-control); }
++.warning svg { flex: none; }
++.error-text { color: var(--danger); font-size: 12px; line-height: 1.5; margin-top: var(--space-2); overflow-wrap: anywhere; }
++.proof-container { width: 100%; aspect-ratio: 4 / 3; border: 1px solid var(--border); border-radius: var(--radius-control); overflow: hidden; display: flex; align-items: center; justify-content: center; }
++.proof-container canvas { width: 100%; height: 100%; display: block; }
++.proof-container p { font-size: 12px; color: var(--text-muted); text-align: center; padding: var(--space-3); }
++.proof-badge { display: inline-block; margin-bottom: var(--space-2); padding: var(--space-1) var(--space-2); border: 1px solid var(--warning); border-radius: var(--radius-control); background: var(--warning-soft); color: var(--warning); text-transform: uppercase; font-size: 11px; font-weight: 600; }
++.proof-status { margin-top: var(--space-2); font-size: 11px; line-height: 1.55; color: var(--text-muted); }
++.proof-status.stale { color: var(--warning); }
++.proof-section .small-note { margin-top: var(--space-1); }
++
++@container workspace (max-width: 800px) {
++  .optional-label > span { display: none; }
++  .optional-label { width: 32px; padding: 0; }
++  .extra-hint { display: none; }
++}
++@container workspace (max-width: 580px) {
++  .tool-full { display: none; }
++  .tool-short { display: inline; }
++  .selection-tools { gap: var(--space-1); }
++  .selection-group + .selection-group { padding-left: var(--space-1); }
++  .selection-button { padding-left: var(--space-1); padding-right: var(--space-1); }
++  .selection-context { min-width: 56px; }
++  .no-selection > span { display: none; }
++}
++@media (max-width: 1250px) {
++  .document-toolbar { column-gap: var(--space-3); }
++  .color-value { display: none; }
++  .studio-layout { grid-template-columns: 200px minmax(0, 1fr) 224px; }
++}
++@media (max-width: 1080px) {
++  .studio-layout { grid-template-columns: 184px minmax(0, 1fr) 216px; }
++  .document-toolbar { display: grid; grid-template-columns: auto auto 1fr; }
++  .background-group { grid-column: 1 / 3; grid-row: 2; }
++  .view-tools { grid-column: 3; grid-row: 2; justify-self: end; }
++  .color-value { display: inline; }
++  .asset-thumbnail { width: 36px; height: 36px; }
++  .asset-place { display: none; }
++  .tile-diagram { width: 32px; }
++  .asset-section, .placement-section { padding: var(--space-3) var(--space-2); }
++  .source-note { font-size: 11px; }
++}
++@media (max-height: 760px) {
++  .output-sidebar section { padding-top: var(--space-3); padding-bottom: var(--space-3); }
++  .proof-container { width: min(100%, 192px); }
++  .asset-sidebar { grid-template-rows: minmax(208px, 1.15fr) minmax(148px, 1fr); }
+ }
+-
+-* {
+-  box-sizing:border-box;
+-}
+-
+-body {
+-  margin:0;
+-}
+-
+-button,input,select {
+-  font:inherit;
+-}
+-
+-button {
+-  cursor:pointer;
+-  color:inherit;
+-  background:none;
+-  border:1px solid transparent;
+-  display:inline-flex;
+-  align-items:center;
+-  justify-content:center;
+-  gap:7px;
+-  transition:background .15s,border-color .15s;
+-}
+-
+-button:hover:not(:disabled) {
+-  background:#f0ebf2;
+-}
+-
+-button:disabled {
+-  opacity:.35;
+-  cursor:default;
+-}
+-
+-button:focus-visible,input:focus-visible {
+-  outline:2px solid #957ca7;
+-  outline-offset:3px;
+-}
+-
+-h1,h2,p {
+-  margin:0;
+-}
+-
+-h2 {
+-  font-size:12px;
+-  font-weight:600;
+-}
+-
+-svg {
+-  flex-shrink:0;
+-}
+-
+-input[type=checkbox] {
+-  accent-color:var(--plum);
+-}
+-
+-.app-shell {
+-  height:100dvh;
+-  min-height:690px;
+-  min-width:1080px;
+-  display:flex;
+-  flex-direction:column;
+-}
+-
+-.app-header {
+-  height:83px;
+-  flex-shrink:0;
+-  padding:0 28px;
+-  display:flex;
+-  align-items:center;
+-  border-bottom:1px solid var(--line);
+-  gap:44px;
+-  background:var(--paper);
+-}
+-
+-.brand {
+-  display:flex;
+-  align-items:center;
+-  gap:12px;
+-  width:190px;
+-}
+-
+-.brand-name {
+-  font:31px Georgia,serif;
+-  letter-spacing:-1.2px;
+-  line-height:.95;
+-}
+-
+-.brand-name>span {
+-  display:block;
+-  font:8px Inter,-apple-system,sans-serif;
+-  letter-spacing:2.4px;
+-  margin:9px 0 0 1px;
+-  color:#8b7e8f;
+-}
+-
+-.brand-mark {
+-  position:relative;
+-  width:32px;
+-  height:32px;
+-  display:grid;
+-  grid-template-columns:1fr 1fr;
+-  gap:3px;
+-  transform:rotate(-8deg);
+-}
+-
+-.brand-mark i {
+-  background:#81658e;
+-  border-radius:12px 3px 12px 3px;
+-}
+-
+-.brand-mark i:nth-child(2) {
+-  transform:rotate(90deg);
+-  background:#d7b08e;
+-}
+-
+-.brand-mark i:nth-child(3) {
+-  transform:rotate(90deg);
+-  background:#d7b08e;
+-}
+-
+-.header-caption {
+-  font-size:13px;
+-  letter-spacing:.05px;
+-}
+-
+-.header-caption span {
+-  color:var(--muted);
+-}
+-
+-.header-actions {
+-  margin-left:auto;
+-  display:flex;
+-  align-items:center;
+-  gap:24px;
+-}
+-
+-.local-badge {
+-  display:flex;
+-  align-items:center;
+-  gap:8px;
+-  font-size:11px;
+-  color:#79767a;
+-}
+-
+-.status-dot {
+-  display:inline-block;
+-  width:6px;
+-  height:6px;
+-  background:#729286;
+-  border-radius:50%;
+-  flex-shrink:0;
+-}
+-
+-.demo-button {
+-  border:1px solid #d7d0db;
+-  border-radius:6px;
+-  padding:10px 13px;
+-  font-size:12px;
+-  background:white;
+-}
+-
+-.document-toolbar {
+-  display:flex;
+-  align-items:center;
+-  height:68px;
+-  padding:0 24px;
+-  gap:0;
+-  flex-shrink:0;
+-  border-bottom:1px solid var(--line);
+-  background:white;
+-}
+-
+-.toolbar-group {
+-  display:flex;
+-  align-items:center;
+-  gap:11px;
+-  padding-right:24px;
+-  margin-right:24px;
+-  border-right:1px solid var(--line);
+-  height:30px;
+-}
+-
+-.toolbar-label {
+-  font-size:11px;
+-  font-weight:500;
+-  color:#78717c;
+-}
+-
+-.dimension {
+-  display:flex;
+-  align-items:center;
+-  border:1px solid #ded9df;
+-  border-radius:5px;
+-  height:34px;
+-  padding:0 8px;
+-  gap:5px;
+-  font-size:10px;
+-  color:var(--muted);
+-}
+-
+-.dimension input {
+-  width:39px;
+-  border:0;
+-  color:#3b353e;
+-  font-size:12px;
+-  padding:3px 0;
+-  text-align:right;
+-  background:transparent;
+-}
+-
+-.dimension input:focus {
+-  outline:none;
+-}
+-
+-.dimension:focus-within {
+-  border-color:var(--plum);
+-  box-shadow:0 0 0 2px #ede6f2;
+-}
+-
+-.times {
+-  color:#aaa2ab;
+-  font-size:11px;
+-}
+-
+-.size-group {
+-  gap:8px;
+-}
+-
+-.segments {
+-  display:flex;
+-  background:#f5f3f5;
+-  padding:3px;
+-  border-radius:6px;
+-  gap:2px;
+-}
+-
+-.segments button {
+-  height:30px;
+-  padding:0 11px;
+-  border-radius:4px;
+-  font-size:11px;
+-  color:#7e7681;
+-  gap:7px;
+-  white-space:nowrap;
+-}
+-
+-.segments button[aria-pressed=true] {
+-  background:white;
+-  color:var(--plum);
+-  box-shadow:0 1px 4px #34233e13;
+-  border:1px solid #e6dfe9;
+-}
+-
+-.mode-icon {
+-  display:grid;
+-  grid-template-columns:4px 4px;
+-  gap:2px;
+-  width:12px;
+-  height:12px;
+-  align-content:center;
+-}
+-
+-.mode-icon i {
+-  display:block;
+-  width:4px;
+-  height:4px;
+-  border:1px solid currentColor;
+-  border-radius:1px;
+-}
+-
+-.mode-icon.half-drop i:nth-child(even) {
+-  transform:translateY(2px);
+-}
+-
+-.mode-icon.brick i:nth-child(n+3) {
+-  transform:translateX(2px);
+-}
+-
+-.background-group {
+-  gap:16px;
+-  margin:0;
+-  padding-right:15px;
+-  border:0;
+-}
+-
+-.color-input {
+-  display:flex;
+-  align-items:center;
+-  gap:7px;
+-  font-size:11px;
+-  color:#78717c;
+-  white-space:nowrap;
+-}
+-
+-.color-input input {
+-  appearance:none;
+-  width:24px;
+-  height:24px;
+-  border:1px solid #d5cbd6;
+-  padding:2px;
+-  border-radius:50%;
+-  background:white;
+-  cursor:pointer;
+-  overflow:hidden;
+-}
+-
+-.color-input input::-webkit-color-swatch-wrapper {
+-  padding:0;
+-}
+-
+-.color-input input::-webkit-color-swatch {
+-  border:0;
+-  border-radius:50%;
+-}
+-
+-.check-label {
+-  display:flex;
+-  align-items:center;
+-  gap:4px;
+-  font-size:11px;
+-  color:#78717c;
+-}
+-
+-.check-label input {
+-  height:13px;
+-  width:13px;
+-}
+-
+-.history-buttons {
+-  display:flex;
+-  gap:3px;
+-  margin-left:auto;
+-  border-left:1px solid var(--line);
+-  padding-left:13px;
+-}
+-
+-.icon-button {
+-  width:31px;
+-  height:31px;
+-  padding:5px;
+-  border-radius:5px;
+-  color:#786d80;
+-}
+-
+-.studio-layout {
+-  display:grid;
+-  grid-template-columns:232px minmax(390px,1fr) 248px;
+-  flex:1;
+-  min-height:0;
+-}
+-
+-.asset-sidebar {
+-  display:flex;
+-  flex-direction:column;
+-  min-height:0;
+-  border-right:1px solid var(--line);
+-  background:white;
+-  overflow:auto;
+-}
+-
+-.asset-section {
+-  padding:22px 18px 0;
+-}
+-
+-.section-heading {
+-  display:flex;
+-  align-items:center;
+-  justify-content:space-between;
+-  margin-bottom:17px;
+-  gap:8px;
+-}
+-
+-.count {
+-  color:#9e919f;
+-  font-size:10px;
+-  letter-spacing:.7px;
+-}
+-
+-.upload-zone {
+-  display:flex;
+-  flex-direction:column;
+-  gap:6px;
+-  width:100%;
+-  border:1px dashed #cfc3d7;
+-  background:#fbf9fc;
+-  border-radius:7px;
+-  min-height:123px;
+-  padding:14px 5px;
+-  font-size:11px;
+-  color:#96889c;
+-}
+-
+-.upload-zone strong {
+-  font-size:11px;
+-  font-weight:500;
+-  color:#62546a;
+-}
+-
+-.upload-zone u {
+-  text-decoration-thickness:.6px;
+-  text-underline-offset:3px;
+-  color:#675073;
+-}
+-
+-.upload-zone.drag-over {
+-  background:#eee5f3;
+-  border-color:#765188;
+-}
+-
+-.upload-icon {
+-  color:#8a7199;
+-  padding-bottom:3px;
+-}
+-
+-.small-note {
+-  color:#9b929e;
+-  font-size:10px;
+-  line-height:1.65;
+-}
+-
+-.asset-section>.small-note {
+-  margin:10px 0 19px;
+-}
+-
+-.asset-grid {
+-  display:grid;
+-  grid-template-columns:1fr 1fr;
+-  gap:15px 10px;
+-}
+-
+-.asset-card {
+-  display:flex;
+-  align-items:stretch;
+-  flex-direction:column;
+-  text-align:left;
+-  padding:0;
+-  gap:4px;
+-  min-width:0;
+-  border:0;
+-  background:none!important;
+-}
+-
+-.checker {
+-  background-color:#fcfaf9;
+-  background-image:linear-gradient(45deg,#e9e4e83b 25%,transparent 25%),linear-gradient(-45deg,#e9e4e83b 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e9e4e83b 75%),linear-gradient(-45deg,transparent 75%,#e9e4e83b 75%);
+-  background-size:14px 14px;
+-  background-position:0 0,0 7px,7px -7px,-7px 0;
+-}
+-
+-.asset-thumbnail {
+-  position:relative;
+-  height:94px;
+-  border:1px solid var(--line);
+-  border-radius:6px;
+-  display:flex;
+-  align-items:center;
+-  justify-content:center;
+-  overflow:hidden;
+-}
+-
+-.asset-thumbnail img {
+-  width:82%;
+-  height:82%;
+-  object-fit:contain;
+-  transition:transform .2s;
+-}
+-
+-.asset-card:hover .asset-thumbnail {
+-  border-color:#a48daf;
+-}
+-
+-.asset-card:hover img {
+-  transform:scale(1.06);
+-}
+-
+-.asset-plus {
+-  position:absolute;
+-  bottom:5px;
+-  right:5px;
+-  width:18px;
+-  height:18px;
+-  border-radius:50%;
+-  color:#887194;
+-  background:white;
+-  border:1px solid #ddd3e4;
+-  display:flex;
+-  align-items:center;
+-  justify-content:center;
+-}
+-
+-.asset-name {
+-  font-size:10px;
+-  margin-top:3px;
+-  white-space:nowrap;
+-  overflow:hidden;
+-  text-overflow:ellipsis;
+-  color:#625b68;
+-}
+-
+-.asset-dimensions {
+-  font-size:9px;
+-  color:#a79da8;
+-  letter-spacing:.2px;
+-}
+-
+-.empty-assets {
+-  padding:13px 0 23px;
+-  text-align:center;
+-  color:#a59aa9;
+-}
+-
+-.empty-stitches {
+-  letter-spacing:7px;
+-  color:#d1c4d5;
+-  font-size:15px;
+-}
+-
+-.empty-assets p {
+-  font-size:11px;
+-  margin:16px 0 6px;
+-  color:#8e8095;
+-}
+-
+-.empty-assets>span:last-child {
+-  font-size:10px;
+-}
+-
+-.placement-section {
+-  border-top:1px solid var(--line);
+-  margin-top:24px;
+-  padding:22px 13px 12px;
+-  flex:1;
+-}
+-
+-.placement-section .section-heading {
+-  margin:0 5px 7px;
+-}
+-
+-.placement-section>.small-note {
+-  font-size:9px;
+-  margin:0 5px 13px;
+-}
+-
+-.placement-list {
+-  display:flex;
+-  flex-direction:column;
+-  gap:4px;
+-}
+-
+-.placement-item {
+-  display:flex;
+-  text-align:left;
+-  justify-content:initial;
+-  gap:9px;
+-  border-radius:5px;
+-  border:1px solid transparent;
+-  min-height:54px;
+-  width:100%;
+-  padding:6px;
+-}
+-
+-.placement-item.selected {
+-  background:#f3eef6;
+-  border-color:#dfd2e7;
+-}
+-
+-.placement-thumb {
+-  width:35px;
+-  height:37px;
+-  border:1px solid #e4dfe7;
+-  flex-shrink:0;
+-  border-radius:4px;
+-  display:flex;
+-  align-items:center;
+-  justify-content:center;
+-}
+-
+-.placement-thumb img {
+-  width:90%;
+-  height:90%;
+-  object-fit:contain;
+-}
+-
+-.placement-title {
+-  min-width:0;
+-  display:flex;
+-  flex-direction:column;
+-  gap:5px;
+-}
+-
+-.placement-title strong {
+-  font-size:10px;
+-  font-weight:500;
+-  overflow:hidden;
+-  text-overflow:ellipsis;
+-  white-space:nowrap;
+-  max-width:117px;
+-}
+-
+-.placement-title small {
+-  font-size:9px;
+-  color:#9b8d9f;
+-}
+-
+-.placement-index {
+-  margin-left:auto;
+-  color:#b1a7b4;
+-  font-size:9px;
+-}
+-
+-.placement-empty {
+-  font-size:11px;
+-  color:#a398a8;
+-  line-height:1.8;
+-  margin:14px 6px;
+-}
+-
+-.session-note {
+-  padding:18px 20px;
+-  border-top:1px solid var(--line);
+-  display:flex;
+-  align-items:baseline;
+-  gap:9px;
+-  font-size:10px;
+-  line-height:1.8;
+-  color:#79727d;
+-  background:var(--paper);
+-  margin-top:auto;
+-}
+-
+-.session-note small {
+-  font-size:9px;
+-  color:#a79da9;
+-}
+-
+-.workspace {
+-  display:flex;
+-  flex-direction:column;
+-  min-height:0;
+-  min-width:0;
+-  outline:none;
+-  position:relative;
+-}
+-
+-.workspace:focus-visible:after {
+-  content:"";
+-  position:absolute;
+-  inset:0;
+-  pointer-events:none;
+-  border:1px solid #9a81aa70;
+-  z-index:6;
+-}
+-
+-.canvas-toolbar {
+-  display:flex;
+-  align-items:center;
+-  justify-content:space-between;
+-  padding:0 13px;
+-  height:55px;
+-  background:#fbfafc;
+-  border-bottom:1px solid var(--line);
+-  flex-shrink:0;
+-}
+-
+-.selection-tools,.view-tools {
+-  display:flex;
+-  align-items:center;
+-  gap:3px;
+-}
+-
+-.selection-tools .icon-button:nth-child(2),.selection-tools .icon-button:nth-child(4),.selection-tools .icon-button:nth-child(6) {
+-  margin-left:8px;
+-}
+-
+-.view-tools {
+-  gap:5px;
+-}
+-
+-.view-tools button {
+-  font-size:11px;
+-  color:#796b82;
+-  gap:6px;
+-  padding:6px 9px;
+-  border-radius:4px;
+-}
+-
+-.view-tools button[aria-pressed=true] {
+-  color:#624773;
+-  background:#ede6f2;
+-}
+-
+-.canvas-host {
+-  flex:1;
+-  min-height:0;
+-  position:relative;
+-  overflow:hidden;
+-}
+-
+-.canvas-host>.konvajs-content {
+-  position:absolute!important;
+-  inset:0;
+-}
+-
+-.canvas-label {
+-  position:absolute;
+-  left:19px;
+-  top:18px;
+-  display:flex;
+-  align-items:center;
+-  gap:7px;
+-  pointer-events:none;
+-  font-size:8px;
+-  letter-spacing:1.8px;
+-  color:#9d8a99;
+-  background:#fff9;
+-  padding:6px 8px;
+-  border-radius:3px;
+-}
+-
+-.canvas-label>span {
+-  width:4px;
+-  height:4px;
+-  border-radius:50%;
+-  background:#8d729b;
+-}
+-
+-.canvas-empty {
+-  position:absolute;
+-  inset:0;
+-  display:flex;
+-  flex-direction:column;
+-  align-items:center;
+-  justify-content:center;
+-  text-align:center;
+-  pointer-events:none;
+-  color:#857a88;
+-  background:#f6f1e7a8;
+-}
+-
+-.empty-emblem {
+-  font:italic 50px Georgia,serif;
+-  color:#bba4c3;
+-  line-height:1;
+-  width:75px;
+-  height:75px;
+-  background:#e5dce64d;
+-  border-radius:50%;
+-  display:grid;
+-  place-items:center;
+-  padding-bottom:10px;
+-  margin-bottom:25px;
+-}
+-
+-.canvas-empty h1 {
+-  font:25px Georgia,serif;
+-  color:#64516d;
+-  letter-spacing:-.5px;
+-  margin-bottom:15px;
+-}
+-
+-.canvas-empty p {
+-  font-size:12px;
+-  line-height:1.85;
+-  color:#958896;
+-}
+-
+-.canvas-empty>span {
+-  font-size:8px;
+-  letter-spacing:1.65px;
+-  margin-top:35px;
+-  color:#ad9cae;
+-}
+-
+-.canvas-footer {
+-  height:39px;
+-  flex-shrink:0;
+-  border-top:1px solid var(--line);
+-  background:#fbfafc;
+-  padding:0 16px;
+-  display:flex;
+-  align-items:center;
+-  justify-content:space-between;
+-  color:#9d919f;
+-  font-size:9px;
+-  gap:12px;
+-}
+-
+-.canvas-footer>span {
+-  display:flex;
+-  align-items:center;
+-  gap:6px;
+-  white-space:nowrap;
+-}
+-
+-.canvas-footer i {
+-  height:10px;
+-  width:1px;
+-  background:#e0d8e3;
+-  display:inline-block;
+-  margin:0 6px;
+-}
+-
+-.canvas-footer strong {
+-  color:#796780;
+-  font-size:10px;
+-  font-weight:500;
+-}
+-
+-kbd {
+-  font:8px inherit;
+-  padding:2px 5px;
+-  border:1px solid #ddd5e2;
+-  border-radius:3px;
+-  color:#86758e;
+-  background:white;
+-}
+-
+-.pan-surface {
+-  position:absolute;
+-  inset:0;
+-  cursor:grab;
+-  z-index:4;
+-  touch-action:none;
+-}
+-
+-.pan-surface:active {
+-  cursor:grabbing;
+-}
+-
+-.canvas-error {
+-  position:absolute;
+-  left:18px;
+-  right:18px;
+-  bottom:18px;
+-  padding:13px 12px;
+-  background:#fff7f1;
+-  box-shadow:0 2px 10px #452e1712;
+-  border:1px solid #eacdb8;
+-  border-radius:6px;
+-  color:#986640;
+-  font-size:11px;
+-  line-height:1.65;
+-  z-index:8;
+-  display:flex;
+-  align-items:start;
+-  justify-content:space-between;
+-  gap:14px;
+-}
+-
+-.canvas-error button {
+-  padding:0;
+-}
+-
+-.output-sidebar {
+-  border-left:1px solid var(--line);
+-  background:white;
+-  overflow:auto;
+-  display:flex;
+-  flex-direction:column;
+-}
+-
+-.output-section {
+-  padding:22px 20px 17px;
+-}
+-
+-.tiny-badge {
+-  font-size:8px;
+-  letter-spacing:1px;
+-  border:1px solid #ded6e3;
+-  border-radius:3px;
+-  color:#96829f;
+-  padding:3px 5px;
+-}
+-
+-.tile-diagram {
+-  height:91px;
+-  display:flex;
+-  align-items:center;
+-  justify-content:center;
+-  position:relative;
+-  background:#faf8fb;
+-  border-radius:5px;
+-  margin:1px 0 17px;
+-  border:1px solid #f0eaf3;
+-}
+-
+-.tile-shape {
+-  width:53px;
+-  height:53px;
+-  display:flex;
+-  border:1px solid #bca7c9;
+-  background:#eee5f3;
+-  box-shadow:6px 6px 0 #f2edf5;
+-}
+-
+-.tile-shape.half-drop {
+-  width:106px;
+-}
+-
+-.tile-shape.brick {
+-  height:66px;
+-  width:33px;
+-  flex-direction:column;
+-}
+-
+-.tile-shape span {
+-  flex:1;
+-}
+-
+-.tile-shape.half-drop span:first-child {
+-  border-right:1px dashed #c8b5d3;
+-  background:#e8dfee;
+-}
+-
+-.tile-shape.brick span:first-child {
+-  border-bottom:1px dashed #c8b5d3;
+-  background:#e8dfee;
+-}
+-
+-.diagram-origin {
+-  position:absolute;
+-  left:8px;
+-  bottom:8px;
+-  font-size:8px;
+-  color:#b7a4c1;
+-  letter-spacing:.5px;
+-}
+-
+-.output-size {
+-  font-family:Georgia,serif;
+-  font-size:24px;
+-  line-height:1.05;
+-  letter-spacing:-.7px;
+-  color:#55475e;
+-}
+-
+-.output-size>span {
+-  font-size:18px;
+-  color:#b4a5be;
+-  padding:0 2px;
+-}
+-
+-.output-size small {
+-  font:9px Inter,-apple-system,sans-serif;
+-  letter-spacing:.25px;
+-  color:#ab9caf;
+-  display:block;
+-  margin-top:10px;
+-}
+-
+-.output-specs {
+-  display:grid;
+-  grid-template-columns:1fr auto;
+-  row-gap:10px;
+-  font-size:10px;
+-  margin:24px 0 19px;
+-}
+-
+-.output-specs>span {
+-  color:#9d8fa4;
+-}
+-
+-.output-specs>strong {
+-  font-weight:400;
+-  color:#72617b;
+-}
+-
+-.export-note {
+-  font-size:10px;
+-  line-height:1.7;
+-  background:#f8f5fa;
+-  border-left:2px solid #d0bddb;
+-  padding:9px 10px;
+-  color:#8b7697;
+-}
+-
+-.primary {
+-  background:var(--plum);
+-  color:white;
+-  border:1px solid var(--plum);
+-  border-radius:5px;
+-  font-size:11px;
+-}
+-
+-.primary:hover:not(:disabled) {
+-  background:#51385f;
+-}
+-
+-.export-panel-button {
+-  height:38px;
+-  width:100%;
+-  display:flex;
+-  justify-content:space-between;
+-  padding:0 13px;
+-  margin-top:18px;
+-}
+-
+-.pixel-note {
+-  font-size:8px;
+-  line-height:1.6;
+-  color:#ad9fb1;
+-  text-align:center;
+-  margin-top:9px;
+-}
+-
+-.proof-section {
+-  border-top:1px solid var(--line);
+-  padding:20px;
+-}
+-
+-.proof-section .section-heading {
+-  margin-bottom:14px;
+-}
+-
+-.proof-section .section-heading>svg {
+-  color:#7f988a;
+-}
+-
+-.proof-container {
+-  border:1px solid #e5dfe9;
+-  border-radius:5px;
+-  overflow:hidden;
+-  aspect-ratio:4/3;
+-  display:flex;
+-  align-items:center;
+-  justify-content:center;
+-}
+-
+-.proof-container canvas {
+-  width:100%;
+-  height:100%;
+-  object-fit:contain;
+-  display:block;
+-}
+-
+-.proof-container canvas[hidden] {
+-  display:none;
+-}
+-
+-.no-proof {
+-  text-align:center;
+-  background-color:#fcfafc;
+-}
+-
+-.no-proof svg {
+-  color:#c6b6ce;
+-}
+-
+-.no-proof p {
+-  font-size:10px;
+-  color:#9986a4;
+-  margin:12px 0 6px;
+-}
+-
+-.no-proof span {
+-  font-size:8px;
+-  color:#b2a2ba;
+-  line-height:1.6;
+-}
+-
+-.proof-status {
+-  font-size:9px;
+-  color:#729583;
+-  margin-top:10px;
+-  line-height:1.5;
+-}
+-
+-.proof-status.stale {
+-  color:#b28657;
+-}
+-
+-.proof-section>.small-note {
+-  font-size:8px;
+-  margin-top:5px;
+-}
+-
+-.selection-section {
+-  padding:20px;
+-  border-top:1px solid var(--line);
+-  margin-top:auto;
+-  min-height:150px;
+-  background:#fdfcfe;
+-}
+-
+-.selection-section .section-heading {
+-  margin-bottom:15px;
+-}
+-
+-.selection-dot {
+-  height:6px;
+-  width:6px;
+-  border:1px solid #aa90b9;
+-  border-radius:1px;
+-}
+-
+-.selected-name {
+-  font-size:10px;
+-  font-weight:500;
+-  color:#7b6588;
+-  display:block;
+-  margin-bottom:14px;
+-}
+-
+-.selection-details {
+-  margin:0;
+-  display:grid;
+-  grid-template-columns:1fr auto;
+-  row-gap:10px;
+-  font-size:9px;
+-}
+-
+-.selection-details dt {
+-  color:#ad9fb5;
+-}
+-
+-.selection-details dd {
+-  margin:0;
+-  color:#816b8d;
+-  font-variant-numeric:tabular-nums;
+-}
+-
+-.warning {
+-  font-size:9px;
+-  color:#a37b3b;
+-  background:#fcf7e9;
+-  border:1px solid #ede1c2;
+-  padding:8px;
+-  border-radius:4px;
+-  line-height:1.6;
+-  margin-top:10px;
+-}
+-
+-.error-text {
+-  font-size:10px;
+-  color:#a76153;
+-  line-height:1.7;
+-  margin-top:10px;
+-}
+-
+-.import-errors {
+-  position:relative;
+-  background:#fff5f0;
+-  border:1px solid #efd5c5;
+-  border-radius:5px;
+-  padding:10px 20px 10px 9px;
+-  margin-bottom:15px;
+-  font-size:9px;
+-  line-height:1.5;
+-  overflow-wrap:anywhere;
+-  color:#aa7158;
+-}
+-
+-.import-errors p+p {
+-  margin-top:8px;
+-}
+-
+-.import-errors button {
+-  position:absolute;
+-  right:2px;
+-  top:4px;
+-  padding:0;
+-}
+-
+-@media(max-width:1250px) {
+-  .app-header {
+-    gap:25px;
+-    padding:0 21px;
+-  }
+-  .header-caption {
+-    font-size:11px;
+-  }
+-  .header-actions {
+-    gap:14px;
+-  }
+-  .local-badge {
+-    font-size:10px;
+-  }
+-  .document-toolbar {
+-    padding:0 17px;
+-  }
+-  .toolbar-group {
+-    padding-right:15px;
+-    margin-right:15px;
+-    gap:7px;
+-  }
+-  .toolbar-label {
+-    display:none;
+-  }
+-  .background-group {
+-    gap:10px;
+-    padding-right:5px;
+-    margin:0;
+-  }
+-  .segments button {
+-    padding:0 8px;
+-  }
+-  .studio-layout {
+-    grid-template-columns:212px minmax(390px,1fr) 226px;
+-  }
+-  .asset-section {
+-    padding-left:15px;
+-    padding-right:15px;
+-  }
+-  .output-section,.proof-section,.selection-section {
+-    padding-left:16px;
+-    padding-right:16px;
+-  }
+-  .selection-tools .icon-button:nth-child(2),.selection-tools .icon-button:nth-child(4),.selection-tools .icon-button:nth-child(6) {
+-    margin-left:2px;
+-  }
+-  .canvas-toolbar {
+-    padding:0 8px;
+-  }
+-  .icon-button {
+-    width:28px;
+-  }
+-  .view-tools button {
+-    padding:6px;
+-  }
+-  .canvas-footer {
+-    padding:0 10px;
+-  }
+-  .canvas-empty h1 {
+-    font-size:22px;
+-  }
+-  .output-size {
+-    font-size:22px;
+-  }
+-}
+-
+-@media(max-height:830px) {
+-  .app-header {
+-    height:70px;
+-  }
+-  .document-toolbar {
+-    height:59px;
+-  }
+-  .asset-section {
+-    padding-top:18px;
+-  }
+-  .placement-section {
+-    padding-top:17px;
+-    margin-top:20px;
+-  }
+-  .output-section {
+-    padding-top:18px;
+-    padding-bottom:15px;
+-  }
+-  .tile-diagram {
+-    height:68px;
+-    margin-bottom:14px;
+-  }
+-  .tile-shape {
+-    width:42px;
+-    height:42px;
+-  }
+-  .tile-shape.half-drop {
+-    width:84px;
+-  }
+-  .tile-shape.brick {
+-    height:50px;
+-    width:25px;
+-  }
+-  .output-specs {
+-    margin:18px 0 14px;
+-  }
+-  .proof-section {
+-    padding-top:16px;
+-    padding-bottom:16px;
+-  }
+-  .selection-section {
+-    padding-top:16px;
+-    padding-bottom:16px;
+-    min-height:132px;
+-  }
+-  .pixel-note {
+-    font-size:8px;
+-  }
+-  .selection-details {
+-    row-gap:8px;
+-  }
+-  .section-heading {
+-    margin-bottom:14px;
+-  }
+-  .upload-zone {
+-    min-height:108px;
+-  }
+-}
+-
+diff --git a/src/ui/presentation.ts b/src/ui/presentation.ts
+new file mode 100644
+index 0000000..f4feeb7
+--- /dev/null
++++ b/src/ui/presentation.ts
+@@ -0,0 +1,23 @@
++import type { Mode, Placement } from '../core/types';
++
++export const MODE_LABELS: Record<Mode, string> = {
++  straight: 'Straight', 'half-drop': 'Half-drop', brick: 'Brick',
++};
++
++export function flipLabel(p: Pick<Placement, 'flipX' | 'flipY'>): string {
++  if (p.flipX && p.flipY) return 'H + V flipped';
++  if (p.flipX) return 'H flipped';
++  if (p.flipY) return 'V flipped';
++  return 'Not flipped';
++}
++
++// Match the plain-CSS tokens. Canvas nodes cannot inherit CSS custom properties.
++export const CANVAS_COLORS = { outline: '#707782', accent: '#2855b8', handle: '#ffffff' };
++
++export type ProofStatus = 'empty' | 'decoding' | 'verified' | 'stale' | 'failed';
++export function proofStatus(resultFingerprint: string | null, currentFingerprint: string, decoded: boolean, failed: boolean): ProofStatus {
++  if (resultFingerprint === null) return 'empty';
++  if (failed) return 'failed';
++  if (resultFingerprint !== currentFingerprint) return 'stale';
++  return decoded ? 'verified' : 'decoding';
++}
+diff --git a/tests/presentation.test.ts b/tests/presentation.test.ts
+new file mode 100644
+index 0000000..d6d94e8
+--- /dev/null
++++ b/tests/presentation.test.ts
+@@ -0,0 +1,39 @@
++import { describe, expect, it } from 'vitest';
++import { CANVAS_COLORS, MODE_LABELS, flipLabel, proofStatus } from '../src/ui/presentation';
++import { readFileSync } from 'node:fs';
++
++// Literal expectations: user-facing transform and proof state must not lie.
++describe('UI state labels', () => {
++  it('names all repeat modes without changing model keys', () => {
++    expect(MODE_LABELS).toEqual({ straight: 'Straight', 'half-drop': 'Half-drop', brick: 'Brick' });
++  });
++  it.each([
++    [false, false, 'Not flipped'], [true, false, 'H flipped'],
++    [false, true, 'V flipped'], [true, true, 'H + V flipped'],
++  ] as const)('flip state %s / %s', (flipX, flipY, label) => {
++    expect(flipLabel({ flipX, flipY })).toBe(label);
++  });
++  it('no export is not verified', () => expect(proofStatus(null, 'doc', false, false)).toBe('empty'));
++  it('new Blob is pending, not the prior success', () => expect(proofStatus('doc', 'doc', false, false)).toBe('decoding'));
++  it('only a decoded matching document is verified', () => expect(proofStatus('doc', 'doc', true, false)).toBe('verified'));
++  it('editing after export makes even a decoded proof stale', () => expect(proofStatus('old', 'new', true, false)).toBe('stale'));
++  it('editing while decoding also marks the export stale', () => expect(proofStatus('old', 'new', false, false)).toBe('stale'));
++  it('decode failure cannot display success', () => expect(proofStatus('doc', 'doc', false, true)).toBe('failed'));
++  it('a stale failed proof reports failure; the UI keeps its independent stale badge', () => expect(proofStatus('old', 'new', false, true)).toBe('failed'));
++});
++
++describe('design token guardrails', () => {
++  const css = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8');
++  it('canvas selection shares the CSS accent; cell boundary remains neutral', () => {
++    expect(css.includes(`--accent: ${CANVAS_COLORS.accent};`)).toBe(true);
++    expect(CANVAS_COLORS.outline).toBe('#707782');
++  });
++  it('does not reintroduce tiny text or serif styling', () => {
++    expect(/font-size:\s*(?:[0-9])px/.test(css)).toBe(false);
++    expect(css.includes('Georgia')).toBe(false);
++  });
++  it('does not distort the decoded proof on short desktops', () => {
++    expect(css.includes('aspect-ratio: 4 / 3')).toBe(true);
++    expect(css.includes('.proof-container { max-height:')).toBe(false);
++  });
++});

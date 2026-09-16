@@ -1,0 +1,94 @@
+
+camera recovery: original P1 counterexample
+PASS restores the smaller cell without changing history or placement transforms
+PASS also recovers when Redo is the operation that restores the dense cell
+PASS straight recovers the dense view and preserves its model center 1935
+PASS half-drop recovers the dense view and preserves its model center 1913
+PASS brick recovers the dense view and preserves its model center 1913
+PASS Fit falls back from 2115 copies to 1935 instead of rejecting forever
+PASS a workspace expansion can recover without changing the centered model point
+
+rejected-scene navigation and safety boundaries
+PASS allows multiple wheel increments to accumulate even while intermediate scenes are rejected
+PASS keeps an off-center wheel pointer fixed during recovery navigation
+PASS rejects excessive zoom-out from a safe view rather than blanking it
+PASS returns an already-safe camera unchanged
+PASS explicitly tests the maximum zoom when doubling would overshoot
+PASS terminates after ten analytic checks when even maximum zoom cannot fit
+PASS permits bounded panning from a rejected scene, including at maximum zoom
+PASS can pan from an over-limit maximum-zoom center into a safe one after resize
+PASS counts an offscreen pinned node and never accepts the 2001st copy
+PASS never accepts an invalid camera, even from a rejected scene: { x: NaN, y: 0, z: 1 }
+PASS never accepts an invalid camera, even from a rejected scene: { x: 0, y: Infinity, z: 1 }
+PASS never accepts an invalid camera, even from a rejected scene: { x: 0, y: 0, z: 0 }
+PASS never accepts an invalid camera, even from a rejected scene: { x: 0, y: 0, z: 0.019 }
+PASS never accepts an invalid camera, even from a rejected scene: { x: 0, y: 0, z: 8.01 }
+PASS never accepts an invalid camera, even from a rejected scene: { x: 0, y: 0, z: NaN }
+PASS does not treat missing assets or unsafe numeric ranges as density failures
+PASS rejects invalid viewport sizes: { width: 0, height: 1 }
+PASS rejects invalid viewport sizes: { width: 1, height: -1 }
+PASS rejects invalid viewport sizes: { width: Infinity, height: 1 }
+PASS keeps the normal several-repeat Fit for a sparse document
+
+hand-calculated lattices and output rectangles
+PASS straight basis and negative translation
+PASS half-drop basis and negative translation
+PASS brick basis and negative translation
+PASS does not round odd half-pixel offsets
+
+transformed bounds
+PASS 90° rotation, 2× scale, negative center
+PASS 45° square has 10√2 half-extents; flips do not change its AABB
+
+enumeration (not a fixed 3×3)
+PASS includes all four corner copies
+PASS uses a negative viewport without modulo or recentering
+PASS large motif at a negative position needs 12 explicit copies beyond i=1
+PASS rotated, oversized motif covers shifted rows
+PASS odd half-drop counts parity analytically
+PASS odd brick sorts numerically by i then j, not by generation row
+PASS negative odd half-drop parity is floor-based
+PASS preserves placement stacking before numeric copy ordering
+PASS pins an active copy exactly once even outside the viewport
+PASS preflights huge counts and unsafe ranges without entering copy loops
+PASS allows 2000 copies, refuses the 2001st pinned copy
+PASS validates all placements before any copy enumeration
+
+commit validation
+PASS rejects invalid cell size 0
+PASS rejects invalid cell size -1
+PASS rejects invalid cell size 1.5
+PASS rejects invalid cell size NaN
+PASS rejects invalid cell size Infinity
+PASS rejects invalid cell size 4097
+PASS checks doubled export bounds and positive scale
+
+50-entry snapshot history
+PASS makes one history entry for 100 gesture frames
+PASS keeps exactly the last 50 snapshots
+PASS new committed edit clears redo, selection/camera never enter document snapshots
+PASS no-op commits/gestures preserve redo
+PASS cancel restores the baseline without recording or clearing redo
+PASS does not record a preview outside a transaction or alias mutable history
+
+PNG pre-decode validation and shared fixtures
+PASS coral-stem.png has its hand-specified size and RGBA format 280 360
+PASS sage-sprig.png has its hand-specified size and RGBA format 320 260
+PASS ochre-petal.png has its hand-specified size and RGBA format 220 200
+PASS rejects a renamed non-PNG before decoding
+PASS rejects invalid or excessive dimensions before decoding/allocation
+
+screen vs model vs copy coordinates
+PASS inverts pan/zoom only for raw pointers
+PASS straight subtracts translation from already-model-parent node coordinates { tx: 100, ty: -80 } 50 180
+PASS half-drop subtracts translation from already-model-parent node coordinates { tx: 100, ty: -40 } 50 140
+PASS brick subtracts translation from already-model-parent node coordinates { tx: 50, ty: -80 } 100 180
+PASS maps centered origin and both flip flags to shared image props
+PASS pointer-centered zoom keeps (150, 100) beneath screen (350, 170)
+
+placement documents
+PASS mode/cell changes keep exact transforms including negative centers and flips
+PASS duplicates share an asset but have independent transforms; order is the stack
+PASS clears a stale selection after delete or undo of insertion
+
+Supplemental Node assertion replay: 72 passed; 0 failed. NOT a Vitest run.

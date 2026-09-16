@@ -1,0 +1,3 @@
+$ tsc --strict --noEmit --noUnusedLocals --noUnusedParameters --target ES2022 --module ESNext --moduleResolution Bundler --lib ES2022,DOM src/core/types.ts src/core/geometry.ts src/core/transforms.ts src/core/camera.ts src/core/history.ts src/core/document.ts src/ui/presentation.ts
+Version 5.8.3
+Exit: 0

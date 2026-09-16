@@ -1,0 +1,704 @@
+--- v3/e2e/p2-regressions.spec.ts
++++ v4/e2e/p2-regressions.spec.ts
+@@ -0,0 +1,214 @@
++import { test, expect, type Page } from '@playwright/test';
++import { readFileSync } from 'node:fs';
++import path from 'node:path';
++
++const state = (page: Page) => page.evaluate(() => window.__studio!.state());
++const source = path.resolve('public/demo/coral-stem.png');
++async function onePlacement(page: Page) {
++  await page.goto('/');
++  await page.getByTestId('png-input').setInputFiles(source);
++  await page.getByTestId('asset-card').click();
++  await expect(page.getByTestId('placement-item')).toHaveCount(1);
++}
++async function emitColor(page: Page, color: string, accept: boolean) {
++  await page.getByLabel('Background color', { exact: true }).evaluate((input: HTMLInputElement, { color, accept }) => {
++    // Bypass React's value tracker exactly as a native input edit does.
++    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, color);
++    input.dispatchEvent(new Event('input', { bubbles: true }));
++    if (accept) input.dispatchEvent(new Event('change', { bubbles: true }));
++  }, { color, accept });
++}
++
++for (const gesture of ['nudge', 'drag'] as const) {
++  test(`P2-01: delayed demo cannot consume a ${gesture} transaction; retry reuses assets`, async ({ page }) => {
++    await onePlacement(page);
++    let release!: () => void;
++    const gate = new Promise<void>(resolve => { release = resolve; });
++    let requested = 0;
++    await page.route('**/demo/*.png', async route => {
++      requested++;
++      await gate;
++      await route.fulfill({ path: path.resolve('public/demo', path.basename(new URL(route.request().url()).pathname)) });
++    });
++    await page.getByRole('button', { name: 'Add demo', exact: true }).click();
++    await expect.poll(() => requested).toBe(3);
++    const before = await state(page);
++    await page.getByTestId('workspace').focus();
++    if (gesture === 'nudge') await page.keyboard.down('ArrowRight');
++    else {
++      const host = (await page.getByTestId('canvas-host').boundingBox())!;
++      const copy = await page.evaluate(() => {
++        const s = window.__studio!.state();
++        const selected = s.selection;
++        if (!selected) throw new Error('Fixture placement is not selected.');
++        return window.__studio!.copies().find(c => c.id === selected.id && c.i === selected.i && c.j === selected.j)!;
++      });
++      await page.mouse.move(host.x + copy.grab.x, host.y + copy.grab.y);
++      await page.mouse.down();
++      await page.mouse.move(host.x + copy.grab.x + 16, host.y + copy.grab.y + 12, { steps: 4 });
++    }
++    await expect.poll(async () => (await state(page)).gesturing).toBe(true);
++    const during = await state(page);
++    release();
++    await expect(page.getByTestId('asset-card')).toHaveCount(4);
++    await expect(page.getByRole('alert')).toContainText('Demo images are ready');
++    expect((await state(page)).doc).toEqual(during.doc);
++    expect((await state(page)).gesturing).toBe(true);
++    if (gesture === 'nudge') await page.keyboard.up('ArrowRight'); else await page.mouse.up();
++    await expect.poll(async () => (await state(page)).gesturing).toBe(false);
++    expect((await state(page)).past).toBe(before.past + 1);
++    await page.getByRole('button', { name: 'Add demo', exact: true }).click();
++    await expect(page.getByTestId('placement-item')).toHaveCount(4);
++    expect((await state(page)).assets).toHaveLength(4);
++    expect(requested).toBe(3);
++  });
++}
++
++test('P2-02: wheel during held Space-pan preserves zoom and applies only the next screen delta', async ({ page }) => {
++  await onePlacement(page);
++  const before = await state(page);
++  const host = (await page.getByTestId('canvas-host').boundingBox())!;
++  await page.getByTestId('workspace').focus();
++  await page.keyboard.down('Space');
++  const x = host.x + host.width / 2, y = host.y + host.height / 2;
++  await page.mouse.move(x, y); await page.mouse.down();
++  await page.mouse.move(x + 20, y + 10);
++  const beforeWheel = (await state(page)).camera;
++  await page.mouse.wheel(0, -100);
++  await expect.poll(async () => (await state(page)).camera.z).toBeGreaterThan(beforeWheel.z);
++  const zoomed = (await state(page)).camera;
++  await page.mouse.move(x + 33, y + 17);
++  const moved = await state(page);
++  expect(moved.camera.z).toBe(zoomed.z);
++  expect(moved.camera.x).toBeCloseTo(zoomed.x + 13, 5);
++  expect(moved.camera.y).toBeCloseTo(zoomed.y + 7, 5);
++  expect(moved.doc).toEqual(before.doc); expect(moved.past).toBe(before.past);
++  await page.mouse.up(); await page.keyboard.up('Space');
++});
++
++test('P2-02: resize cancels the active pan instead of restoring its old camera on the next move', async ({ page }) => {
++  await onePlacement(page);
++  const host = (await page.getByTestId('canvas-host').boundingBox())!;
++  await page.getByTestId('workspace').focus(); await page.keyboard.down('Space');
++  await page.mouse.move(host.x + 100, host.y + 100); await page.mouse.down();
++  await page.mouse.move(host.x + 110, host.y + 110);
++  await page.setViewportSize({ width: 1280, height: 850 });
++  await expect.poll(async () => (await state(page)).size.width).not.toBe(Math.floor(host.width));
++  const resized = await state(page);
++  await page.mouse.move(host.x + 130, host.y + 120);
++  expect((await state(page)).camera).toEqual(resized.camera);
++  await page.mouse.up(); await page.keyboard.up('Space');
++});
++
++test('P2-03: native color accept commits while focused; input drafts and later blur add no extra entries', async ({ page }) => {
++  await onePlacement(page); const before = await state(page);
++  const color = page.getByLabel('Background color', { exact: true }); await color.focus();
++  await emitColor(page, '#345678', false);
++  expect((await state(page)).doc.background).toBe('#ffffff');
++  await color.dispatchEvent('change');
++  await expect(color).toBeFocused();
++  expect((await state(page)).doc.background).toBe('#345678');
++  expect((await state(page)).past).toBe(before.past + 1);
++  await page.getByTestId('workspace').focus();
++  expect((await state(page)).past).toBe(before.past + 1);
++  await page.keyboard.press('Control+z');
++  expect((await state(page)).doc.background).toBe('#ffffff');
++});
++
++test('P2-03: a busy accept cannot change the document or leave a misleading draft', async ({ page }) => {
++  await onePlacement(page); await page.getByTestId('workspace').focus();
++  await page.keyboard.down('ArrowRight');
++  await expect(page.getByLabel('Background color', { exact: true })).toBeDisabled();
++  await emitColor(page, '#123456', true);
++  expect((await state(page)).doc.background).toBe('#ffffff');
++  await expect(page.getByLabel('Background color', { exact: true })).toHaveValue('#ffffff');
++  await page.keyboard.up('ArrowRight');
++});
++
++test('P2-03: same-task settings accept cannot overwrite a newer placement transform', async ({ page }) => {
++  await onePlacement(page); const before = await state(page);
++  await page.getByLabel('Background color', { exact: true }).focus();
++  await page.evaluate(() => {
++    const doc = window.__studio!.state().doc;
++    const ok = window.__studio!.setDocument({ ...doc, placements: doc.placements.map(p => ({ ...p, x: p.x + 21 })) });
++    if (!ok) throw new Error('Fixture transform was rejected.');
++    const input = document.querySelector<HTMLInputElement>('input[type=color]')!;
++    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, '#123456');
++    input.dispatchEvent(new Event('input', { bubbles: true }));
++    input.dispatchEvent(new Event('change', { bubbles: true }));
++  });
++  const after = await state(page);
++  expect(after.doc.placements[0].x).toBe(before.doc.placements[0].x + 21);
++  expect(after.doc.background).toBe('#123456');
++});
++
++test('P2-04: source thumbnails are not native drag sources and non-file drops are canceled throughout the app', async ({ page }) => {
++  await onePlacement(page); const before = await state(page);
++  expect(await page.locator('.asset-sidebar img').evaluateAll(images => images.every(img => !(img as HTMLImageElement).draggable))).toBe(true);
++  for (const selector of ['.canvas-host', '.app-header', 'input[aria-label="Cell width"]']) {
++    const canceled = await page.locator(selector).evaluate(el => {
++      const data = new DataTransfer(); data.setData('text/uri-list', 'https://example.invalid/unused.png');
++      const over = new DragEvent('dragover', { bubbles: true, cancelable: true, dataTransfer: data });
++      const drop = new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: data });
++      el.dispatchEvent(over); el.dispatchEvent(drop);
++      return over.defaultPrevented && drop.defaultPrevented;
++    });
++    expect(canceled).toBe(true);
++  }
++  expect((await state(page)).doc).toEqual(before.doc);
++  expect((await state(page)).assets).toEqual(before.assets);
++});
++
++test('P2-04: canvas file drop still imports each valid file exactly once', async ({ page }) => {
++  await page.goto('/');
++  await page.getByTestId('canvas-host').evaluate((el, bytes) => {
++    const data = new DataTransfer();
++    data.items.add(new File([new Uint8Array(bytes)], 'dropped.png', { type: 'image/png' }));
++    data.items.add(new File(['bad'], 'bad.png', { type: 'image/png' }));
++    el.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: data }));
++  }, Array.from(readFileSync(source)));
++  await expect(page.getByTestId('asset-card')).toHaveCount(1);
++  await expect(page.getByRole('alert')).toContainText('bad.png');
++  expect((await state(page)).doc.placements).toHaveLength(0);
++});
++
++test('P2-05: download-initiation failure retains the old stale proof and permits retry', async ({ page }) => {
++  await onePlacement(page);
++  let downloaded = page.waitForEvent('download');
++  await page.getByRole('button', { name: 'Export PNG', exact: true }).click(); await downloaded;
++  await expect(page.getByTestId('proof-status')).toContainText('dimensions verified');
++  const previous = await page.evaluate(() => window.__studio!.exportBytes());
++  await page.getByTestId('workspace').focus(); await page.keyboard.press('ArrowRight');
++  await page.evaluate(() => {
++    const original = HTMLAnchorElement.prototype.click;
++    HTMLAnchorElement.prototype.click = function () {
++      if (this.download.startsWith('selvedge-')) {
++        HTMLAnchorElement.prototype.click = original;
++        throw new Error('Deliberate download-initiation failure');
++      }
++      original.call(this);
++    };
++  });
++  await page.getByRole('button', { name: 'Export PNG', exact: true }).click();
++  await expect(page.getByRole('alert')).toContainText('Deliberate download-initiation failure');
++  expect(await page.evaluate(() => window.__studio!.exportBytes())).toEqual(previous);
++  await expect(page.getByTestId('proof-stale')).toHaveText('Out of date');
++  await expect(page.getByRole('button', { name: 'Export PNG', exact: true })).toBeEnabled();
++  downloaded = page.waitForEvent('download');
++  await page.getByRole('button', { name: 'Export PNG', exact: true }).click(); await downloaded;
++  await expect(page.getByTestId('proof-stale')).toHaveCount(0);
++  await expect(page.getByRole('alert')).toHaveCount(0);
++});
++
++test('P2-06: arrow chord is one snapshot, including repeated movement after the first key release', async ({ page }) => {
++  await onePlacement(page); const before = await state(page);
++  await page.keyboard.down('ArrowRight'); await page.keyboard.down('ArrowDown');
++  await page.keyboard.up('ArrowRight');
++  expect((await state(page)).gesturing).toBe(true);
++  await page.keyboard.down('ArrowDown'); await page.keyboard.up('ArrowDown');
++  const after = await state(page);
++  expect(after.gesturing).toBe(false); expect(after.past).toBe(before.past + 1);
++  expect(after.doc.placements[0]).toMatchObject({ x: before.doc.placements[0].x + 1, y: before.doc.placements[0].y + 2 });
++  await page.keyboard.press('Control+z'); expect((await state(page)).doc).toEqual(before.doc);
++  await page.keyboard.press('Control+Shift+z'); expect((await state(page)).doc).toEqual(after.doc);
++});
+--- v3/package.json
++++ v4/package.json
+@@ -1,7 +1,7 @@
+ {
+   "name": "selvedge-repeat-studio",
+   "private": true,
+-  "version": "3.0.0",
++  "version": "4.0.0",
+   "type": "module",
+   "engines": { "node": ">=22.12.0" },
+   "scripts": {
+--- v3/src/App.tsx
++++ v4/src/App.tsx
+@@ -25,7 +25,10 @@
+   const focusWorkspace = () => s.focusRef.current?.focus({ preventScroll: true });
+ 
+   return <div className="app-shell"
+-    onDragOver={e => { if (e.dataTransfer.types.includes('Files')) e.preventDefault(); }}
++    // Suppress browser navigation for dropped images/URLs, including non-file
++    // thumbnail drags. Only actual files are routed to the local importer.
++    onDragOverCapture={e => { e.preventDefault(); if (!e.dataTransfer.types.includes('Files')) e.dataTransfer.dropEffect = 'none'; }}
++    onDropCapture={e => e.preventDefault()}
+     onDrop={e => { if (e.dataTransfer.files.length) { e.preventDefault(); void s.onFiles(Array.from(e.dataTransfer.files)); } }}>
+     <header className="app-header">
+       <span className="brand-name">Selvedge <span>Repeat</span></span>
+@@ -38,7 +41,7 @@
+         <button className="text-button demo-button" aria-label="Add demo" disabled={!!s.loading || busy} onClick={() => void s.addDemo()}>Demo</button>
+       </div>
+     </header>
+-    <CellControls doc={doc} busy={busy} commit={s.tryDocument} inspect={inspect}
++    <CellControls doc={doc} busy={busy} commit={s.commitSettings} inspect={inspect}
+       onFit={() => { s.fit(); focusWorkspace(); }}
+       onInspect={() => { setInspect(value => !value); focusWorkspace(); }} />
+     <main className="studio-layout">
+@@ -48,7 +51,7 @@
+       <Workspace doc={doc} assets={s.assetMap} camera={s.camera} selection={s.selection} selectedName={selectedAsset?.name}
+         pin={s.pin} size={s.size} busy={busy} error={s.error} focusRef={s.focusRef} inspect={inspect}
+         demoBusy={!!s.loading || busy} onDemo={() => void s.addDemo()}
+-        onSize={s.onSize} onCamera={s.tryCamera} onSelect={s.setSelection} onBegin={s.begin} onNode={s.onNode}
++        onSize={s.onSize} onZoom={s.zoom} onPan={s.panBy} onSelect={s.selectCopy} onBegin={s.begin} onNode={s.onNode}
+         onEnd={s.end} onAction={s.action} onNudge={s.nudge} onNudgeEnd={s.endNudge} onFit={s.fit}
+         clearError={() => s.setError(null)} onStage={s.onStage} />
+       <OutputPanel doc={doc} selected={selected} asset={selectedAsset} result={s.result} busy={busy}
+--- v3/src/components/AssetTray.tsx
++++ v4/src/components/AssetTray.tsx
+@@ -42,7 +42,7 @@
+         <div className="asset-list">
+           {assets.map(asset => <button key={asset.id} className="asset-card" data-testid="asset-card" aria-label={`Place ${asset.name}`}
+             title={`${asset.name} · ${asset.nativeW} × ${asset.nativeH} px`} disabled={busy} onClick={() => onInsert(asset)}>
+-            <span className="asset-thumbnail checker"><img src={asset.image.src} alt="" /></span>
++            <span className="asset-thumbnail checker"><img src={asset.image.src} alt="" draggable={false} /></span>
+             <span className="asset-text"><strong>{asset.name}</strong><span>{asset.nativeW} × {asset.nativeH} px</span></span>
+             <span className="asset-place" aria-hidden="true"><Icon name="plus" size={16} /></span>
+           </button>)}
+@@ -58,7 +58,7 @@
+           const a = assets.find(a => a.id === p.assetId);
+           return <button key={p.id} className={`placement-item ${selected === p.id ? 'selected' : ''}`} data-testid="placement-item"
+             aria-pressed={selected === p.id} title={`${a?.name ?? 'Source image'} · ${flipLabel(p)}`} disabled={busy} onClick={() => onSelect(p.id)}>
+-            <span className="placement-thumb checker">{a && <img src={a.image.src} alt="" />}</span>
++            <span className="placement-thumb checker">{a && <img src={a.image.src} alt="" draggable={false} />}</span>
+             <span className="placement-title"><strong>{a?.name ?? 'Source image'}</strong>
+               <small>{Math.round(p.s * 100)}% · {Math.round(p.deg)}°{p.flipX || p.flipY ? ` · ${flipLabel(p)}` : ''}</small></span>
+           </button>;
+--- v3/src/components/CellControls.tsx
++++ v4/src/components/CellControls.tsx
+@@ -1,12 +1,12 @@
+-import { useEffect, useState } from 'react';
+-import type { Mode, RepeatDocument } from '../core/types';
++import { useEffect, useRef, useState } from 'react';
++import type { DocumentSettings, Mode, RepeatDocument } from '../core/types';
+ import { MODE_LABELS } from '../ui/presentation';
+ import { Icon } from './Icon';
+ 
+ interface Props {
+   doc: RepeatDocument;
+   busy: boolean;
+-  commit: (next: RepeatDocument) => boolean;
++  commit: (patch: Partial<DocumentSettings>) => boolean;
+   inspect: boolean;
+   onFit: () => void;
+   onInspect: () => void;
+@@ -15,16 +15,29 @@
+   const [width, setWidth] = useState(String(doc.W));
+   const [height, setHeight] = useState(String(doc.H));
+   const [color, setColor] = useState(doc.background ?? '#ffffff');
++  const colorInput = useRef<HTMLInputElement>(null);
+   useEffect(() => { setWidth(String(doc.W)); setHeight(String(doc.H)); }, [doc.W, doc.H]);
+   useEffect(() => { if (doc.background) setColor(doc.background); }, [doc.background]);
+   const dimensions = () => {
+     const W = /^\d+$/.test(width) ? Number(width) : NaN;
+     const H = /^\d+$/.test(height) ? Number(height) : NaN;
+-    if (!commit({ ...doc, W, H })) { setWidth(String(doc.W)); setHeight(String(doc.H)); }
++    if (!commit({ W, H })) { setWidth(String(doc.W)); setHeight(String(doc.H)); }
+   };
+-  const commitColor = () => {
+-    if (doc.background && !commit({ ...doc, background: color })) setColor(doc.background);
++  const commitColor = (value: string) => {
++    if (!doc.background) return;
++    if (busy || !commit({ background: value })) setColor(doc.background);
++    else setColor(value);
+   };
++  const latestColorCommit = useRef(commitColor);
++  latestColorCommit.current = commitColor;
++  useEffect(() => {
++    const input = colorInput.current!;
++    // React onChange is a draft/input event. The native change event is the
++    // picker-accept boundary, even when closing the picker does not blur it.
++    const accepted = () => latestColorCommit.current(input.value);
++    input.addEventListener('change', accepted);
++    return () => input.removeEventListener('change', accepted);
++  }, []);
+   return <div className="document-toolbar" aria-label="Repeat settings">
+     <div className="toolbar-group size-group" role="group" aria-label="Cell size">
+       <span className="toolbar-label">Cell</span>
+@@ -43,7 +56,7 @@
+       <span className="toolbar-label">Repeat</span>
+       <div className="segments" role="group" aria-label="Repeat mode">
+         {(['straight', 'half-drop', 'brick'] as Mode[]).map(mode =>
+-          <button key={mode} aria-pressed={doc.mode === mode} disabled={busy} onClick={() => commit({ ...doc, mode })}>
++          <button key={mode} aria-pressed={doc.mode === mode} disabled={busy} onClick={() => commit({ mode })}>
+             <span className={`mode-icon ${mode}`} aria-hidden="true"><i /><i /><i /><i /></span>{MODE_LABELS[mode]}
+           </button>)}
+       </div>
+@@ -52,12 +65,16 @@
+       <span className="toolbar-label">Background</span>
+       <div className={`background-control ${!doc.background ? 'is-transparent' : ''}`}>
+         <label className="color-input" title={doc.background ? 'Background color' : 'Turn off Transparent to choose a color'}>
+-          <input aria-label="Background color" type="color" value={color} disabled={busy || !doc.background}
+-            onChange={e => setColor(e.target.value)} onBlur={commitColor} />
++          <input ref={colorInput} aria-label="Background color" type="color" value={color} disabled={busy || !doc.background}
++            onChange={e => {
++              // A bubbling synthetic change must not overwrite a native accept
++              // rejection. Only input events update the uncommitted draft.
++              if (e.nativeEvent.type === 'input' && !busy) setColor(e.currentTarget.value);
++            }} onBlur={e => commitColor(e.currentTarget.value)} />
+           <span className="color-value" aria-hidden="true">{doc.background ? color.toUpperCase() : 'None'}</span>
+         </label>
+         <label className="check-label"><input aria-label="Transparent background" type="checkbox" checked={!doc.background} disabled={busy}
+-          onChange={e => commit({ ...doc, background: e.target.checked ? null : color })} />Transparent</label>
++          onChange={e => commit({ background: e.target.checked ? null : color })} />Transparent</label>
+       </div>
+     </div>
+     <div className="view-tools" role="group" aria-label="View">
+--- v3/src/components/Workspace.tsx
++++ v4/src/components/Workspace.tsx
+@@ -3,8 +3,9 @@
+ import Konva from 'konva';
+ import { recoverCamera, renderViewBounds, type ViewSize } from '../core/camera';
+ import { enumerateCopies, lattice } from '../core/geometry';
+-import { fitCamera, imageProps, zoomAt } from '../core/transforms';
+-import { MAX_COPIES, copyKey, type AssetMap, type Camera, type Copy, type CopyKey, type RepeatDocument } from '../core/types';
++import { fitCamera, imageProps } from '../core/transforms';
++import { MAX_COPIES, copyKey, type AssetMap, type Camera, type Copy, type CopyKey, type Point, type RepeatDocument } from '../core/types';
++import { arrowDelta, isFormField, releaseArrow } from '../ui/keyboard';
+ import { CANVAS_COLORS } from '../ui/presentation';
+ import { Icon } from './Icon';
+ import { SelectionToolbar } from './SelectionToolbar';
+@@ -16,14 +17,11 @@
+   size: Size; busy: boolean; error: string | null; selectedName?: string; inspect: boolean;
+   demoBusy: boolean; onDemo: () => void;
+   focusRef: RefObject<HTMLDivElement | null>;
+-  onSize: (size: Size) => void; onCamera: (camera: Camera) => boolean;
++  onSize: (size: Size) => void; onZoom: (pointer: Point, factor: number) => boolean; onPan: (dx: number, dy: number) => boolean;
+   onSelect: (copy: CopyKey | null) => void;
+-  onBegin: (copy: Copy) => void; onNode: (copy: Copy, node: Konva.Image) => void; onEnd: () => void;
++  onBegin: (copy: Copy) => boolean; onNode: (copy: Copy, node: Konva.Image) => void; onEnd: (copy?: CopyKey) => void;
+   onAction: (action: EditAction) => void; onNudge: (dx: number, dy: number) => void; onNudgeEnd: () => void;
+   onFit: () => void; clearError: () => void; onStage: (stage: Konva.Stage | null) => void;
+-}
+-function isField(target: EventTarget | null) {
+-  return target instanceof HTMLElement && !!target.closest('input,textarea,select,[contenteditable="true"]');
+ }
+ export function Workspace(props: Props) {
+   const { doc, assets, camera, selection, pin, size, busy, error, focusRef, inspect } = props;
+@@ -32,7 +30,8 @@
+   const transformer = useRef<Konva.Transformer>(null);
+   const nodes = useRef(new Map<string, Konva.Image>());
+   const [space, setSpace] = useState(false);
+-  const pan = useRef<{ x: number; y: number; camera: Camera } | null>(null);
++  const pan = useRef<{ x: number; y: number; pointerId: number } | null>(null);
++  const heldArrows = useRef(new Set<string>());
+   const latest = useRef(props);
+   latest.current = props;
+   const rendered = useMemo(() => {
+@@ -54,6 +53,8 @@
+     const element = host.current!;
+     const observer = new ResizeObserver(entries => {
+       const { width, height } = entries[0].contentRect;
++      pan.current = null;
++      heldArrows.current.clear();
+       latest.current.onSize({ width: Math.max(1, Math.floor(width)), height: Math.max(1, Math.floor(height)) });
+     });
+     observer.observe(element);
+@@ -62,18 +63,24 @@
+       if (latest.current.busy) return;
+       const rect = element.getBoundingClientRect();
+       const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? rect.height : 1);
+-      latest.current.onCamera(zoomAt(latest.current.camera, { x: event.clientX - rect.left, y: event.clientY - rect.top }, Math.exp(-Math.max(-300, Math.min(300, delta)) * .002)));
++      latest.current.onZoom({ x: event.clientX - rect.left, y: event.clientY - rect.top }, Math.exp(-Math.max(-300, Math.min(300, delta)) * .002));
+     };
+     element.addEventListener('wheel', wheel, { passive: false });
+     const blur = () => {
+       setSpace(false); pan.current = null;
+       stage.current?.find('.motif-copy').forEach(node => node.stopDrag());
+       transformer.current?.stopTransform();
++      heldArrows.current.clear();
+       latest.current.onNudgeEnd(); latest.current.onEnd();
+     };
+     window.addEventListener('blur', blur);
+     // A release outside the workspace must never leave Space-pan latched on.
+-    const keyup = (e: KeyboardEvent) => { if (e.code === 'Space') { setSpace(false); pan.current = null; } };
++    const keyup = (e: KeyboardEvent) => {
++      if (e.code === 'Space') { setSpace(false); pan.current = null; }
++      const released = releaseArrow(heldArrows.current, e.key);
++      if (released.handled && !isFormField(e.target)) e.preventDefault();
++      if (released.finished) latest.current.onNudgeEnd();
++    };
+     window.addEventListener('keyup', keyup);
+     return () => { observer.disconnect(); element.removeEventListener('wheel', wheel); window.removeEventListener('blur', blur); window.removeEventListener('keyup', keyup); };
+   }, []);
+@@ -88,24 +95,26 @@
+   }, [rendered.error, busy, doc, assets, size, pin]);
+   return <section className="workspace" ref={focusRef} tabIndex={0} aria-label="Repeat workspace" data-testid="workspace"
+     onKeyDown={e => {
+-      if (isField(e.target)) return;
++      if (isFormField(e.target)) return;
+       if (e.code === 'Space' && !(e.target instanceof HTMLButtonElement)) { e.preventDefault(); if (!busy) setSpace(true); return; }
+       const mod = e.ctrlKey || e.metaKey;
+       const key = e.key.toLowerCase();
+       if (mod && !e.altKey && (key === 'z' || key === 'd')) {
+-        e.preventDefault(); props.onNudgeEnd();
++        e.preventDefault(); heldArrows.current.clear(); props.onNudgeEnd();
+         if (!pin) props.onAction(key === 'd' ? 'duplicate' : e.shiftKey ? 'redo' : 'undo');
+         return;
+       }
+-      if (e.key === 'Delete' && !mod && !e.altKey) { e.preventDefault(); props.onNudgeEnd(); if (!pin) props.onAction('delete'); return; }
+-      if (!mod && !e.altKey && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
++      if (e.key === 'Delete' && !mod && !e.altKey) { e.preventDefault(); heldArrows.current.clear(); props.onNudgeEnd(); if (!pin) props.onAction('delete'); return; }
++      const delta = !mod && !e.altKey ? arrowDelta(e.key, e.shiftKey) : null;
++      if (delta) {
+         e.preventDefault();
+-        const n = e.shiftKey ? 10 : 1;
+-        if (!pin && selection) props.onNudge(e.key === 'ArrowLeft' ? -n : e.key === 'ArrowRight' ? n : 0, e.key === 'ArrowUp' ? -n : e.key === 'ArrowDown' ? n : 0);
++        if (!pin && selection) {
++          heldArrows.current.add(e.key);
++          props.onNudge(delta.x, delta.y);
++        }
+       }
+     }}
+-    onKeyUp={e => { if (!isField(e.target) && e.key.startsWith('Arrow')) { e.preventDefault(); props.onNudgeEnd(); } }}
+-    onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget)) { setSpace(false); pan.current = null; props.onNudgeEnd(); } }}>
++    onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget)) { setSpace(false); pan.current = null; heldArrows.current.clear(); props.onNudgeEnd(); } }}>
+     <SelectionToolbar selected={!!selection} name={props.selectedName} busy={busy}
+       onAction={action => { props.onAction(action); focusRef.current?.focus({ preventScroll: true }); }} />
+     <div className={`canvas-host checker ${space ? 'panning' : ''}`} ref={host} data-testid="canvas-host" onMouseDown={() => focusRef.current?.focus({ preventScroll: true })}>
+@@ -119,10 +128,10 @@
+                 {...imageProps(p, assets.get(p.assetId)!, copy)}
+                 id={copyKey(copy)} name="motif-copy" copyId={copy.id} copyI={copy.i} copyJ={copy.j}
+                 draggable={!space && (!busy || !!pin)} onMouseDown={e => { e.cancelBubble = true; props.onSelect(copy); }}
+-                onDragStart={() => props.onBegin(copy)} onDragMove={e => props.onNode(copy, e.target as Konva.Image)}
+-                onDragEnd={e => { props.onNode(copy, e.target as Konva.Image); props.onEnd(); }}
+-                onTransformStart={() => props.onBegin(copy)} onTransform={e => props.onNode(copy, e.target as Konva.Image)}
+-                onTransformEnd={e => { props.onNode(copy, e.target as Konva.Image); props.onEnd(); }} />;
++                onDragStart={e => { if (!props.onBegin(copy)) (e.target as Konva.Image).stopDrag(); }} onDragMove={e => props.onNode(copy, e.target as Konva.Image)}
++                onDragEnd={e => { props.onNode(copy, e.target as Konva.Image); props.onEnd(copy); }}
++                onTransformStart={() => { if (!props.onBegin(copy)) transformer.current?.stopTransform(); }} onTransform={e => props.onNode(copy, e.target as Konva.Image)}
++                onTransformEnd={e => { props.onNode(copy, e.target as Konva.Image); props.onEnd(copy); }} />;
+             })}
+             {!inspect && <>
+               <Line points={[0, 0, a.x, a.y, a.x + b.x, a.y + b.y, b.x, b.y]} closed
+@@ -150,19 +159,27 @@
+       </div>}
+       {space && <div className="pan-surface" data-testid="pan-surface"
+         onPointerDown={e => {
++          if (e.button !== 0 || !e.isPrimary || latest.current.busy) return;
+           e.preventDefault(); e.currentTarget.setPointerCapture(e.pointerId);
+-          pan.current = { x: e.clientX, y: e.clientY, camera };
++          pan.current = { x: e.clientX, y: e.clientY, pointerId: e.pointerId };
+         }}
+         onPointerMove={e => {
+-          if (pan.current) props.onCamera({ ...pan.current.camera,
+-            x: pan.current.camera.x + e.clientX - pan.current.x,
+-            y: pan.current.camera.y + e.clientY - pan.current.y });
++          const active = pan.current;
++          if (!active || active.pointerId !== e.pointerId) return;
++          if (!(e.buttons & 1) || latest.current.busy) { pan.current = null; return; }
++          // Apply screen deltas to the synchronous current camera in useStudio.
++          // Wheel zoom, Fit or history recovery cannot be undone by a stale
++          // pointer-down camera snapshot on the next move.
++          if (latest.current.onPan(e.clientX - active.x, e.clientY - active.y)) {
++            pan.current = { x: e.clientX, y: e.clientY, pointerId: e.pointerId };
++          }
+         }}
+         onPointerUp={e => {
+-          pan.current = null;
++          if (pan.current?.pointerId === e.pointerId) pan.current = null;
+           if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+         }}
+-        onPointerCancel={() => { pan.current = null; }} onLostPointerCapture={() => { pan.current = null; }} />}
++        onPointerCancel={e => { if (pan.current?.pointerId === e.pointerId) pan.current = null; }}
++        onLostPointerCapture={e => { if (pan.current?.pointerId === e.pointerId) pan.current = null; }} />}
+       {issue && <div className="canvas-error" role="alert">
+         <Icon name="alert" size={16} />
+         <div className="canvas-error-body"><strong>{rendered.error ? 'View cannot be rendered' : 'Action not applied'}</strong><p>{issue}</p>
+--- v3/src/core/types.ts
++++ v4/src/core/types.ts
+@@ -24,6 +24,7 @@
+   background: string | null;
+   placements: Placement[];
+ }
++export type DocumentSettings = Pick<RepeatDocument, 'W' | 'H' | 'mode' | 'background'>;
+ export interface Point { x: number; y: number }
+ export interface Camera extends Point { z: number }
+ export interface Bounds { left: number; top: number; right: number; bottom: number }
+--- v3/src/hooks/useStudio.ts
++++ v4/src/hooks/useStudio.ts
+@@ -5,8 +5,8 @@
+ import { downloadPng, exportPng, type ExportResult } from '../core/export';
+ import { enumerateCopies, outputSize, padBounds, preflightCopies, validateDocument } from '../core/geometry';
+ import { demoFiles, importBatch, releaseAssets } from '../core/png';
+-import { fitCamera, imageProps, placementFromNode, screenToModel, viewportBounds } from '../core/transforms';
+-import { INITIAL_DOCUMENT, type Camera, type Copy, type CopyKey, type NamedAsset, type Placement, type RepeatDocument } from '../core/types';
++import { fitCamera, imageProps, placementFromNode, screenToModel, viewportBounds, zoomAt } from '../core/transforms';
++import { INITIAL_DOCUMENT, sameCopy, type DocumentSettings, type Camera, type Copy, type CopyKey, type NamedAsset, type Point, type Placement, type RepeatDocument } from '../core/types';
+ import type { EditAction, Size } from '../components/Workspace';
+ import { useHistory } from './useHistory';
+ 
+@@ -50,6 +50,10 @@
+       storeCamera(navigation.camera); setError(navigation.error); return true;
+     } catch (e) { setError(message(e)); return false; }
+   };
++  const zoom = (pointer: Point, factor: number) => tryCamera(zoomAt(cameraRef.current, pointer, factor));
++  const panBy = (dx: number, dy: number) => tryCamera({
++    ...cameraRef.current, x: cameraRef.current.x + dx, y: cameraRef.current.y + dy,
++  });
+   const recoverView = (requested: Camera, fallback = cameraRef.current) => {
+     try {
+       storeCamera(recoverCamera(historyRef.current.present, currentAssets(), requested, sizeRef.current, pinRef.current));
+@@ -61,11 +65,21 @@
+   const tryDocument = (next: RepeatDocument, preview = false) => {
+     try {
+       if (exportingRef.current) return false;
++      // An unrelated commit must not consume a live drag/resize/nudge baseline.
++      if (!preview && historyRef.current.baseline !== null) return false;
++      if (preview && historyRef.current.baseline === null) return false;
+       validateDocument(next, currentAssets());
+       checkView(next, cameraRef.current);
+       send({ type: preview ? 'preview' : 'commit', value: next });
+       setError(null); return true;
+     } catch (e) { setError(message(e)); return false; }
++  };
++  const commitSettings = (patch: Partial<DocumentSettings>) =>
++    tryDocument({ ...historyRef.current.present, ...patch });
++  const selectCopy = (copy: CopyKey | null) => {
++    if (pinRef.current || exportingRef.current) return;
++    endNudge();
++    setSelection(copy);
+   };
+   const onSize = (next: Size) => {
+     // Finish interrupted gestures before a resize can invalidate the copy set.
+@@ -119,6 +133,12 @@
+         if (mounted.current) setImportErrors(errors => [...errors, ...imported.errors]);
+       }
+       if (!mounted.current) return;
++      // Loading does not lock editing. Recheck after the async boundary, before
++      // insertion, selection, Fit or focus can interrupt a newer operation.
++      if (historyRef.current.baseline !== null || exportingRef.current) {
++        setError('Demo images are ready in Source images. Finish the current edit or export, then click Demo to place them.');
++        return;
++      }
+       const doc = historyRef.current.present;
+       const positions = [[.25, .28, -12], [.73, .58, 24], [.32, .80, -18]];
+       const added = demoIds.current.map((id, i): Placement => {
+@@ -147,21 +167,23 @@
+     focusRef.current?.focus();
+   };
+   const begin = (copy: Copy) => {
+-    if (exportingRef.current) return;
++    if (exportingRef.current) return false;
++    if (pinRef.current) return sameCopy(pinRef.current, copy);
+     endNudge();
+     pinRef.current = copy; setPin(copy); setSelection(copy);
+     send({ type: 'begin' });
++    return true;
+   };
+   const onNode = (copy: Copy, node: Konva.Image) => {
+-    if (!pinRef.current || !historyRef.current.baseline) return;
++    if (!pinRef.current || !sameCopy(pinRef.current, copy) || !historyRef.current.baseline) return;
+     const doc = historyRef.current.present;
+     const p = doc.placements.find(p => p.id === copy.id);
+     if (!p) return;
+     const next = placementFromNode(p, copy, { x: node.x(), y: node.y(), scaleX: node.scaleX(), scaleY: node.scaleY(), rotation: node.rotation() });
+     if (!tryDocument(changePlacement(doc, p.id, next), true)) node.setAttrs(imageProps(p, currentAssets().get(p.assetId)!, copy));
+   };
+-  const end = () => {
+-    if (!pinRef.current) return;
++  const end = (copy?: CopyKey) => {
++    if (!pinRef.current || (copy && !sameCopy(pinRef.current, copy))) return;
+     send({ type: 'end' });
+     pinRef.current = null; setPin(null);
+   };
+@@ -202,7 +224,12 @@
+     exportingRef.current = true; setExporting(true); setExportError(null);
+     try {
+       const exported = await exportPng(historyRef.current.present, currentAssets());
+-      if (mounted.current) { setResult(exported); downloadPng(exported); }
++      if (mounted.current) {
++        // Publish the new proof only after download initiation succeeds. A
++        // thrown download error must leave the previous export clearly stale.
++        downloadPng(exported);
++        setResult(exported);
++      }
+     } catch (e) { if (mounted.current) setExportError(message(e)); }
+     finally { exportingRef.current = false; if (mounted.current) setExporting(false); }
+   };
+@@ -221,6 +248,6 @@
+     } catch { return null; }
+   })();
+   return { history, historyRef, assets, assetsRef, assetMap, selection, setSelection, pin, camera, size, error, setError, importErrors, setImportErrors, loading, exporting, exportError, result, exportCount, focusRef, stageRef,
+-    tryDocument, tryCamera, onSize, fit, onFiles, insert, addDemo, selectPlacement, begin, onNode, end, nudge, endNudge, action, doExport, onStage };
++    tryDocument, commitSettings, selectCopy, tryCamera, zoom, panBy, onSize, fit, onFiles, insert, addDemo, selectPlacement, begin, onNode, end, nudge, endNudge, action, doExport, onStage };
+ }
+ export type Studio = ReturnType<typeof useStudio>;
+--- v3/src/ui/keyboard.ts
++++ v4/src/ui/keyboard.ts
+@@ -0,0 +1,23 @@
++import type { Point } from '../core/types';
++
++export function isFormField(target: EventTarget | null): boolean {
++  return target instanceof HTMLElement
++    && (!!target.closest('input,textarea,select') || target.isContentEditable);
++}
++
++export function arrowDelta(key: string, shift: boolean): Point | null {
++  const step = shift ? 10 : 1;
++  switch (key) {
++    case 'ArrowLeft': return { x: -step, y: 0 };
++    case 'ArrowRight': return { x: step, y: 0 };
++    case 'ArrowUp': return { x: 0, y: -step };
++    case 'ArrowDown': return { x: 0, y: step };
++    default: return null;
++  }
++}
++
++// A chord of held arrow keys is one nudge gesture, not one per released key.
++export function releaseArrow(held: Set<string>, key: string) {
++  const handled = held.delete(key);
++  return { handled, finished: handled && held.size === 0 };
++}
+--- v3/tests/keyboard.test.ts
++++ v4/tests/keyboard.test.ts
+@@ -0,0 +1,35 @@
++import { describe, expect, it } from 'vitest';
++import { arrowDelta, releaseArrow } from '../src/ui/keyboard';
++
++describe('workspace nudge keys', () => {
++  it.each([
++    ['ArrowLeft', false, { x: -1, y: 0 }], ['ArrowRight', false, { x: 1, y: 0 }],
++    ['ArrowUp', false, { x: 0, y: -1 }], ['ArrowDown', false, { x: 0, y: 1 }],
++    ['ArrowLeft', true, { x: -10, y: 0 }], ['ArrowRight', true, { x: 10, y: 0 }],
++    ['ArrowUp', true, { x: 0, y: -10 }], ['ArrowDown', true, { x: 0, y: 10 }],
++  ] as const)('%s shift=%s has a literal model-pixel delta', (key, shift, expected) => {
++    expect(arrowDelta(key, shift)).toEqual(expected);
++  });
++  it('non-arrow keys do not become nudges', () => {
++    expect(arrowDelta('Delete', true)).toBeNull();
++    expect(arrowDelta('a', false)).toBeNull();
++  });
++  it('releasing one key of a chord does not end the gesture', () => {
++    const held = new Set(['ArrowRight', 'ArrowDown']);
++    expect(releaseArrow(held, 'ArrowRight')).toEqual({ handled: true, finished: false });
++    expect([...held]).toEqual(['ArrowDown']);
++    expect(releaseArrow(held, 'ArrowDown')).toEqual({ handled: true, finished: true });
++  });
++  it('an unrelated or repeated release does not handle a default or end history', () => {
++    const held = new Set(['ArrowRight']);
++    expect(releaseArrow(held, 'ArrowDown')).toEqual({ handled: false, finished: false });
++    expect(releaseArrow(held, 'ArrowRight')).toEqual({ handled: true, finished: true });
++    expect(releaseArrow(held, 'ArrowRight')).toEqual({ handled: false, finished: false });
++  });
++  it('key-repeat still produces only one release boundary', () => {
++    const held = new Set<string>();
++    for (let i = 0; i < 20; i++) held.add('ArrowRight');
++    expect([...held]).toEqual(['ArrowRight']);
++    expect(releaseArrow(held, 'ArrowRight')).toEqual({ handled: true, finished: true });
++  });
++});

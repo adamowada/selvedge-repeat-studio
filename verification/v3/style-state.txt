@@ -1,0 +1,16 @@
+PASS native color input supports the browser regression test action
+PASS keyboard field focus has a 2px outline
+PASS delete hover communicates destructive intent
+PASS active repeat mode uses the selection accent
+PASS desktop settings bar is at most 52px
+PASS --text on --bg-panel contrast >= 4.5
+PASS --text-muted on --bg-subtle contrast >= 4.5
+PASS --accent on --bg-panel contrast >= 4.5
+PASS --border-control on --bg-panel contrast >= 3
+PASS --warning on --warning-soft contrast >= 4.5
+PASS --danger on --danger-soft contrast >= 4.5
+PASS processing primary action retains 80% opacity
+PASS valid imported sources are reachable without dismissing errors
+PASS source scroll keeps valid assets inside their section
+PASS export action fits the initial 900x650 selected layout
+15 state/contrast checks passed. Static/native DOM only.

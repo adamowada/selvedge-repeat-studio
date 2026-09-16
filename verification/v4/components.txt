@@ -1,0 +1,24 @@
+PASS dimension draft does not commit until blur
+PASS rejected dimension restores the visible committed value
+PASS Enter prevents defaults and blurs the field for one commit path
+PASS color draft supports the blur fallback
+PASS rejected color commit resets its draft
+PASS transparent toggles the existing background contract without losing placement transforms
+PASS transparent state disables the swatch and uses its last chosen color when restored
+PASS no selection removes unusable placement actions
+PASS selection actions have semantic groups and forward exactly their action
+PASS gesture lock disables export without claiming a PNG is rendering
+PASS real export activity has a distinct busy state
+PASS only a matching, decoded Blob displays proof
+PASS a new Blob hides the previous proof until its own decode completes
+PASS a stale proof keeps its picture but loses its success state
+PASS failed stale proof keeps an explicit stale badge AND the failure
+PASS Fit and Inspect wire through the existing studio and return focus to the workspace
+PASS history and assets remain outside the lifted Inspect state
+PASS inserting/selecting is visibly disabled during a gesture, import still adds session-only assets
+PASS workspace keyboard guard leaves form input defaults and documents alone
+PASS workspace handled shortcuts prevent defaults and dispatch once
+PASS Space updates modal pan feedback, without dispatching an edit
+PASS dense view offers Fit only after bounded preflight; no partial motif scene is returned
+
+Supplemental component source checks: 22 passed, 0 failed. NOT React/Konva runtime verification.

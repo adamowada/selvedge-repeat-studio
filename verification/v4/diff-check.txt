@@ -1,0 +1,15 @@
+Read-only v3 baseline: all 96 supplied ZIP members match extracted bytes.
+Changed production/test/manifest files: 10
+e2e/p2-regressions.spec.ts
+package.json
+src/App.tsx
+src/components/AssetTray.tsx
+src/components/CellControls.tsx
+src/components/Workspace.tsx
+src/core/types.ts
+src/hooks/useStudio.ts
+src/ui/keyboard.ts
+tests/keyboard.test.ts
+Changed-source trailing whitespace: none.
+No source deletions.
+Dependencies and Vite/Playwright/TypeScript configuration unchanged.

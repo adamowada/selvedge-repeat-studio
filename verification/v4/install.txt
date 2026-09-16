@@ -1,0 +1,2 @@
+$ npm install --fetch-retries=0 --fetch-timeout=1000 --no-audit --no-fund
+Exit: 124 (124 means the 20-second process timeout)

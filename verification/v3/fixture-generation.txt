@@ -1,0 +1,1 @@
+Source-only DOM/CSS fixtures generated. Effects disabled; scene is an SVG projection, not Konva.

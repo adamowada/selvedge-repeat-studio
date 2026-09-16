@@ -1,0 +1,4 @@
+Node v22.16.0
+npm 10.9.2
+$ npm install --fetch-retries=0 --fetch-timeout=1000 --no-audit --no-fund
+Exit: 124

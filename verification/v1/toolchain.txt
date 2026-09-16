@@ -1,0 +1,36 @@
+Node / npm:
+v22.16.0
+10.9.2
+\n$ npm run typecheck
+
+> selvedge-repeat-studio@1.0.0 typecheck
+> tsc --noEmit
+
+error TS2688: Cannot find type definition file for 'node'.
+  The file is in the program because:
+    Entry point of type library 'node' specified in compilerOptions
+error TS2688: Cannot find type definition file for 'vite/client'.
+  The file is in the program because:
+    Entry point of type library 'vite/client' specified in compilerOptions
+Exit: 2
+\n$ npm run build
+
+> selvedge-repeat-studio@1.0.0 build
+> vite build
+
+sh: 1: vite: not found
+Exit: 127
+\n$ npm run test
+
+> selvedge-repeat-studio@1.0.0 test
+> vitest run
+
+sh: 1: vitest: not found
+Exit: 127
+\n$ npm run test:browser
+
+> selvedge-repeat-studio@1.0.0 test:browser
+> playwright test
+
+error: unknown command 'test'
+Exit: 1

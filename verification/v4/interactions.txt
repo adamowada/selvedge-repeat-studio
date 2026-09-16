@@ -1,0 +1,28 @@
+PASS P2-01: delayed demo cannot commit over an active pointer transaction
+PASS P2-01: a generic document commit cannot close a held nudge
+PASS P2-01: delayed demo during export retains assets without touching export or focus
+PASS P2-01: valid demo still appends to the latest intervening document
+PASS P2-01: unmount during demo decode releases arriving assets and never inserts
+PASS gesture identity: late copy updates and ends cannot consume another pin
+PASS gesture identity: switching copy commits a nudge before changing selection
+PASS settings patch uses current document even through an older callback
+PASS preview outside a transaction is not falsely reported as accepted
+PASS P2-02: interleaved zoom/pan uses current refs without requiring a render
+PASS P2-02: invalid pan/zoom does not change the camera or document
+PASS P2-02: real source pan handlers do not snap back after wheel zoom
+PASS P2-02: non-primary buttons and unrelated pointers cannot pan
+PASS P2-06: releasing one held arrow keeps the nudge open until the last release
+PASS P2-06: blur ends and clears tracked keys; a later release does not repeat the commit
+PASS form input and editable fields never dispatch or suppress workspace keys
+PASS P2-03: picker native change commits without blur and input draft does not
+PASS P2-03: native accept takes the DOM value even before the draft rerenders
+PASS P2-03: reject restores visible committed color; latest busy and transparent state are honored
+PASS P2-03: a bubbling synthetic change cannot overwrite an accept rejection
+PASS P2-03: the native listener is removed on unmount
+PASS P2-04: non-file image/URL drops are canceled before browser default navigation
+PASS P2-04: thumbnails are explicitly non-draggable in both source and placement lists
+PASS P2-04: canceling defaults does not suppress valid file import routing
+PASS P2-05: a thrown download initiation cannot publish a new proof
+PASS P2-05: failed first download leaves no proof; retry clears failure and publishes exact result
+
+v4 source-boundary checks: 26 passed; 0 failed. NOT React/Konva runtime verification.

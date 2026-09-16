@@ -1,0 +1,74 @@
+Supplemental isolated geometry/transforms/history/document/proof typecheck (environment TypeScript 5.8.3):
+$ node /usr/local/slides_js/node_modules/typescript/bin/tsc -p /mnt/data/core-check/tsconfig.json
+Exit: 0
+
+Supplemental Node-only replay, not Vitest:
+
+hand-calculated lattices and output rectangles
+  PASS straight basis and negative translation
+  PASS half-drop basis and negative translation
+  PASS brick basis and negative translation
+  PASS does not round odd half-pixel offsets
+
+transformed bounds
+  PASS 90° rotation, 2× scale, negative center
+  PASS 45° square has 10√2 half-extents; flips do not change its AABB
+
+enumeration (not a fixed 3×3)
+  PASS includes all four corner copies
+  PASS uses a negative viewport without modulo or recentering
+  PASS large motif at a negative position needs 12 explicit copies beyond i=1
+  PASS rotated, oversized motif covers shifted rows
+  PASS odd half-drop counts parity analytically
+  PASS odd brick sorts numerically by i then j, not by generation row
+  PASS negative odd half-drop parity is floor-based
+  PASS preserves placement stacking before numeric copy ordering
+  PASS pins an active copy exactly once even outside the viewport
+  PASS preflights huge counts and unsafe ranges without entering copy loops
+  PASS allows 2000 copies, refuses the 2001st pinned copy
+  PASS validates all placements before any copy enumeration
+
+commit validation
+  PASS rejects invalid cell size 0
+  PASS rejects invalid cell size -1
+  PASS rejects invalid cell size 1.5
+  PASS rejects invalid cell size NaN
+  PASS rejects invalid cell size Infinity
+  PASS rejects invalid cell size 4097
+  PASS checks doubled export bounds and positive scale
+
+Node-only replay (NOT Vitest): 25 passed; 0 failed.
+
+screen vs model vs copy coordinates
+  PASS inverts pan/zoom only for raw pointers
+  PASS straight subtracts translation from already-model-parent node coordinates
+  PASS half-drop subtracts translation from already-model-parent node coordinates
+  PASS brick subtracts translation from already-model-parent node coordinates
+  PASS maps centered origin and both flip flags to shared image props
+  PASS pointer-centered zoom keeps (150, 100) beneath screen (350, 170)
+
+placement documents
+  PASS mode/cell changes keep exact transforms including negative centers and flips
+  PASS duplicates share an asset but have independent transforms; order is the stack
+  PASS clears a stale selection after delete or undo of insertion
+
+Node-only replay (NOT Vitest): 9 passed; 0 failed.
+
+50-entry snapshot history
+  PASS makes one history entry for 100 gesture frames
+  PASS keeps exactly the last 50 snapshots
+  PASS new committed edit clears redo, selection/camera never enter document snapshots
+  PASS no-op commits/gestures preserve redo
+  PASS cancel restores the baseline without recording or clearing redo
+  PASS does not record a preview outside a transaction or alias mutable history
+
+Node-only replay (NOT Vitest): 6 passed; 0 failed.
+
+PNG pre-decode validation and shared fixtures
+  PASS coral-stem.png has its hand-specified size and RGBA format
+  PASS sage-sprig.png has its hand-specified size and RGBA format
+  PASS ochre-petal.png has its hand-specified size and RGBA format
+  PASS rejects a renamed non-PNG before decoding
+  PASS rejects invalid or excessive dimensions before decoding/allocation
+
+Node-only replay (NOT Vitest): 5 passed; 0 failed.
