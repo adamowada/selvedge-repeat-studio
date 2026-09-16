@@ -32,11 +32,11 @@ Shortcuts apply only inside the workspace, not form fields. Mod means Ctrl on Wi
 | Delete | Delete placement |
 | Space + drag | Pan |
 
-Each continuous gesture records one undo step. History retains 50 snapshots; new edits clear redo. Camera, selection and source images are separate from document history.
+Each continuous gesture records one undo step. History retains 50 snapshots; new edits clear redo. Source removal is also undoable, restoring the source and all its placements together. Imports, camera and selection do not create history steps.
 
 ## Save and resume
 
-**Save project** downloads an editable `.selvedge` file containing the pattern settings, exact placement transforms and stacking order, and every original PNG (including unused sources). **Open project** restores it without needing the original files. Saving downloads a new copy; it does not overwrite the file you opened. Export PNG remains the separate, flattened output.
+**Save project** downloads an editable `.selvedge` file containing the pattern settings, exact placement transforms and stacking order, and every active original PNG (including unused sources). Removed sources retained only for undo/redo are omitted, along with their placements; history is never saved. **Open project** restores it without needing the original files. Saving downloads a new copy; it does not overwrite the file you opened. Export PNG remains the separate, flattened output.
 
 The header marks unsaved changes, and opening another project asks before discarding them. Files are fully validated and decoded before replacing the current session; a failed open leaves your pattern intact. Opening fits the view and starts fresh undo history with no selection or export proof. There is no autosave; keep the downloaded file to resume later.
 
@@ -46,7 +46,7 @@ The version-1 format is a standard ZIP with `project.json` and `assets/<index>.p
 
 PNG sources and output sides are limited to 4096 pixels. A session can retain at most 64 sources, 32 × 1024² decoded pixels (128 MiB of raw RGBA pixels), and 64 MiB of source PNG bytes. Browser overhead and temporary export surfaces use additional memory. Concurrent imports share the same budget; failed decodes release their reservation.
 
-Each source has a labeled **Remove** button beneath its thumbnail. Confirm the prompt to remove an unused PNG from this session; the original file on disk is never deleted. Sources labeled **In use** or **Kept for undo / redo** cannot be removed until those references expire. Removal releases the image URL and budget. Session teardown releases remaining sources.
+Each source has a trash icon beside its thumbnail. It expands an inline confirmation showing how many placements will be removed. Cancel or Escape leaves everything unchanged; Remove hides the source and removes its placements as one undoable edit. Original files on disk are never deleted. PNG bytes remain in memory only while the current document or undo/redo history needs them, then their URL and budget are released. History-only sources still count toward the session limits; saving and reopening releases them immediately. Session teardown releases all remaining sources.
 
 Each render allows at most 2000 motif copies, checked before allocation; excess is rejected, never silently truncated. Dense views attempt center-preserving camera recovery. Export independently validates its full rectangle. Sparse upscaled images skip transparent margins while retaining their full selection bounds; downscaled images retain native sampling.
 

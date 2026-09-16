@@ -19,6 +19,8 @@ export interface Placement {
   flipY: boolean;
 }
 export interface RepeatDocument {
+  // Session visibility is undoable; project files use their assets list instead.
+  sourceIds?: string[];
   W: number;
   H: number;
   mode: Mode;

@@ -52,7 +52,8 @@ for (const gesture of ['nudge', 'drag'] as const) {
     release();
     await expect(page.getByTestId('asset-card')).toHaveCount(4);
     await expect(page.getByRole('alert')).toContainText('Demo images are ready');
-    expect((await state(page)).doc).toEqual(during.doc);
+    const loaded = await state(page);
+    expect(loaded.doc).toEqual({ ...during.doc, sourceIds: loaded.assets.map(asset => asset.id) });
     expect((await state(page)).gesturing).toBe(true);
     if (gesture === 'nudge') await page.keyboard.up('ArrowRight'); else await page.mouse.up();
     await expect.poll(async () => (await state(page)).gesturing).toBe(false);

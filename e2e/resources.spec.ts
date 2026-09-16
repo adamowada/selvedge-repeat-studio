@@ -1,7 +1,25 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 
-test('import limit is shared across batches; removing unused sources restores capacity', async ({ page }) => {
+test('source confirmation stays fully visible at the minimum window size', async ({ page }) => {
+  await page.setViewportSize({ width: 900, height: 540 });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Add demo', exact: true }).click();
+  await expect(page.getByTestId('asset-card')).toHaveCount(3);
+  const remove = page.getByRole('button', { name: 'Remove source coral-stem', exact: true });
+  await remove.click();
+  const confirmation = page.getByRole('group', { name: 'Confirm removal of coral-stem', exact: true });
+  const bounds = (await confirmation.boundingBox())!;
+  const scrollArea = (await page.locator('.source-content').boundingBox())!;
+  expect(bounds.y).toBeGreaterThanOrEqual(scrollArea.y);
+  expect(bounds.y + bounds.height).toBeLessThanOrEqual(scrollArea.y + scrollArea.height);
+  expect(bounds.x + bounds.width).toBeLessThanOrEqual(scrollArea.x + scrollArea.width);
+  await expect(confirmation.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(remove).toBeFocused();
+});
+
+test('inline source removal supports cancellation and undo; history expiry restores import capacity', async ({ page }) => {
   await page.goto('/');
   const buffer = readFileSync('public/demo/ochre-petal.png');
   await page.getByTestId('png-input').setInputFiles(Array.from({ length: 64 }, (_, i) => ({ name: `${i}.png`, mimeType: 'image/png', buffer })));
@@ -9,28 +27,46 @@ test('import limit is shared across batches; removing unused sources restores ca
   await page.getByTestId('png-input').setInputFiles({ name: 'overflow.png', mimeType: 'image/png', buffer });
   await expect(page.getByRole('alert')).toContainText('Source limit reached');
   await expect(page.getByTestId('asset-card')).toHaveCount(64);
+  const sourceUrl = (await page.getByRole('button', { name: 'Place 0', exact: true }).locator('img').getAttribute('src'))!;
+  const sourceReadable = () => page.evaluate(async url => {
+    try { return (await fetch(url)).ok; } catch { return false; }
+  }, sourceUrl);
   const remove = page.getByRole('button', { name: 'Remove source 0', exact: true });
-  await expect(remove).toHaveText('Remove');
-  page.once('dialog', async dialog => {
-    expect(dialog.type()).toBe('confirm');
-    expect(dialog.message()).toContain('Remove “0”');
-    expect(dialog.message()).toContain('original PNG file on disk will not be deleted');
-    await dialog.dismiss();
-  });
+  await expect(remove).toHaveText('');
   await remove.click();
+  const confirmation = page.getByRole('group', { name: 'Confirm removal of 0', exact: true });
+  await expect(confirmation).toContainText('You can undo this');
+  await expect(confirmation.getByRole('button', { name: 'Cancel', exact: true })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(confirmation).toHaveCount(0); await expect(remove).toBeFocused();
   await expect(page.getByTestId('asset-card')).toHaveCount(64);
-  page.once('dialog', dialog => dialog.accept());
-  await remove.focus();
   await remove.press('Enter');
+  await confirmation.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await remove.click();
+  await confirmation.getByRole('button', { name: 'Remove', exact: true }).click();
   await expect(page.getByTestId('asset-card')).toHaveCount(63);
+  await page.keyboard.press('Control+z');
+  await expect(page.getByTestId('asset-card')).toHaveCount(64);
+  await page.keyboard.press('Control+Shift+z');
+  await expect(page.getByTestId('asset-card')).toHaveCount(63);
+  // Bytes still support undo; removal must not evade the session memory budget.
+  await page.getByTestId('png-input').setInputFiles({ name: 'too-soon.png', mimeType: 'image/png', buffer });
+  await expect(page.getByTestId('asset-card')).toHaveCount(63);
+  await expect(page.getByRole('alert')).toContainText('Removed sources still needed for undo');
+  await page.evaluate(() => { for (let i = 0; i < 49; i++) window.__studio!.setDocument({ ...window.__studio!.state().doc, W: 1001 + i }); });
+  expect(await sourceReadable()).toBe(true);
+  await page.getByTestId('png-input').setInputFiles({ name: 'still-too-soon.png', mimeType: 'image/png', buffer });
+  await expect(page.getByRole('alert')).toContainText('still-too-soon.png: Source limit reached');
+  await expect(page.getByTestId('asset-card')).toHaveCount(63);
+  await page.evaluate(() => window.__studio!.setDocument({ ...window.__studio!.state().doc, W: 1050 }));
+  // This exercises real disposal, not just thumbnail removal or a mocked callback.
+  await expect.poll(sourceReadable).toBe(false);
   await page.getByTestId('png-input').setInputFiles({ name: 'replacement.png', mimeType: 'image/png', buffer });
   await expect(page.getByTestId('asset-card')).toHaveCount(64);
   await page.getByRole('button', { name: 'Place replacement', exact: true }).click();
-  await expect(page.locator('.asset-row').filter({ has: page.getByRole('button', { name: 'Place replacement', exact: true }) })).toContainText('In use');
-  await expect(page.getByRole('button', { name: 'Remove source replacement', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Remove source replacement', exact: true })).toBeEnabled();
   await page.getByRole('button', { name: 'Delete', exact: true }).click();
-  await expect(page.locator('.asset-row').filter({ has: page.getByRole('button', { name: 'Place replacement', exact: true }) })).toContainText('Kept for undo / redo');
-  await expect(page.getByRole('button', { name: 'Remove source replacement', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Remove source replacement', exact: true })).toBeEnabled();
   await page.getByRole('button', { name: 'Undo', exact: true }).click();
   await expect(page.getByTestId('placement-item')).toHaveCount(1);
 });

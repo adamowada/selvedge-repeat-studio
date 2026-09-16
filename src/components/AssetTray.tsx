@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { NamedAsset, Placement } from '../core/types';
 import { flipLabel } from '../ui/presentation';
 import { Icon } from './Icon';
@@ -14,12 +14,15 @@ interface Props {
   onInsert: (asset: NamedAsset) => void;
   onSelect: (id: string) => void;
   clearErrors: () => void;
-  retainedAssets: ReadonlySet<string>;
-  onRemove: (id: string) => void;
+  onRemove: (id: string) => boolean;
 }
-export function AssetTray({ assets, placements, selected, loading, busy, errors, onFiles, onInsert, onSelect, clearErrors, retainedAssets, onRemove }: Props) {
+export function AssetTray({ assets, placements, selected, loading, busy, errors, onFiles, onInsert, onSelect, clearErrors, onRemove }: Props) {
   const input = useRef<HTMLInputElement>(null);
+  const removeButton = useRef<HTMLButtonElement>(null);
+  const [removing, setRemoving] = useState<string | null>(null);
   const [over, setOver] = useState(false);
+  useEffect(() => { if (busy) setRemoving(null); }, [busy]);
+  const cancelRemoval = () => { removeButton.current?.focus(); setRemoving(null); };
   const compact = assets.length > 0;
   return <aside className="asset-sidebar" aria-label="Sources and placements">
     <section className="asset-section" aria-labelledby="sources-heading">
@@ -42,21 +45,27 @@ export function AssetTray({ assets, placements, selected, loading, busy, errors,
           <div className="import-error-list">{errors.map((error, i) => <p key={i}>{error}</p>)}</div>
         </div>}
         <div className="asset-list">
-          {assets.map(asset => <div className="asset-row" key={asset.id}><button className="asset-card" data-testid="asset-card" aria-label={`Place ${asset.name}`}
+          {assets.map(asset => {
+            const count = placements.filter(p => p.assetId === asset.id).length;
+            return <div className="asset-row" key={asset.id}><button className="asset-card" data-testid="asset-card" aria-label={`Place ${asset.name}`}
             title={`${asset.name} · ${asset.nativeW} × ${asset.nativeH} px`} disabled={busy} onClick={() => onInsert(asset)}>
             <span className="asset-thumbnail checker"><img src={asset.image.src} alt="" draggable={false} /></span>
             <span className="asset-text"><strong>{asset.name}</strong><span>{asset.nativeW} × {asset.nativeH} px</span></span>
-          </button><div className="asset-actions">
-            <span className="small-note" id={`source-status-${asset.id}`}>
-              {placements.some(p => p.assetId === asset.id) ? 'In use' : retainedAssets.has(asset.id) ? 'Kept for undo / redo' : 'Not placed'}
-            </span>
-            <button className="text-button remove-source" aria-label={`Remove source ${asset.name}`} aria-describedby={`source-status-${asset.id}`}
-              disabled={busy || retainedAssets.has(asset.id)}
-              title={retainedAssets.has(asset.id) ? 'Cannot remove a source referenced by placements or undo/redo history.' : 'Remove this PNG from the session'}
-              onClick={() => {
-                if (window.confirm(`Remove “${asset.name}” from Source images?\n\nThis cannot be undone. Your original PNG file on disk will not be deleted.`)) onRemove(asset.id);
-              }}><Icon name="trash" size={14} />Remove</button>
-          </div></div>)}
+          </button><button className="icon-button remove-source" aria-label={`Remove source ${asset.name}`} title="Remove source and its placements"
+            ref={removing === asset.id ? removeButton : undefined} disabled={busy} aria-expanded={removing === asset.id}
+            aria-controls={removing === asset.id ? `remove-confirm-${asset.id}` : undefined}
+            onClick={() => setRemoving(removing === asset.id ? null : asset.id)}><Icon name="trash" size={16} /></button>
+          {removing === asset.id && <div className="source-confirm" id={`remove-confirm-${asset.id}`} role="group" aria-label={`Confirm removal of ${asset.name}`}
+            ref={node => node?.scrollIntoView?.({ block: 'nearest' })}
+            onKeyDown={e => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); cancelRemoval(); } }}>
+            <p>Remove <strong>{asset.name}</strong>{count ? ` and its ${count} placement${count === 1 ? '' : 's'}` : ''}?</p>
+            <p className="small-note">You can undo this. The original PNG file stays on disk.</p>
+            <div className="source-confirm-actions">
+              <button autoFocus className="secondary" onClick={cancelRemoval}>Cancel</button>
+              <button className="confirm-remove" disabled={busy} onClick={() => { if (onRemove(asset.id)) setRemoving(null); }}>Remove</button>
+            </div>
+          </div>}
+          </div>; })}
           {!assets.length && <div className="empty-assets"><strong>No source images</strong><p>Drop PNGs above or add the demo.</p></div>}
         </div>
       </div>

@@ -44,9 +44,11 @@ export function validateDocument(doc: RepeatDocument, assets: ReadonlyMap<string
   }
   if (doc.background !== null && !/^#[0-9a-f]{6}$/i.test(doc.background)) throw new Error('Choose a valid background color.');
   const ids = new Set<string>();
+  const sources = doc.sourceIds && new Set(doc.sourceIds);
   for (const p of doc.placements) {
     const a = assets.get(p.assetId);
     if (!a) throw new Error('A placement has no source image.');
+    if (sources && !sources.has(p.assetId)) throw new Error('A placement has no active source image.');
     if (a.nativeW < 1 || a.nativeH < 1 || a.nativeW > MAX_SIDE || a.nativeH > MAX_SIDE) throw new Error('Source image exceeds the pixel limit.');
     if (ids.has(p.id)) throw new Error('Placement IDs must be unique.');
     ids.add(p.id);

@@ -41,7 +41,7 @@ export async function importPng(file: File, budget = createImportBudget()): Prom
   const size = readPngSize(new Uint8Array(await file.slice(0, 24).arrayBuffer()));
   const pixels = size.width * size.height;
   if (budget.count >= MAX_ASSETS || budget.pixels + pixels > MAX_IMPORT_PIXELS || budget.bytes + file.size > MAX_IMPORT_BYTES) {
-    throw new Error('Source limit reached (64 images, 32 megapixels or 64 MiB of PNGs). Remove unused sources before importing more.');
+    throw new Error('Source limit reached (64 images, 32 megapixels or 64 MiB of PNGs). Removed sources still needed for undo count toward this limit. Save and reopen the project to release them.');
   }
   // Reserve synchronously before decode so concurrent imports share the limit.
   budget.count++; budget.pixels += pixels; budget.bytes += file.size;

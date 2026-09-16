@@ -6,7 +6,7 @@ import { MAX_SIDE, type AssetMap, type RepeatDocument } from './types';
 import { downloadBlob } from './download';
 
 export interface ExportResult { blob: Blob; width: number; height: number; fingerprint: string }
-export const documentFingerprint = (doc: RepeatDocument) => JSON.stringify(doc);
+export const documentFingerprint = (doc: RepeatDocument) => JSON.stringify({ ...doc, sourceIds: undefined });
 function canvasBlob(canvas: HTMLCanvasElement): Promise<Blob> {
   return new Promise((resolve, reject) => {
     canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('The browser could not encode a PNG.')), 'image/png');

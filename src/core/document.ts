@@ -1,4 +1,10 @@
-import type { CopyKey, Placement, RepeatDocument } from './types';
+import type { CopyKey, NamedAsset, Placement, RepeatDocument } from './types';
+
+export function activeAssets(doc: RepeatDocument, assets: NamedAsset[]) {
+  if (!doc.sourceIds) return assets;
+  const byId = new Map(assets.map(asset => [asset.id, asset]));
+  return doc.sourceIds.flatMap(id => { const asset = byId.get(id); return asset ? [asset] : []; });
+}
 
 export function changePlacement(doc: RepeatDocument, id: string, update: Partial<Placement>): RepeatDocument {
   return { ...doc, placements: doc.placements.map(p => p.id === id ? { ...p, ...update, id: p.id, assetId: p.assetId } : p) };

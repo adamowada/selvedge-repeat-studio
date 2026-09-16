@@ -54,7 +54,7 @@ export default function App() {
     <main className="studio-layout">
       <AssetTray assets={s.assets} placements={doc.placements} selected={s.selection?.id} loading={!!s.loading || s.projectBusy} busy={busy}
         errors={s.importErrors} onFiles={files => void s.onFiles(files)} onInsert={s.insert} onSelect={s.selectPlacement}
-        retainedAssets={s.retainedAssets} onRemove={s.removeAsset}
+        onRemove={id => { const removed = s.removeAsset(id); if (removed) focusWorkspace(); return removed; }}
         clearErrors={() => s.setImportErrors([])} />
       <Workspace doc={doc} assets={s.assetMap} camera={s.camera} selection={s.selection} selectedName={selectedAsset?.name}
         pin={s.pin} size={s.size} busy={busy} error={s.error} focusRef={s.focusRef} inspect={inspect}

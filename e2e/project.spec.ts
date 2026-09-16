@@ -85,3 +85,45 @@ test('canceling replacement or opening a corrupt project preserves current work,
     await expect(page.getByTestId('proof-status')).toContainText('dimensions verified');
   }
 });
+
+test('removing a placed source is undoable but its PNG and placements are omitted from saved projects', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Add demo', exact: true }).click();
+  await expect(page.getByTestId('asset-card')).toHaveCount(3);
+  await page.getByRole('button', { name: 'Place coral-stem', exact: true }).click();
+  await page.keyboard.press('Control+d');
+  const before = await state(page);
+  const originalPixels = await page.evaluate(() => window.__studio!.reference(1000, 1000));
+  const removedId = before.assets.find(a => a.name === 'coral-stem')!.id;
+  const trigger = page.getByRole('button', { name: 'Remove source coral-stem', exact: true });
+  await expect(trigger).toBeEnabled();
+  await trigger.click();
+  const confirmation = page.getByRole('group', { name: 'Confirm removal of coral-stem', exact: true });
+  await expect(confirmation).toContainText('3 placements');
+  await confirmation.getByRole('button', { name: 'Cancel', exact: true }).click();
+  expect(await state(page)).toEqual(before);
+  await trigger.click();
+  await confirmation.getByRole('button', { name: 'Remove', exact: true }).click();
+  await expect(page.getByTestId('asset-card')).toHaveCount(2);
+  await expect(page.getByTestId('placement-item')).toHaveCount(2);
+  expect((await state(page)).past).toBe(before.past + 1);
+  const file = await save(page);
+  const entries = unzipSync(file.buffer), metadata = JSON.parse(strFromU8(entries['project.json']));
+  expect(metadata.assets).toHaveLength(2);
+  expect(metadata.assets.some((a: { id: string }) => a.id === removedId)).toBe(false);
+  expect(Object.keys(entries).filter(name => name.endsWith('.png'))).toHaveLength(2);
+  expect(metadata.document.placements.some((p: { assetId: string }) => p.assetId === removedId)).toBe(false);
+  expect(metadata.document).not.toHaveProperty('sourceIds');
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  expect((await state(page)).doc).toEqual(before.doc);
+  expect((await state(page)).assets).toEqual(before.assets);
+  expect(await page.evaluate(() => window.__studio!.reference(1000, 1000))).toEqual(originalPixels);
+  await expect(page.locator('.session-note')).toContainText('Unsaved changes');
+  await page.getByRole('button', { name: 'Redo', exact: true }).click();
+  await expect(page.locator('.session-note')).toContainText('No unsaved changes');
+  await page.getByTestId('project-input').setInputFiles(file);
+  await expect(page.getByRole('button', { name: 'Undo', exact: true })).toBeDisabled();
+  await expect(page.getByTestId('asset-card')).toHaveCount(2);
+  await expect(page.getByTestId('placement-item')).toHaveCount(2);
+  await expect(trigger).toHaveCount(0);
+});

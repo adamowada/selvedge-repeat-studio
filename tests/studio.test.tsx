@@ -53,24 +53,86 @@ it('keyboard transforms validate, preserve unrelated current fields, and undo/re
   expect(studio.history.present.placements[0].s).toBe(.7);
 });
 
-it('removes unused assets but retains sources reachable from undo/redo history', async () => {
+it('removes a source and all its placements in one undo step, retaining bytes until history expires', async () => {
+  await importAndInsert();
+  act(() => studio.action('duplicate'));
+  const before = studio.history.present, past = studio.history.past.length;
+  act(() => { expect(studio.removeAsset(asset.id)).toBe(true); });
+  expect(studio.assets).toHaveLength(0); expect(studio.history.present.placements).toHaveLength(0);
+  expect(studio.selection).toBeNull(); expect(studio.history.past).toHaveLength(past + 1);
+  expect(studio.assetsRef.current).toEqual([asset]); expect(releaseAssets).not.toHaveBeenCalled();
+  act(() => studio.action('undo'));
+  expect(studio.history.present).toEqual(before); expect(studio.assets).toEqual([asset]);
+  act(() => studio.action('redo'));
+  expect(studio.assets).toHaveLength(0);
+  act(() => { for (let i = 0; i < 49; i++) studio.commitSettings({ W: 500 + i }); });
+  expect(studio.history.past).toHaveLength(50);
+  expect(studio.assetsRef.current).toEqual([asset]); expect(releaseAssets).not.toHaveBeenCalled();
+  // Deletion is still the oldest of the 50 undoable actions.
+  act(() => { for (let i = 0; i < 50; i++) studio.action('undo'); });
+  expect(studio.history.present).toEqual(before); expect(studio.assets).toEqual([asset]);
+  act(() => { for (let i = 0; i < 50; i++) studio.action('redo'); });
+  expect(studio.assets).toHaveLength(0); expect(releaseAssets).not.toHaveBeenCalled();
+  // No-op and rejected edits must not evict the last restoring snapshot.
+  act(() => { studio.commitSettings({ W: 548 }); studio.commitSettings({ W: 0 }); });
+  expect(studio.assetsRef.current).toEqual([asset]); expect(releaseAssets).not.toHaveBeenCalled();
+  act(() => { expect(studio.commitSettings({ W: 549 })).toBe(true); });
+  expect(studio.assetsRef.current).toHaveLength(0);
+  expect(releaseAssets).toHaveBeenCalledExactlyOnceWith([asset]);
+  act(() => { for (let i = 0; i < 50; i++) studio.action('undo'); });
+  expect(studio.assets).toHaveLength(0); expect(studio.history.present.placements).toHaveLength(0);
+  act(() => { for (let i = 0; i < 50; i++) studio.action('redo'); });
+  expect(releaseAssets).toHaveBeenCalledExactlyOnceWith([asset]);
+});
+
+it('retains a source referenced only by redo and releases it when a new edit discards redo', async () => {
+  await importAndInsert();
+  const original = studio.history.present;
+  act(() => studio.removeAsset(asset.id));
+  act(() => { for (let i = 0; i < 49; i++) studio.commitSettings({ W: 500 + i }); });
+  // Reusing a hidden source (as Demo does) evicts its last older snapshot.
+  act(() => { expect(studio.tryDocument({ ...original, W: 548 })).toBe(true); });
+  act(() => studio.action('undo'));
+  expect(studio.history.past.every(doc => !doc.sourceIds?.includes(asset.id))).toBe(true);
+  expect(studio.assets).toHaveLength(0); expect(studio.assetsRef.current).toEqual([asset]);
+  expect(studio.history.future[0].sourceIds).toContain(asset.id);
+  expect(releaseAssets).not.toHaveBeenCalled();
+  act(() => studio.action('redo'));
+  expect(studio.assets).toEqual([asset]); expect(studio.history.present.placements).toEqual(original.placements);
+  act(() => studio.action('undo'));
+  act(() => studio.commitSettings({ H: 501 }));
+  expect(studio.history.future).toHaveLength(0); expect(studio.assetsRef.current).toHaveLength(0);
+  expect(releaseAssets).toHaveBeenCalledExactlyOnceWith([asset]);
+});
+
+it('never expires an active source, even when it has no placements and history rolls over', async () => {
+  await act(async () => studio.onFiles([new File([], 'motif.png')]));
+  act(() => { for (let i = 0; i < 51; i++) studio.commitSettings({ W: 500 + i }); });
+  expect(studio.assets).toEqual([asset]); expect(studio.assetsRef.current).toEqual([asset]);
+  expect(releaseAssets).not.toHaveBeenCalled();
+});
+
+it('unused source removal is undoable and a later import does not resurrect it or consume a gesture', async () => {
   await act(async () => studio.onFiles([new File([], 'motif.png')]));
   act(() => studio.removeAsset(asset.id));
   expect(studio.assets).toHaveLength(0);
-  expect(releaseAssets).toHaveBeenCalledWith([asset]);
-  await importAndInsert();
-  act(() => studio.action('delete'));
-  expect(studio.retainedAssets.has(asset.id)).toBe(true);
-  act(() => studio.removeAsset(asset.id));
-  expect(studio.assets).toHaveLength(1);
+  const other = { ...asset, id: 'other' };
+  vi.mocked(importBatch).mockResolvedValueOnce({ assets: [other], errors: [] });
+  await act(async () => studio.onFiles([new File([], 'other.png')]));
+  expect(studio.assets).toEqual([other]);
   act(() => studio.action('undo'));
-  expect(studio.history.present.placements[0].assetId).toBe(asset.id);
-  act(() => studio.selectPlacement(studio.history.present.placements[0].id));
-  act(() => studio.action('delete'));
-  act(() => { for (let i = 0; i < 51; i++) studio.commitSettings({ W: 500 + i }); });
-  expect(studio.retainedAssets.has(asset.id)).toBe(false);
-  act(() => studio.removeAsset(asset.id));
-  expect(studio.assets).toHaveLength(0);
+  expect(studio.assets).toEqual([asset, other]);
+  act(() => studio.insert(other));
+  act(() => studio.nudge(1, 0));
+  const baseline = studio.history.baseline!;
+  const third = { ...asset, id: 'third' };
+  vi.mocked(importBatch).mockResolvedValueOnce({ assets: [third], errors: [] });
+  await act(async () => studio.onFiles([new File([], 'third.png')]));
+  expect(studio.history.baseline!.placements).toEqual(baseline.placements);
+  act(() => studio.endNudge());
+  act(() => studio.action('undo'));
+  expect(studio.history.present.placements).toEqual(baseline.placements);
+  expect(studio.assets).toEqual([asset, other, third]);
 });
 
 it('locks document edits and source removal during export; download failure leaves the previous result', async () => {
@@ -144,7 +206,7 @@ it('wires the real app importer, source removal, placement inspector and verifie
   const remove = () => host.querySelector<HTMLButtonElement>('[aria-label="Remove source motif"]')!;
   expect(remove().disabled).toBe(false);
   act(() => host.querySelector<HTMLButtonElement>('[aria-label="Place motif"]')!.click());
-  expect(remove().disabled).toBe(true);
+  expect(remove().disabled).toBe(false);
   expect(host.querySelector('#selected-scale')).not.toBeNull();
   await act(async () => host.querySelector<HTMLButtonElement>('.export-panel-button')!.click());
   expect(host.textContent).toContain('Decoded PNG · dimensions verified');
@@ -176,7 +238,7 @@ it('project save/open tracks unsaved work, confirms replacement, locks edits and
   const doc = { ...INITIAL_DOCUMENT, W: 420, background: null };
   const sources = [{ ...asset, id: 'new' }];
   await act(async () => { finish({ doc, assets: sources, budget: { count: 1, pixels: 64, bytes: 24 } }); await pending; });
-  expect(studio.history).toEqual({ past: [], present: doc, future: [], baseline: null });
+  expect(studio.history).toEqual({ past: [], present: { ...doc, sourceIds: ['new'] }, future: [], baseline: null });
   expect(studio.assets).toEqual(sources); expect(releaseAssets).toHaveBeenCalledWith([asset]);
   expect(studio.selection).toBeNull(); expect(studio.result).toBeNull();
   expect(studio.projectName).toBe('next'); expect(studio.dirty).toBe(false); expect(studio.projectBusy).toBe(false);

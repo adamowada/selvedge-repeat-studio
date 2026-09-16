@@ -1,5 +1,6 @@
 import { strToU8, unzipSync, zipSync } from 'fflate';
 import { validateDocument } from './geometry';
+import { activeAssets } from './document';
 import { createImportBudget, importPng, MAX_ASSETS, MAX_IMPORT_BYTES, MAX_IMPORT_PIXELS, readPngSize, releaseAssets } from './png';
 import type { NamedAsset, Placement, RepeatDocument } from './types';
 
@@ -55,10 +56,11 @@ export function readProject(bytes: Uint8Array) {
 }
 
 export async function encodeProject(doc: RepeatDocument, assets: NamedAsset[]): Promise<Blob> {
+  assets = activeAssets(doc, assets);
   validateDocument(doc, new Map(assets.map(asset => [asset.id, asset])));
   const entries: Record<string, Uint8Array> = {};
   const sources = assets.map((asset, i) => ({ id: asset.id, name: asset.name, path: `assets/${i}.png` }));
-  entries['project.json'] = strToU8(JSON.stringify({ format: 'selvedge-repeat', version: 1, document: doc, assets: sources }));
+  entries['project.json'] = strToU8(JSON.stringify({ format: 'selvedge-repeat', version: 1, document: { ...doc, sourceIds: undefined }, assets: sources }));
   if (entries['project.json'].length > MAX_MANIFEST_BYTES) throw new Error('Project metadata exceeds the size limit.');
   for (let i = 0; i < assets.length; i++) {
     const response = await fetch(assets[i].image.src);
@@ -82,4 +84,4 @@ export async function decodeProject(file: File) {
 }
 
 export const projectFingerprint = (doc: RepeatDocument, assets: NamedAsset[]) =>
-  JSON.stringify([doc, assets.map(({ id, name }) => ({ id, name }))]);
+  JSON.stringify([{ ...doc, sourceIds: undefined }, activeAssets(doc, assets).map(({ id, name }) => ({ id, name }))]);

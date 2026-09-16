@@ -25,6 +25,11 @@ it('round-trips modes, exact transforms, stacking, names and original PNG bytes,
       expect(opened.sources.every(source => Buffer.from(source.bytes).equals(Buffer.from(bytes)))).toBe(true);
       expect(Object.keys(unzipSync(saved))).toEqual(['project.json', 'assets/0.png', 'assets/1.png']);
     }
+    const removed = { ...INITIAL_DOCUMENT, sourceIds: ['unused'] };
+    const saved = new Uint8Array(await (await encodeProject(removed, sources)).arrayBuffer());
+    expect(readProject(saved).sources.map(a => a.id)).toEqual(['unused']);
+    expect(readProject(saved).doc).not.toHaveProperty('sourceIds');
+    expect(Object.keys(unzipSync(saved))).toEqual(['project.json', 'assets/0.png']);
     const empty = await encodeProject(INITIAL_DOCUMENT, []);
     expect(readProject(new Uint8Array(await empty.arrayBuffer()))).toEqual({ doc: INITIAL_DOCUMENT, sources: [] });
   } finally { URL.revokeObjectURL(url); }

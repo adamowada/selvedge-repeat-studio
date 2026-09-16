@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type Konva from 'konva';
 import { navigateCamera, preflightCamera, recoverCamera } from '../core/camera';
-import { changePlacement, cleanSelection, reorderPlacement } from '../core/document';
+import { activeAssets, changePlacement, cleanSelection, reorderPlacement } from '../core/document';
 import { downloadPng, exportPng, type ExportResult } from '../core/export';
 import { CopyLimitError, enumerateCopies, validateDocument } from '../core/geometry';
 import { downloadBlob } from '../core/download';
@@ -13,8 +13,9 @@ import type { EditAction, Size } from '../components/Workspace';
 import { useHistory } from './useHistory';
 
 export function useStudio() {
-  const { history, ref: historyRef, send } = useHistory(INITIAL_DOCUMENT);
-  const [assets, setAssets] = useState<NamedAsset[]>([]);
+  const { history, ref: historyRef, send } = useHistory({ ...INITIAL_DOCUMENT, sourceIds: [] });
+  const [storedAssets, setAssets] = useState<NamedAsset[]>([]);
+  const assets = useMemo(() => activeAssets(history.present, storedAssets), [history.present, storedAssets]);
   const assetsRef = useRef<NamedAsset[]>([]);
   const importBudget = useRef(createImportBudget());
   const assetMap = useMemo(() => new Map(assets.map(a => [a.id, a])), [assets]);
@@ -77,6 +78,7 @@ export function useStudio() {
       // An unrelated commit must not consume a live drag/resize/nudge baseline.
       if (!preview && historyRef.current.baseline !== null) return false;
       if (preview && historyRef.current.baseline === null) return false;
+      next = { ...next, sourceIds: next.sourceIds ?? historyRef.current.present.sourceIds };
       validateDocument(next, currentAssets());
       checkView(next, cameraRef.current);
       send({ type: preview ? 'preview' : 'commit', value: next });
@@ -87,16 +89,16 @@ export function useStudio() {
     tryDocument({ ...historyRef.current.present, ...patch });
   const commitTransform = (id: string, patch: Partial<Pick<Placement, 's' | 'deg'>>) =>
     tryDocument(changePlacement(historyRef.current.present, id, patch));
-  const retainedAssets = useMemo(() => new Set([
-    ...history.past, history.present, ...history.future, ...(history.baseline ? [history.baseline] : []),
-  ].flatMap(doc => doc.placements.map(p => p.assetId))), [history]);
   const removeAsset = (id: string) => {
-    const h = historyRef.current;
-    if (operationRef.current || h.baseline || [...h.past, h.present, ...h.future].some(doc => doc.placements.some(p => p.assetId === id))) return;
-    releaseAssets(assetsRef.current.filter(a => a.id === id));
-    assetsRef.current = assetsRef.current.filter(a => a.id !== id);
-    for (const [name, assetId] of demoIds.current) if (assetId === id) demoIds.current.delete(name);
-    setAssets(assetsRef.current);
+    const { present: doc, baseline } = historyRef.current;
+    if (operationRef.current || baseline || !doc.sourceIds?.includes(id)) return false;
+    // Removing sources can only reduce scene density, so allow it even when
+    // the current camera is over budget. One snapshot restores both lists.
+    send({ type: 'commit', value: { ...doc, sourceIds: doc.sourceIds.filter(source => source !== id),
+      placements: doc.placements.filter(p => p.assetId !== id) } });
+    setSelection(cleanSelection(historyRef.current.present, selectionRef.current));
+    recoverView(cameraRef.current);
+    return true;
   };
   const selectCopy = (copy: CopyKey | null) => {
     if (pinRef.current || operationRef.current) return;
@@ -121,8 +123,12 @@ export function useStudio() {
   const fit = () => recoverView(fitCamera(historyRef.current.present, sizeRef.current.width, sizeRef.current.height));
   const addAssets = (added: NamedAsset[]) => {
     if (!mounted.current) { releaseAssets(added); return; }
+    if (!added.length) return;
     assetsRef.current = [...assetsRef.current, ...added];
     setAssets(assetsRef.current);
+    // Imports remain outside undo history, including a pending gesture. Only
+    // explicit removal changes visibility as an undoable edit.
+    send({ type: 'map', update: doc => ({ ...doc, sourceIds: [...(doc.sourceIds ?? []), ...added.map(a => a.id)] }) });
   };
   const onFiles = async (files: File[]) => {
     if (!files.length || operationRef.current === 'open' || operationRef.current === 'save') return;
@@ -136,7 +142,7 @@ export function useStudio() {
     finally { pendingImports.current--; if (mounted.current) setLoading(n => n - 1); }
   };
   const insert = (asset: NamedAsset) => {
-    if (historyRef.current.baseline || operationRef.current) return;
+    if (historyRef.current.baseline || operationRef.current || !historyRef.current.present.sourceIds?.includes(asset.id)) return;
     const doc = historyRef.current.present;
     const viewport = sizeRef.current;
     const center = screenToModel({ x: viewport.width / 2, y: viewport.height / 2 }, cameraRef.current);
@@ -172,7 +178,8 @@ export function useStudio() {
         return [{ id: crypto.randomUUID(), assetId: id, x: positions[i][0] * doc.W, y: positions[i][1] * doc.H,
           s: Math.min(1, doc.W * .4 / a.nativeW, doc.H * .4 / a.nativeH), deg: positions[i][2], flipX: false, flipY: false }];
       });
-      if (tryDocument({ ...doc, placements: [...doc.placements, ...added] })) { setSelection(null); fit(); }
+      const sourceIds = [...new Set([...(doc.sourceIds ?? []), ...added.map(p => p.assetId)])];
+      if (tryDocument({ ...doc, sourceIds, placements: [...doc.placements, ...added] })) { setSelection(null); fit(); }
       focusRef.current?.focus();
     } catch (e) { if (mounted.current) setImportErrors(errors => [...errors, message(e)]); }
     finally { demoLoading.current = false; if (mounted.current) setLoading(n => n - 1); }
@@ -289,7 +296,7 @@ export function useStudio() {
       // Ownership changes only after every source and document have validated.
       const previous = assetsRef.current;
       assetsRef.current = sources; importBudget.current = budget; setAssets(sources);
-      send({ type: 'reset', value: doc }); setSelection(null); storeCamera(nextCamera);
+      send({ type: 'reset', value: { ...doc, sourceIds: sources.map(a => a.id) } }); setSelection(null); storeCamera(nextCamera);
       demoIds.current.clear(); setImportErrors([]); setExportError(null); setResult(null); setError(viewError);
       setProjectName(file.name.replace(/\.selvedge$/i, '') || 'Untitled');
       setSavedSnapshot(projectFingerprint(doc, sources));
@@ -312,10 +319,21 @@ export function useStudio() {
     if (valid !== selectionRef.current) setSelection(valid);
   }, [history.present, setSelection]);
   useEffect(() => {
+    if (demoLoading.current) return;
+    const h = historyRef.current;
+    const retained = new Set([...h.past, h.present, ...h.future, ...(h.baseline ? [h.baseline] : [])].flatMap(doc => doc.sourceIds ?? []));
+    const expired = assetsRef.current.filter(asset => !retained.has(asset.id));
+    if (!expired.length) return;
+    releaseAssets(expired);
+    assetsRef.current = assetsRef.current.filter(asset => retained.has(asset.id));
+    for (const [name, id] of demoIds.current) if (!retained.has(id)) demoIds.current.delete(name);
+    setAssets(assetsRef.current);
+  }, [history, storedAssets, historyRef, loading]);
+  useEffect(() => {
     mounted.current = true;
     return () => { mounted.current = false; releaseAssets(assetsRef.current); };
   }, []);
   return { history, historyRef, assets, assetsRef, assetMap, selection, setSelection, pin, camera, size, error, setError, importErrors, setImportErrors, loading, exporting, exportError, result, focusRef, stageRef, projectBusy, projectName, dirty, saveProject, openProject,
-    tryDocument, commitSettings, commitTransform, retainedAssets, removeAsset, selectCopy, tryCamera, zoom, panBy, onSize, fit, onFiles, insert, addDemo, selectPlacement, begin, onNode, end, nudge, endNudge, action, doExport, onStage };
+    tryDocument, commitSettings, commitTransform, removeAsset, selectCopy, tryCamera, zoom, panBy, onSize, fit, onFiles, insert, addDemo, selectPlacement, begin, onNode, end, nudge, endNudge, action, doExport, onStage };
 }
 export type Studio = ReturnType<typeof useStudio>;
