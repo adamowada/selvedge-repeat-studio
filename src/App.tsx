@@ -60,7 +60,7 @@ export default function App() {
       <Workspace doc={doc} assets={s.assetMap} camera={s.camera} selection={s.selection} selectedName={selectedAsset?.name}
         pin={s.pin} size={s.size} busy={busy} error={s.error} focusRef={s.focusRef} inspect={inspect}
         demoBusy={!!s.loading || busy} onDemo={() => void s.addDemo()}
-        onSize={s.onSize} onZoom={s.zoom} onPan={s.panBy} onSelect={s.selectCopy} onBegin={s.begin} onNode={s.onNode}
+        onSize={s.onSize} onZoom={s.zoom} onPan={s.panBy} onSelect={s.selectCopy} onReorder={s.reorder} onBegin={s.begin} onNode={s.onNode}
         onEnd={s.end} onAction={s.action} onNudge={s.nudge} onNudgeEnd={s.endNudge} onFit={s.fit}
         clearError={() => s.setError(null)} onStage={s.onStage} />
       <OutputPanel doc={doc} selected={selected} asset={selectedAsset} result={s.result} busy={busy}

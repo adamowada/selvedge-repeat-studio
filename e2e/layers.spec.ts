@@ -35,6 +35,42 @@ test('drag layers changes canvas/export order and is one undo step without chang
   expect((await state(page)).doc).toEqual(before.doc);
 });
 
+test('clicking a placement then Alt+arrows reorders without nudging; undo, boundaries and input/gesture guards', async ({ page }) => {
+  await demo(page);
+  await row(page, 'coral-stem').click();
+  const workspace = page.getByTestId('workspace');
+  await expect(workspace).toBeFocused();
+  const before = await state(page), [coral, sage, ochre] = before.doc.placements;
+  // Use the actual focus left by clicking, not locator.press() or focus().
+  await page.keyboard.press('Alt+ArrowUp');
+  const reordered = { ...before.doc, placements: [sage, coral, ochre] };
+  expect((await state(page)).doc).toEqual(reordered);
+  expect((await state(page)).past).toBe(before.past + 1);
+  expect((await state(page)).selection).toEqual(before.selection);
+  await page.keyboard.press('Control+z');
+  expect((await state(page)).doc).toEqual(before.doc);
+  await page.keyboard.press('Control+Shift+z');
+  expect((await state(page)).doc).toEqual(reordered);
+  await page.keyboard.press('Alt+ArrowDown');
+  expect((await state(page)).doc).toEqual(before.doc);
+  const bottom = await state(page);
+  await page.keyboard.press('Alt+ArrowDown');
+  expect(await state(page)).toEqual(bottom); // Already bottommost: no history entry.
+  await page.getByLabel('Scale (%)', { exact: true }).focus();
+  await page.keyboard.press('Alt+ArrowUp');
+  expect(await state(page)).toEqual(bottom); // Inputs must not trigger workspace shortcuts.
+  await page.keyboard.press('Escape'); // Discard the number input's native ArrowUp draft.
+  await row(page, 'coral-stem').click();
+  await page.keyboard.down('ArrowRight');
+  const during = await state(page);
+  expect(during.gesturing).toBe(true);
+  await page.keyboard.press('Alt+ArrowUp');
+  expect(await state(page)).toEqual(during); // Do not consume an active nudge transaction.
+  await page.keyboard.up('ArrowRight');
+  await page.keyboard.press('Control+z');
+  expect((await state(page)).doc).toEqual(before.doc);
+});
+
 test('narrow sidebar supports keyboard reorder, no-op drops, and canceled drags', async ({ page }) => {
   await page.setViewportSize({ width: 900, height: 800 });
   await demo(page);

@@ -20,6 +20,7 @@ interface Props {
   focusRef: RefObject<HTMLDivElement | null>;
   onSize: (size: Size) => void; onZoom: (pointer: Point, factor: number) => boolean; onPan: (dx: number, dy: number) => boolean;
   onSelect: (copy: CopyKey | null) => void;
+  onReorder: (id: string, target: string, above: boolean) => boolean;
   onBegin: (copy: Copy) => boolean; onNode: (copy: Copy, node: Konva.Image) => void; onEnd: (copy?: CopyKey) => void;
   onAction: (action: EditAction) => void; onNudge: (dx: number, dy: number) => void; onNudgeEnd: () => void;
   onFit: () => void; clearError: () => void; onStage: (stage: Konva.Stage | null) => void;
@@ -106,6 +107,14 @@ export function Workspace(props: Props) {
         return;
       }
       if (e.key === 'Delete' && !mod && !e.altKey) { e.preventDefault(); heldArrows.current.clear(); props.onNudgeEnd(); if (!pin) props.onAction('delete'); return; }
+      if (e.altKey && !mod && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+        e.preventDefault();
+        if (busy || !selection) return;
+        const above = e.key === 'ArrowUp';
+        const target = doc.placements[doc.placements.findIndex(p => p.id === selection.id) + (above ? 1 : -1)];
+        if (target) props.onReorder(selection.id, target.id, above);
+        return;
+      }
       const delta = !mod && !e.altKey ? arrowDelta(e.key, e.shiftKey) : null;
       if (delta) {
         e.preventDefault();

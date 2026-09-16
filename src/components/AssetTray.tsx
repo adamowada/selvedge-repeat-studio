@@ -80,7 +80,7 @@ export function AssetTray({ assets, placements, selected, loading, busy, errors,
     </section>
     <section className="placement-section" aria-labelledby="placements-heading">
       <div className="section-heading"><h2 id="placements-heading">Placements</h2><span className="count">{placements.length}</span></div>
-      <p className="list-caption" id="placement-help">Topmost first · drag to reorder<br />Or focus a row and use Alt + ↑ / ↓</p>
+      <p className="list-caption" id="placement-help">Topmost first · drag to reorder<br />Select, then Alt + ↑ / ↓</p>
       <div className="placement-list" data-testid="placement-list">
         {[...placements].reverse().map(p => {
           const a = assets.find(a => a.id === p.assetId);
