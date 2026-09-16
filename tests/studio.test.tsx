@@ -53,6 +53,29 @@ it('keyboard transforms validate, preserve unrelated current fields, and undo/re
   expect(studio.history.present.placements[0].s).toBe(.7);
 });
 
+it('reorders layers without changing transforms or selection; one commit, no-op and gesture guards', async () => {
+  await importAndInsert();
+  act(() => { studio.action('duplicate'); studio.action('duplicate'); });
+  const before = studio.history.present, selection = studio.selection, past = studio.history.past.length;
+  const [a, b, c] = before.placements;
+  act(() => { expect(studio.reorder(a.id, b.id, true)).toBe(true); });
+  expect(studio.history.present).toEqual({ ...before, placements: [b, a, c] });
+  expect(studio.selection).toEqual(selection); expect(studio.history.past).toHaveLength(past + 1);
+  act(() => { studio.reorder(a.id, b.id, true); studio.reorder(a.id, a.id, false); studio.reorder(a.id, 'missing', true); });
+  expect(studio.history.past).toHaveLength(past + 1);
+  act(() => studio.action('undo'));
+  expect(studio.history.present).toEqual(before);
+  act(() => studio.action('redo'));
+  expect(studio.history.present.placements).toEqual([b, a, c]);
+  act(() => studio.reorder(c.id, b.id, false));
+  expect(studio.history.present.placements).toEqual([c, b, a]);
+  act(() => studio.nudge(1, 0));
+  const during = studio.history.present;
+  act(() => { expect(studio.reorder(c.id, a.id, true)).toBe(false); });
+  expect(studio.history.present).toEqual(during);
+  act(() => studio.endNudge());
+});
+
 it('removes a source and all its placements in one undo step, retaining bytes until history expires', async () => {
   await importAndInsert();
   act(() => studio.action('duplicate'));

@@ -9,11 +9,14 @@ export function activeAssets(doc: RepeatDocument, assets: NamedAsset[]) {
 export function changePlacement(doc: RepeatDocument, id: string, update: Partial<Placement>): RepeatDocument {
   return { ...doc, placements: doc.placements.map(p => p.id === id ? { ...p, ...update, id: p.id, assetId: p.assetId } : p) };
 }
-export function reorderPlacement(doc: RepeatDocument, id: string, direction: 'front' | 'back'): RepeatDocument {
+export function reorderPlacement(doc: RepeatDocument, id: string, direction: 'front' | 'back' | { target: string; above: boolean }): RepeatDocument {
   const p = doc.placements.find(p => p.id === id);
   if (!p) return doc;
   const rest = doc.placements.filter(p => p.id !== id);
-  return { ...doc, placements: direction === 'front' ? [...rest, p] : [p, ...rest] };
+  const index = typeof direction === 'string' ? (direction === 'front' ? rest.length : 0) : rest.findIndex(p => p.id === direction.target);
+  if (index < 0) return doc;
+  rest.splice(index + (typeof direction !== 'string' && direction.above ? 1 : 0), 0, p);
+  return { ...doc, placements: rest };
 }
 export function cleanSelection(doc: RepeatDocument, selection: CopyKey | null): CopyKey | null {
   return selection && doc.placements.some(p => p.id === selection.id) ? selection : null;

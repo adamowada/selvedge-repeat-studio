@@ -89,6 +89,8 @@ export function useStudio() {
     tryDocument({ ...historyRef.current.present, ...patch });
   const commitTransform = (id: string, patch: Partial<Pick<Placement, 's' | 'deg'>>) =>
     tryDocument(changePlacement(historyRef.current.present, id, patch));
+  const reorder = (id: string, target: string, above: boolean) =>
+    tryDocument(reorderPlacement(historyRef.current.present, id, { target, above }));
   const removeAsset = (id: string) => {
     const { present: doc, baseline } = historyRef.current;
     if (operationRef.current || baseline || !doc.sourceIds?.includes(id)) return false;
@@ -334,6 +336,6 @@ export function useStudio() {
     return () => { mounted.current = false; releaseAssets(assetsRef.current); };
   }, []);
   return { history, historyRef, assets, assetsRef, assetMap, selection, setSelection, pin, camera, size, error, setError, importErrors, setImportErrors, loading, exporting, exportError, result, focusRef, stageRef, projectBusy, projectName, dirty, saveProject, openProject,
-    tryDocument, commitSettings, commitTransform, removeAsset, selectCopy, tryCamera, zoom, panBy, onSize, fit, onFiles, insert, addDemo, selectPlacement, begin, onNode, end, nudge, endNudge, action, doExport, onStage };
+    tryDocument, commitSettings, commitTransform, reorder, removeAsset, selectCopy, tryCamera, zoom, panBy, onSize, fit, onFiles, insert, addDemo, selectPlacement, begin, onNode, end, nudge, endNudge, action, doExport, onStage };
 }
 export type Studio = ReturnType<typeof useStudio>;

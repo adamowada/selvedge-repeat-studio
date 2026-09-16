@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type DragEvent } from 'react';
 import type { NamedAsset, Placement } from '../core/types';
 import { flipLabel } from '../ui/presentation';
 import { Icon } from './Icon';
@@ -13,15 +13,23 @@ interface Props {
   onFiles: (files: File[]) => void;
   onInsert: (asset: NamedAsset) => void;
   onSelect: (id: string) => void;
+  onReorder: (id: string, target: string, above: boolean) => boolean;
   clearErrors: () => void;
   onRemove: (id: string) => boolean;
 }
-export function AssetTray({ assets, placements, selected, loading, busy, errors, onFiles, onInsert, onSelect, clearErrors, onRemove }: Props) {
+export function AssetTray({ assets, placements, selected, loading, busy, errors, onFiles, onInsert, onSelect, onReorder, clearErrors, onRemove }: Props) {
   const input = useRef<HTMLInputElement>(null);
   const removeButton = useRef<HTMLButtonElement>(null);
   const [removing, setRemoving] = useState<string | null>(null);
   const [over, setOver] = useState(false);
-  useEffect(() => { if (busy) setRemoving(null); }, [busy]);
+  const [dragging, setDragging] = useState<string | null>(null);
+  const [drop, setDrop] = useState<{ id: string; above: boolean } | null>(null);
+  const endDrag = () => { setDragging(null); setDrop(null); };
+  useEffect(() => { if (busy) { setRemoving(null); setDragging(null); setDrop(null); } }, [busy]);
+  const isAbove = (event: DragEvent<HTMLButtonElement>) => {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    return event.clientY < bounds.top + bounds.height / 2;
+  };
   const cancelRemoval = () => { removeButton.current?.focus(); setRemoving(null); };
   const compact = assets.length > 0;
   return <aside className="asset-sidebar" aria-label="Sources and placements">
@@ -72,15 +80,42 @@ export function AssetTray({ assets, placements, selected, loading, busy, errors,
     </section>
     <section className="placement-section" aria-labelledby="placements-heading">
       <div className="section-heading"><h2 id="placements-heading">Placements</h2><span className="count">{placements.length}</span></div>
-      <p className="list-caption">Topmost first · select obscured items here</p>
+      <p className="list-caption" id="placement-help">Topmost first · drag to reorder<br />Or focus a row and use Alt + ↑ / ↓</p>
       <div className="placement-list" data-testid="placement-list">
         {[...placements].reverse().map(p => {
           const a = assets.find(a => a.id === p.assetId);
-          return <button key={p.id} className={`placement-item ${selected === p.id ? 'selected' : ''}`} data-testid="placement-item"
-            aria-pressed={selected === p.id} title={`${a?.name ?? 'Source image'} · ${flipLabel(p)}`} disabled={busy} onClick={() => onSelect(p.id)}>
+          return <button key={p.id} className={`placement-item ${selected === p.id ? 'selected' : ''} ${dragging === p.id ? 'dragging' : ''} ${drop?.id === p.id ? (drop.above ? 'drop-above' : 'drop-below') : ''}`} data-testid="placement-item"
+            aria-pressed={selected === p.id} aria-describedby="placement-help" aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
+            title={`${a?.name ?? 'Source image'} · ${flipLabel(p)} · Drag to reorder`} disabled={busy} onClick={() => onSelect(p.id)}
+            draggable={!busy && placements.length > 1}
+            onDragStart={e => {
+              e.dataTransfer.setData('application/x-selvedge-placement', p.id); e.dataTransfer.effectAllowed = 'move';
+              setDragging(p.id); e.currentTarget.focus({ preventScroll: true });
+            }}
+            onDragEnd={endDrag}
+            onDragOver={e => {
+              if (busy || !dragging || dragging === p.id) return;
+              e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDrop({ id: p.id, above: isAbove(e) });
+            }}
+            onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDrop(null); }}
+            onDrop={e => {
+              if (!dragging) return;
+              e.preventDefault(); e.stopPropagation();
+              if (!busy) onReorder(dragging, p.id, isAbove(e));
+              endDrag();
+            }}
+            onKeyDown={e => {
+              if (!e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+              e.preventDefault();
+              const above = e.key === 'ArrowUp';
+              const target = placements[placements.indexOf(p) + (above ? 1 : -1)];
+              if (target && !busy) onReorder(p.id, target.id, above);
+              e.currentTarget.scrollIntoView({ block: 'nearest' });
+            }}>
             <span className="placement-thumb checker">{a && <img src={a.image.src} alt="" draggable={false} />}</span>
             <span className="placement-title"><strong>{a?.name ?? 'Source image'}</strong>
               <small>{Math.round(p.s * 100)}% · {Math.round(p.deg)}°{p.flipX || p.flipY ? ` · ${flipLabel(p)}` : ''}</small></span>
+            <Icon name="grip" size={12} />
           </button>;
         })}
         {!placements.length && <p className="placement-empty">Click a source image to create a placement.</p>}

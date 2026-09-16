@@ -18,6 +18,7 @@ const paths = {
   check: 'm5 12 4 4L19 6',
   close: 'm6 6 12 12M6 18 18 6',
   grid: 'M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 0h7v7h-7z',
+  grip: 'M8 5h.01M16 5h.01M8 12h.01M16 12h.01M8 19h.01M16 19h.01',
 } as const;
 export type IconName = keyof typeof paths;
 export function Icon({ name, size = 18, style }: { name: IconName; size?: number; style?: CSSProperties }) {
