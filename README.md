@@ -21,6 +21,7 @@ Open http://127.0.0.1:5173. The server binds to loopback and requires port 5173.
 - Set cell dimensions, Straight/Half-drop/Brick mode and an opaque or transparent background. Invalid changes leave the document intact.
 - Scroll to zoom around the pointer; Space-drag pans. Fit recovers a valid view. Inspect hides editing guides.
 - Export PNG downloads a rectangular tile. Verification tiles that exact downloaded Blob and marks it out of date after edits. Use Basic/Straight repeat in other software: staggered layouts are already baked into the PNG.
+- The dashed Export area marks the exact PNG bounds: W × H for Straight, 2W × H for Half-drop, and W × 2H for Brick. It is a preview guide only and is not included in the exported image.
 
 Shortcuts apply only inside the workspace, not form fields. Mod means Ctrl on Windows/Linux or Cmd on macOS.
 

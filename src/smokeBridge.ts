@@ -23,6 +23,11 @@ export function makeSmokeBridge(read: () => Studio) {
       };
     }),
     anchor: (name: string) => read().stageRef.current?.findOne<Konva.Transformer>('Transformer')?.findOne(`.${name}`)?.getAbsolutePosition(),
+    exportArea: () => {
+      const rect = read().stageRef.current?.findOne<Konva.Rect>('.export-area');
+      return rect ? { x: rect.x(), y: rect.y(), width: rect.width(), height: rect.height(),
+        screen: rect.getClientRect({ skipStroke: true }), listening: rect.listening() } : null;
+    },
     exportBytes: async () => {
       const result = read().result;
       if (!result) throw new Error('No exported PNG.');

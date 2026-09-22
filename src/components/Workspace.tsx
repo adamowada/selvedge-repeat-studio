@@ -1,9 +1,9 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react';
-import { Group, Image as KonvaImage, Layer, Line, Rect, Stage, Text, Transformer } from 'react-konva/lib/ReactKonvaCore';
+import { Group, Image as KonvaImage, Layer, Rect, Stage, Text, Transformer } from 'react-konva/lib/ReactKonvaCore';
 import type Konva from 'konva';
 import '../core/konva';
 import { recoverCamera, renderViewBounds, type ViewSize } from '../core/camera';
-import { enumerateCopies, lattice } from '../core/geometry';
+import { enumerateCopies, outputSize } from '../core/geometry';
 import { fitCamera, imageProps } from '../core/transforms';
 import { MAX_COPIES, copyKey, type AssetMap, type Camera, type Copy, type CopyKey, type Point, type RepeatDocument } from '../core/types';
 import { arrowDelta, isFormField, releaseArrow } from '../ui/keyboard';
@@ -42,7 +42,7 @@ export function Workspace(props: Props) {
     } catch (error) { return { copies: [] as Copy[], error: error instanceof Error ? error.message : 'Cannot render this view.' }; }
   }, [doc, assets, camera, size, pin]);
   const placements = useMemo(() => new Map(doc.placements.map(p => [p.id, p])), [doc.placements]);
-  const { a, b } = lattice(doc.W, doc.H, doc.mode);
+  const exportSize = outputSize(doc);
   useLayoutEffect(() => {
     const node = selection ? nodes.current.get(copyKey(selection)) : undefined;
     const tr = transformer.current;
@@ -144,9 +144,9 @@ export function Workspace(props: Props) {
                 onTransformEnd={e => { props.onNode(copy, e.target as Konva.Image); props.onEnd(copy); }} />;
             })}
             {!inspect && <>
-              <Line points={[0, 0, a.x, a.y, a.x + b.x, a.y + b.y, b.x, b.y]} closed
+              <Rect name="export-area" x={0} y={0} width={exportSize.width} height={exportSize.height}
                 stroke={CANVAS_COLORS.outline} strokeWidth={1 / camera.z} dash={[5 / camera.z, 5 / camera.z]} opacity={.72} listening={false} />
-              <Text text="Origin cell" x={0} y={-19 / camera.z} fontFamily="Arial, sans-serif"
+              <Text text="Export area" x={0} y={-19 / camera.z} fontFamily="Arial, sans-serif"
                 fontSize={11 / camera.z} fill={CANVAS_COLORS.outline} listening={false} />
             </>}
             <Transformer ref={transformer} visible={!inspect && !space} listening={!busy || !!pin}
